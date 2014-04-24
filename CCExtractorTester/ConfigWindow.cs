@@ -6,14 +6,36 @@ namespace CCExtractorTester
 {
 	public partial class ConfigWindow : Gtk.Window
 	{
-		Configuration cm;
+		static Configuration cm = ConfigurationManager.OpenExeConfiguration (ConfigurationUserLevel.None);
 
 		public ConfigWindow () : 
 			base (Gtk.WindowType.Toplevel)
 		{
-			cm = ConfigurationManager.OpenExeConfiguration (ConfigurationUserLevel.None);
 			this.Build ();
 			this.InitComponents ();
+		}
+
+		public static bool IsAppConfigOK ()
+		{
+			return (
+				!String.IsNullOrEmpty (cm.AppSettings.Settings ["ReportFolder"].Value) &&
+				!String.IsNullOrEmpty (cm.AppSettings.Settings ["SampleFolder"].Value) &&
+				!String.IsNullOrEmpty (cm.AppSettings.Settings ["CorrectResultFolder"].Value) &&
+				!String.IsNullOrEmpty (cm.AppSettings.Settings ["CCExtractorLocation"].Value)
+			);			
+		}
+
+		static string GetAppSetting (string key)
+		{
+			String value = cm.AppSettings.Settings[key].Value;
+			if(String.IsNullOrEmpty(value)){
+				return "";
+			}
+			return value;
+		}
+
+		static void SetAppSetting(string key, string value){
+			cm.AppSettings.Settings[key].Value = value;
 		}
 
 		void InitComponents ()
@@ -25,22 +47,12 @@ namespace CCExtractorTester
 			this.txtDefault.Text = GetAppSetting ("DefaultTestFile");
 		}
 
-		string GetAppSetting (string key)
-		{
-			String value = cm.AppSettings.Settings[key].Value;
-			if(String.IsNullOrEmpty(value)){
-				return "";
-			}
-			return value;
-		}
-
-		void SetAppSetting(string key, string value){
-			cm.AppSettings.Settings[key].Value = value;
-		}
-
 		protected void OnBtnSaveClicked (object sender, EventArgs e)
 		{
 			cm.Save (ConfigurationSaveMode.Minimal);
+			if (IsAppConfigOK ()) {
+				this.Destroy ();
+			}
 		}
 
 		protected void SelectFileAndSave (bool isFile,Entry lbl,string key)
@@ -83,6 +95,12 @@ namespace CCExtractorTester
 		protected void OnBtnDefaultClicked (object sender, EventArgs e)
 		{
 			SelectFileAndSave (true,txtDefault,"DefaultTestFile");
+		}
+
+		protected void OnDeleteEvent (object sender, DeleteEventArgs a)
+		{
+			this.Destroy ();
+			a.RetVal = true;
 		}
 	}
 }

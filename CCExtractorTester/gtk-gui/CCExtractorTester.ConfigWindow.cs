@@ -243,6 +243,7 @@ namespace CCExtractorTester
 			this.DefaultWidth = 400;
 			this.DefaultHeight = 242;
 			this.Show ();
+			this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 			this.btnSample.Clicked += new global::System.EventHandler (this.OnBtnSampleClicked);
 			this.btnResult.Clicked += new global::System.EventHandler (this.OnBtnResultClicked);
 			this.btnReport.Clicked += new global::System.EventHandler (this.OnBtnReportClicked);

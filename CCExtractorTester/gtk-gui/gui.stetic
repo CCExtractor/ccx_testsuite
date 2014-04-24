@@ -7,7 +7,7 @@
     <widget-library name="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <widget-library name="../bin/Debug/CCExtractorTester.exe" internal="true" />
   </import>
-  <widget class="Gtk.Window" id="CCExtractorTester.MainWindow" design-size="481 300">
+  <widget class="Gtk.Window" id="CCExtractorTester.MainWindow" design-size="610 300">
     <action-group name="Default">
       <action id="FileAction">
         <property name="Type">Action</property>
@@ -19,15 +19,19 @@
         <property name="Label" translatable="yes">Open tests file</property>
         <property name="ShortLabel" translatable="yes">Open tests file</property>
       </action>
-      <action id="SaveTestsFileAction">
+      <action id="saveAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Save tests file</property>
         <property name="ShortLabel" translatable="yes">Save tests file</property>
+        <property name="StockId">gtk-save</property>
+        <signal name="Activated" handler="OnSaveActionActivated" />
       </action>
-      <action id="OpenTestsFileAction1">
+      <action id="openAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Open tests file</property>
         <property name="ShortLabel" translatable="yes">Open tests file</property>
+        <property name="StockId">gtk-open</property>
+        <signal name="Activated" handler="OnOpenActionActivated" />
       </action>
       <action id="ExitAction">
         <property name="Type">Action</property>
@@ -38,11 +42,32 @@
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Run tests</property>
         <property name="ShortLabel" translatable="yes">Run tests</property>
+        <signal name="Activated" handler="OnRunTestsActionActivated" />
       </action>
       <action id="ConfigureApplicationAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Configure application</property>
         <property name="ShortLabel" translatable="yes">Configure application</property>
+        <signal name="Activated" handler="OnConfigureApplicationActionActivated" />
+      </action>
+      <action id="preferencesAction">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes" />
+        <property name="StockId">gtk-preferences</property>
+      </action>
+      <action id="stopAction">
+        <property name="Type">Action</property>
+        <property name="Accelerator">&lt;Primary&gt;x</property>
+        <property name="Label" translatable="yes">Exit</property>
+        <property name="ShortLabel" translatable="yes">Exit</property>
+        <property name="StockId">gtk-stop</property>
+      </action>
+      <action id="quitAction">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Exit</property>
+        <property name="ShortLabel" translatable="yes">Exit</property>
+        <property name="StockId">gtk-quit</property>
+        <signal name="Activated" handler="OnQuitActionActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -58,12 +83,12 @@
             <property name="MemberName" />
             <node name="menubar1" type="Menubar">
               <node type="Menu" action="FileAction">
-                <node type="Menuitem" action="OpenTestsFileAction1" />
-                <node type="Menuitem" action="SaveTestsFileAction" />
-                <node type="Menuitem" action="ExitAction" />
+                <node type="Menuitem" action="openAction" />
+                <node type="Menuitem" action="saveAction" />
+                <node type="Menuitem" action="quitAction" />
               </node>
-              <node type="Menu" action="RunTestsAction" />
-              <node type="Menu" action="ConfigureApplicationAction" />
+              <node type="Menuitem" action="RunTestsAction" />
+              <node type="Menuitem" action="ConfigureApplicationAction" />
             </node>
           </widget>
           <packing>
@@ -120,6 +145,7 @@
     <property name="WindowPosition">CenterOnParent</property>
     <property name="Resizable">False</property>
     <property name="AllowShrink">True</property>
+    <signal name="DeleteEvent" handler="OnDeleteEvent" />
     <child>
       <widget class="Gtk.VBox" id="vbox3">
         <property name="MemberName" />

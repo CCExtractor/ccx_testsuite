@@ -7,11 +7,14 @@ namespace CCExtractorTester
 		private global::Gtk.UIManager UIManager;
 		private global::Gtk.Action FileAction;
 		private global::Gtk.Action OpenTestsFileAction;
-		private global::Gtk.Action SaveTestsFileAction;
-		private global::Gtk.Action OpenTestsFileAction1;
+		private global::Gtk.Action saveAction;
+		private global::Gtk.Action openAction;
 		private global::Gtk.Action ExitAction;
 		private global::Gtk.Action RunTestsAction;
 		private global::Gtk.Action ConfigureApplicationAction;
+		private global::Gtk.Action preferencesAction;
+		private global::Gtk.Action stopAction;
+		private global::Gtk.Action quitAction;
 		private global::Gtk.VBox vbox2;
 		private global::Gtk.MenuBar menubar1;
 		private global::Gtk.ScrolledWindow scrolledwindow2;
@@ -29,12 +32,12 @@ namespace CCExtractorTester
 			this.OpenTestsFileAction = new global::Gtk.Action ("OpenTestsFileAction", global::Mono.Unix.Catalog.GetString ("Open tests file"), null, null);
 			this.OpenTestsFileAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Open tests file");
 			w1.Add (this.OpenTestsFileAction, null);
-			this.SaveTestsFileAction = new global::Gtk.Action ("SaveTestsFileAction", global::Mono.Unix.Catalog.GetString ("Save tests file"), null, null);
-			this.SaveTestsFileAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Save tests file");
-			w1.Add (this.SaveTestsFileAction, null);
-			this.OpenTestsFileAction1 = new global::Gtk.Action ("OpenTestsFileAction1", global::Mono.Unix.Catalog.GetString ("Open tests file"), null, null);
-			this.OpenTestsFileAction1.ShortLabel = global::Mono.Unix.Catalog.GetString ("Open tests file");
-			w1.Add (this.OpenTestsFileAction1, null);
+			this.saveAction = new global::Gtk.Action ("saveAction", global::Mono.Unix.Catalog.GetString ("Save tests file"), null, "gtk-save");
+			this.saveAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Save tests file");
+			w1.Add (this.saveAction, null);
+			this.openAction = new global::Gtk.Action ("openAction", global::Mono.Unix.Catalog.GetString ("Open tests file"), null, "gtk-open");
+			this.openAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Open tests file");
+			w1.Add (this.openAction, null);
 			this.ExitAction = new global::Gtk.Action ("ExitAction", global::Mono.Unix.Catalog.GetString ("Exit"), null, null);
 			this.ExitAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Exit");
 			w1.Add (this.ExitAction, null);
@@ -44,6 +47,14 @@ namespace CCExtractorTester
 			this.ConfigureApplicationAction = new global::Gtk.Action ("ConfigureApplicationAction", global::Mono.Unix.Catalog.GetString ("Configure application"), null, null);
 			this.ConfigureApplicationAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Configure application");
 			w1.Add (this.ConfigureApplicationAction, null);
+			this.preferencesAction = new global::Gtk.Action ("preferencesAction", null, null, "gtk-preferences");
+			w1.Add (this.preferencesAction, null);
+			this.stopAction = new global::Gtk.Action ("stopAction", global::Mono.Unix.Catalog.GetString ("Exit"), null, "gtk-stop");
+			this.stopAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Exit");
+			w1.Add (this.stopAction, "<Primary>x");
+			this.quitAction = new global::Gtk.Action ("quitAction", global::Mono.Unix.Catalog.GetString ("Exit"), null, "gtk-quit");
+			this.quitAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Exit");
+			w1.Add (this.quitAction, null);
 			this.UIManager.InsertActionGroup (w1, 0);
 			this.AddAccelGroup (this.UIManager.AccelGroup);
 			this.Name = "CCExtractorTester.MainWindow";
@@ -54,7 +65,7 @@ namespace CCExtractorTester
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.UIManager.AddUiFromString (@"<ui><menubar name='menubar1'><menu name='FileAction' action='FileAction'><menuitem name='OpenTestsFileAction1' action='OpenTestsFileAction1'/><menuitem name='SaveTestsFileAction' action='SaveTestsFileAction'/><menuitem name='ExitAction' action='ExitAction'/></menu><menu name='RunTestsAction' action='RunTestsAction'/><menu name='ConfigureApplicationAction' action='ConfigureApplicationAction'/></menubar></ui>");
+			this.UIManager.AddUiFromString (@"<ui><menubar name='menubar1'><menu name='FileAction' action='FileAction'><menuitem name='openAction' action='openAction'/><menuitem name='saveAction' action='saveAction'/><menuitem name='quitAction' action='quitAction'/></menu><menuitem name='RunTestsAction' action='RunTestsAction'/><menuitem name='ConfigureApplicationAction' action='ConfigureApplicationAction'/></menubar></ui>");
 			this.menubar1 = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubar1")));
 			this.menubar1.Name = "menubar1";
 			this.vbox2.Add (this.menubar1);
@@ -83,10 +94,15 @@ namespace CCExtractorTester
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
-			this.DefaultWidth = 481;
+			this.DefaultWidth = 610;
 			this.DefaultHeight = 300;
 			this.Show ();
 			this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
+			this.saveAction.Activated += new global::System.EventHandler (this.OnSaveActionActivated);
+			this.openAction.Activated += new global::System.EventHandler (this.OnOpenActionActivated);
+			this.RunTestsAction.Activated += new global::System.EventHandler (this.OnRunTestsActionActivated);
+			this.ConfigureApplicationAction.Activated += new global::System.EventHandler (this.OnConfigureApplicationActionActivated);
+			this.quitAction.Activated += new global::System.EventHandler (this.OnQuitActionActivated);
 		}
 	}
 }
