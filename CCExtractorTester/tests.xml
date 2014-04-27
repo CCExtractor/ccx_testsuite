@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tests>
 	<test>
-		<sample></sample>
+		<sample>Correct\No XDS\presidential.address.to.congress-no-xds.ts</sample>
 		<cmd></cmd>
-		<result></result>
+		<result>presidential.address.to.congress.srt</result>
 	</test>
 </tests>
