@@ -17,7 +17,12 @@ namespace CCExtractorTester
 		private global::Gtk.Action quitAction;
 		private global::Gtk.VBox vbox2;
 		private global::Gtk.MenuBar menubar1;
+		private global::Gtk.HButtonBox hbuttonbox2;
+		private global::Gtk.Button btnAddRow;
+		private global::Gtk.Button btnEditRow;
+		private global::Gtk.Button btnRemoveRow;
 		private global::Gtk.ScrolledWindow scrolledwindow2;
+		private global::Gtk.TreeView tree;
 		private global::Gtk.Statusbar statusbar1;
 
 		protected virtual void Build ()
@@ -74,28 +79,73 @@ namespace CCExtractorTester
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbuttonbox2 = new global::Gtk.HButtonBox ();
+			this.hbuttonbox2.Name = "hbuttonbox2";
+			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
+			this.btnAddRow = new global::Gtk.Button ();
+			this.btnAddRow.CanFocus = true;
+			this.btnAddRow.Name = "btnAddRow";
+			this.btnAddRow.UseUnderline = true;
+			this.btnAddRow.Label = global::Mono.Unix.Catalog.GetString ("Add row");
+			this.hbuttonbox2.Add (this.btnAddRow);
+			global::Gtk.ButtonBox.ButtonBoxChild w3 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2 [this.btnAddRow]));
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
+			this.btnEditRow = new global::Gtk.Button ();
+			this.btnEditRow.CanFocus = true;
+			this.btnEditRow.Name = "btnEditRow";
+			this.btnEditRow.UseUnderline = true;
+			this.btnEditRow.Label = global::Mono.Unix.Catalog.GetString ("Edit row");
+			this.hbuttonbox2.Add (this.btnEditRow);
+			global::Gtk.ButtonBox.ButtonBoxChild w4 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2 [this.btnEditRow]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
+			this.btnRemoveRow = new global::Gtk.Button ();
+			this.btnRemoveRow.CanFocus = true;
+			this.btnRemoveRow.Name = "btnRemoveRow";
+			this.btnRemoveRow.UseUnderline = true;
+			this.btnRemoveRow.Label = global::Mono.Unix.Catalog.GetString ("Remove row");
+			this.hbuttonbox2.Add (this.btnRemoveRow);
+			global::Gtk.ButtonBox.ButtonBoxChild w5 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2 [this.btnRemoveRow]));
+			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.vbox2.Add (this.hbuttonbox2);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbuttonbox2]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.scrolledwindow2 = new global::Gtk.ScrolledWindow ();
 			this.scrolledwindow2.CanFocus = true;
 			this.scrolledwindow2.Name = "scrolledwindow2";
 			this.scrolledwindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindow2.Gtk.Container+ContainerChild
+			this.tree = new global::Gtk.TreeView ();
+			this.tree.CanFocus = true;
+			this.tree.Name = "tree";
+			this.scrolledwindow2.Add (this.tree);
 			this.vbox2.Add (this.scrolledwindow2);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.scrolledwindow2]));
-			w3.Position = 1;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.scrolledwindow2]));
+			w8.Position = 2;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.statusbar1 = new global::Gtk.Statusbar ();
 			this.statusbar1.Name = "statusbar1";
 			this.statusbar1.Spacing = 6;
 			this.vbox2.Add (this.statusbar1);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.statusbar1]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.statusbar1]));
+			w9.Position = 3;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.DefaultWidth = 610;
-			this.DefaultHeight = 300;
+			this.DefaultHeight = 460;
 			this.Show ();
 			this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 			this.saveAction.Activated += new global::System.EventHandler (this.OnSaveActionActivated);
@@ -103,6 +153,9 @@ namespace CCExtractorTester
 			this.RunTestsAction.Activated += new global::System.EventHandler (this.OnRunTestsActionActivated);
 			this.ConfigureApplicationAction.Activated += new global::System.EventHandler (this.OnConfigureApplicationActionActivated);
 			this.quitAction.Activated += new global::System.EventHandler (this.OnQuitActionActivated);
+			this.btnAddRow.Clicked += new global::System.EventHandler (this.OnBtnAddRowClicked);
+			this.btnEditRow.Clicked += new global::System.EventHandler (this.OnBtnEditRowClicked);
+			this.btnRemoveRow.Clicked += new global::System.EventHandler (this.OnBtnRemoveRowClicked);
 		}
 	}
 }
