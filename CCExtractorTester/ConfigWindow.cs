@@ -25,7 +25,7 @@ namespace CCExtractorTester
 			);			
 		}
 
-		static string GetAppSetting (string key)
+		public static string GetAppSetting (string key)
 		{
 			String value = cm.AppSettings.Settings[key].Value;
 			if(String.IsNullOrEmpty(value)){
@@ -34,7 +34,7 @@ namespace CCExtractorTester
 			return value;
 		}
 
-		static void SetAppSetting(string key, string value){
+		public static void SetAppSetting(string key, string value){
 			cm.AppSettings.Settings[key].Value = value;
 		}
 
