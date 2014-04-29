@@ -79,6 +79,8 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="AddEntryDialog.cs" />
+    <Compile Include="gtk-gui\CCExtractorTester.AddEntryDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
