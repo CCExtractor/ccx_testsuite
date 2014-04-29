@@ -21,8 +21,25 @@ namespace CCExtractorTester
 			}
 		}
 
-		public void SaveEntriesToXML(){
-			// TODO: finish
+		public void SaveEntriesToXML(string fileName){
+			XmlDocument doc = new XmlDocument ();
+			doc.LoadXml (@"<?xml version=""1.0"" encoding=""UTF-8""?><tests></tests>");
+			XmlNode root = doc.DocumentElement;
+			foreach (TestEntry te in Entries) {
+				XmlNode t = doc.CreateElement ("test");
+
+				XmlNode sample = doc.CreateElement ("sample");
+				sample.InnerText = te.TestFile;
+				t.AppendChild (sample);
+				XmlNode cmd = doc.CreateElement ("cmd");
+				cmd.InnerText = te.Command;
+				t.AppendChild (cmd);
+				XmlNode result = doc.CreateElement ("result");
+				result.InnerText = te.ResultFile;
+				t.AppendChild (result);
+				root.AppendChild (t);
+			}
+			doc.Save (fileName);
 		}
 
 		void loadAndParseXML (string xml)

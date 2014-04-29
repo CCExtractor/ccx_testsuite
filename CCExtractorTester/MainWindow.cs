@@ -92,7 +92,19 @@ namespace CCExtractorTester
 
 		protected void OnSaveActionActivated (object sender, EventArgs e)
 		{
-			// TODO: save file
+			using (FileChooserDialog filechooser =
+				new FileChooserDialog (
+					"Choose the test XML file to save the current entries in",
+					this,
+					FileChooserAction.Save,
+					"Cancel", ResponseType.Cancel,
+					"Select", ResponseType.Accept)
+			) {
+				if (filechooser.Run () == (int)ResponseType.Accept) {
+					TestClass.SaveEntriesToXML (filechooser.Filename);
+				}
+				filechooser.Destroy ();
+			}
 		}
 
 		protected void OnQuitActionActivated (object sender, EventArgs e)
@@ -111,12 +123,20 @@ namespace CCExtractorTester
 
 		protected void OnBtnEditRowClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			foreach (TreePath tp in tree.Selection.GetSelectedRows()) {
+				TreeIter iter;
+				tree.Model.GetIter (out iter, tp);			
+				AddEntryDialog aed = new AddEntryDialog ((string)Store.GetValue (iter, 0), (string)Store.GetValue (iter, 1), (string)Store.GetValue (iter, 2));
+				aed.Show ();
+			}
+			// TODO: finish
 		}
 
 		protected void OnBtnAddRowClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			AddEntryDialog aed = new AddEntryDialog ();
+			aed.Show ();
+			// TODO: finish
 		}
 
 		public FileFilter GetTestFilter ()
