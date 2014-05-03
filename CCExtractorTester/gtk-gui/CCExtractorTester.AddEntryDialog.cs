@@ -5,8 +5,8 @@ namespace CCExtractorTester
 	public partial class AddEntryDialog
 	{
 		private global::Gtk.Table table1;
-		private global::Gtk.Button btnSelectSample;
 		private global::Gtk.Button btnSelectResult;
+		private global::Gtk.Button btnSelectSample;
 		private global::Gtk.Label lblCmd;
 		private global::Gtk.Label lblResult;
 		private global::Gtk.Label lblSample;
@@ -33,27 +33,27 @@ namespace CCExtractorTester
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.btnSelectSample = new global::Gtk.Button ();
-			this.btnSelectSample.CanFocus = true;
-			this.btnSelectSample.Name = "bntSelect";
-			this.btnSelectSample.UseUnderline = true;
-			this.btnSelectSample.Label = global::Mono.Unix.Catalog.GetString ("Select file");
-			this.table1.Add (this.btnSelectSample);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1 [this.btnSelectSample]));
+			this.btnSelectResult = new global::Gtk.Button ();
+			this.btnSelectResult.CanFocus = true;
+			this.btnSelectResult.Name = "btnSelectResult";
+			this.btnSelectResult.UseUnderline = true;
+			this.btnSelectResult.Label = global::Mono.Unix.Catalog.GetString ("Select file");
+			this.table1.Add (this.btnSelectResult);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1 [this.btnSelectResult]));
+			w2.TopAttach = ((uint)(2));
+			w2.BottomAttach = ((uint)(3));
 			w2.LeftAttach = ((uint)(2));
 			w2.RightAttach = ((uint)(3));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.btnSelectResult = new global::Gtk.Button ();
-			this.btnSelectResult.CanFocus = true;
-			this.btnSelectResult.Name = "btnSelect";
-			this.btnSelectResult.UseUnderline = true;
-			this.btnSelectResult.Label = global::Mono.Unix.Catalog.GetString ("Select file");
-			this.table1.Add (this.btnSelectResult);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1 [this.btnSelectResult]));
-			w3.TopAttach = ((uint)(2));
-			w3.BottomAttach = ((uint)(3));
+			this.btnSelectSample = new global::Gtk.Button ();
+			this.btnSelectSample.CanFocus = true;
+			this.btnSelectSample.Name = "btnSelectSample";
+			this.btnSelectSample.UseUnderline = true;
+			this.btnSelectSample.Label = global::Mono.Unix.Catalog.GetString ("Select file");
+			this.table1.Add (this.btnSelectSample);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1 [this.btnSelectSample]));
 			w3.LeftAttach = ((uint)(2));
 			w3.RightAttach = ((uint)(3));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -165,8 +165,8 @@ namespace CCExtractorTester
 			this.DefaultWidth = 400;
 			this.DefaultHeight = 187;
 			this.Show ();
-			this.btnSelectResult.Clicked += new global::System.EventHandler (this.OnBtnSelectClicked);
 			this.btnSelectSample.Clicked += new global::System.EventHandler (this.OnBntSelectClicked);
+			this.btnSelectResult.Clicked += new global::System.EventHandler (this.OnBtnSelectClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.buttonOk.Clicked += new global::System.EventHandler (this.OnButtonOkClicked);
 		}

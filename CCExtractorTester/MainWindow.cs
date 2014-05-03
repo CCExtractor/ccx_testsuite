@@ -1,9 +1,10 @@
 ﻿using System;
 using Gtk;
+using System.Collections.Generic;
 
 namespace CCExtractorTester
 {
-	public partial class MainWindow: Gtk.Window
+	public partial class MainWindow: Gtk.Window, ICalleable, IProgressReportable
 	{
 		private Tester TestClass { get; set; }
 		private ListStore Store { get; set; }
@@ -26,6 +27,7 @@ namespace CCExtractorTester
 			} else {
 				TestClass = new Tester ();
 			}
+			TestClass.SetReporter (this);
 			InitTreeview ();
 			AddEntries ();
 		}
@@ -65,6 +67,7 @@ namespace CCExtractorTester
 
 		protected void OnRunTestsActionActivated (object sender, EventArgs e)
 		{
+			SyncEntries ();
 			TestClass.RunTests ();
 		}
 
@@ -101,6 +104,7 @@ namespace CCExtractorTester
 					"Select", ResponseType.Accept)
 			) {
 				if (filechooser.Run () == (int)ResponseType.Accept) {
+					SyncEntries ();
 					TestClass.SaveEntriesToXML (filechooser.Filename);
 				}
 				filechooser.Destroy ();
@@ -126,17 +130,24 @@ namespace CCExtractorTester
 			foreach (TreePath tp in tree.Selection.GetSelectedRows()) {
 				TreeIter iter;
 				tree.Model.GetIter (out iter, tp);			
-				AddEntryDialog aed = new AddEntryDialog ((string)Store.GetValue (iter, 0), (string)Store.GetValue (iter, 1), (string)Store.GetValue (iter, 2));
+				AddEntryDialog aed = new AddEntryDialog ((string)Store.GetValue (iter, 0), (string)Store.GetValue (iter, 1), (string)Store.GetValue (iter, 2),this,iter);
 				aed.Show ();
 			}
-			// TODO: finish
 		}
 
 		protected void OnBtnAddRowClicked (object sender, EventArgs e)
 		{
-			AddEntryDialog aed = new AddEntryDialog ();
+			AddEntryDialog aed = new AddEntryDialog (this,null);
 			aed.Show ();
-			// TODO: finish
+		}
+
+		private void SyncEntries ()
+		{
+			TestClass.Entries.Clear ();
+			foreach (object[] row in Store) {
+				TestEntry t = new TestEntry ((string)row [0],(string) row [1],(string) row [2]);
+				TestClass.Entries.Add (t);
+			}
 		}
 
 		public FileFilter GetTestFilter ()
@@ -146,5 +157,31 @@ namespace CCExtractorTester
 			f.AddPattern ("*.xml");
 			return f;
 		}
+
+		#region ICalleable implementation
+
+		public void Call (Dictionary<string, object> callbackValues)
+		{
+			if (callbackValues.ContainsKey ("key")) {
+				if (callbackValues ["key"] != null) {
+					TreeIter ti = (TreeIter)callbackValues ["key"];
+					Store.SetValues (ti, callbackValues ["sample"], callbackValues ["cmd"], callbackValues ["result"]);
+				} else {
+					Store.AppendValues (callbackValues ["sample"], callbackValues ["cmd"], callbackValues ["result"]);
+				}
+			}
+		}
+
+		#endregion
+
+		#region IProgressReportable implementation
+
+		public void showProgressMessage (string message)
+		{
+			statusbar1.Pop ();
+			statusbar1.Push (statusbar1.GetContextId ("Tester"), message);
+		}
+
+		#endregion
 	}
 }
