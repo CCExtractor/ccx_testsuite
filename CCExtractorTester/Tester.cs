@@ -3,21 +3,23 @@ using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace CCExtractorTester
 {
 	public class Tester
 	{
 		public List<TestEntry> Entries { get; private set; } 
+		private IProgressReportable Reporter { get; set; }
 
 		public Tester(){
 			Entries = new List<TestEntry> ();
 		}
 
-		public Tester (string xml) : this()
+		public Tester (string xmlFile) : this()
 		{
-			if (!String.IsNullOrEmpty(xml)) {
-				loadAndParseXML (xml);
+			if (!String.IsNullOrEmpty(xmlFile)) {
+				loadAndParseXML (xmlFile);
 			}
 		}
 
@@ -42,12 +44,12 @@ namespace CCExtractorTester
 			doc.Save (fileName);
 		}
 
-		void loadAndParseXML (string xml)
+		void loadAndParseXML (string xmlFile)
 		{
-			if (File.Exists (xml)) {
-				ValidateXML (xml);
+			if (File.Exists (xmlFile)) {
+				ValidateXML (xmlFile);
 				XmlDocument doc = new XmlDocument ();
-				doc.Load (xml);
+				doc.Load (xmlFile);
 				foreach (XmlNode node in doc.SelectNodes("//test")) {
 					XmlNode sampleFile = node.SelectSingleNode ("sample");
 					XmlNode command = node.SelectSingleNode ("cmd");
@@ -78,7 +80,31 @@ namespace CCExtractorTester
 		}
 
 		public void RunTests(){
-			// TODO: finish
+			String cce = ConfigWindow.GetAppSetting ("CCExtractorLocation");
+			if (!File.Exists (cce)) {
+				throw new InvalidOperationException ("CCExtractor location is not a valid file/executable");
+			}
+
+			int i = 1;
+			int total = Entries.Count;
+
+			ProcessStartInfo psi = new ProcessStartInfo(cce);
+			psi.WindowStyle = ProcessWindowStyle.Minimized;
+			// TODO: add more options?
+
+			foreach (TestEntry te in Entries) {
+				Reporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
+				psi.Arguments = te.Command + ""; // TODO: add generic arguments!
+				// TODO: run ccextractor
+				// TODO: compare files.
+				Reporter.showProgressMessage (String.Format ("Finished entry {0}", i));
+				i++;
+			}
+		}
+
+		public void SetReporter (IProgressReportable reporter)
+		{
+			Reporter = reporter;
 		}
 	}
 }

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B95135C8-6C59-464D-BF64-153D13F4C827}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -81,6 +81,8 @@
     </Compile>
     <Compile Include="AddEntryDialog.cs" />
     <Compile Include="gtk-gui\CCExtractorTester.AddEntryDialog.cs" />
+    <Compile Include="ICalleable.cs" />
+    <Compile Include="IProgressReportable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
