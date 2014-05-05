@@ -8,16 +8,18 @@ namespace CCExtractorTester
 	{
 		private ICalleable Callback { get; set; }
 		private Dictionary<string,object> CallbackValues { get; set; }
+		private ConfigurationSettings Config { get; set; }
 
-		public AddEntryDialog (ICalleable callback,object key)
+		public AddEntryDialog (ConfigurationSettings cs,ICalleable callback,object key)
 		{
 			Callback = callback;
+			Config = cs;
 			CallbackValues = new Dictionary<string, object> ();
 			CallbackValues.Add ("key", key);
 			this.Build ();
 		}
 
-		public AddEntryDialog (string sample,string cmd,string result,ICalleable callback,object key) : this(callback,key)
+		public AddEntryDialog (ConfigurationSettings cs,string sample,string cmd,string result,ICalleable callback,object key) : this(cs,callback,key)
 		{
 			txtSample.Text = sample;
 			txtCmd.Text = cmd;
@@ -33,9 +35,9 @@ namespace CCExtractorTester
 					"Cancel", ResponseType.Cancel,
 					"Select", ResponseType.Accept)
 			) {
-				filechooser.SetCurrentFolder(ConfigWindow.GetAppSetting ("SampleFolder"));
+				filechooser.SetCurrentFolder(Config.GetAppSetting ("SampleFolder"));
 				if (filechooser.Run () == (int)ResponseType.Accept) {
-					txtSample.Text = filechooser.Filename.Replace(ConfigWindow.GetAppSetting ("SampleFolder"),"");
+					txtSample.Text = filechooser.Filename.Replace(Config.GetAppSetting ("SampleFolder"),"");
 				}
 				filechooser.Destroy ();
 			}
@@ -50,9 +52,9 @@ namespace CCExtractorTester
 					"Cancel", ResponseType.Cancel,
 					"Select", ResponseType.Accept)
 			) {
-				filechooser.SetCurrentFolder(ConfigWindow.GetAppSetting ("CorrectResultFolder"));
+				filechooser.SetCurrentFolder(Config.GetAppSetting ("CorrectResultFolder"));
 				if (filechooser.Run () == (int)ResponseType.Accept) {
-					txtResult.Text = filechooser.Filename.Replace(ConfigWindow.GetAppSetting ("CorrectResultFolder"),"");
+					txtResult.Text = filechooser.Filename.Replace(Config.GetAppSetting ("CorrectResultFolder"),"");
 				}
 				filechooser.Destroy ();
 			}

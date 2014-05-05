@@ -83,6 +83,7 @@
     <Compile Include="gtk-gui\CCExtractorTester.AddEntryDialog.cs" />
     <Compile Include="ICalleable.cs" />
     <Compile Include="IProgressReportable.cs" />
+    <Compile Include="ConfigurationSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
