@@ -8,24 +8,26 @@ namespace CCExtractorTester
 	{
 		private Tester TestClass { get; set; }
 		private ListStore Store { get; set; }
+		private ConfigurationSettings Config { get; set; }
 
-		public MainWindow () : base (Gtk.WindowType.Toplevel)
+		public MainWindow (ConfigurationSettings cs) : base (Gtk.WindowType.Toplevel)
 		{
 			Build ();
+			Config = cs;
 			InitComponents ();
 		}
 
 		void InitComponents ()
 		{
-			if (!ConfigWindow.IsAppConfigOK ()) {
+			if (!Config.IsAppConfigOK ()) {
 				MessageDialog md = new MessageDialog (this, DialogFlags.Modal, MessageType.Warning, ButtonsType.Ok, "The configuration is incomplete. Please configure the application using the 'Configure Application' menu item");
 				md.Run ();
 				md.Destroy ();
 			}
-			if (!String.IsNullOrEmpty (ConfigWindow.GetAppSetting ("DefaultTestFile"))) {
-				TestClass = new Tester (ConfigWindow.GetAppSetting ("DefaultTestFile"));
+			if (!String.IsNullOrEmpty (Config.GetAppSetting ("DefaultTestFile"))) {
+				TestClass = new Tester (Config,Config.GetAppSetting("DefaultTestFile"));
 			} else {
-				TestClass = new Tester ();
+				TestClass = new Tester (Config);
 			}
 			TestClass.SetReporter (this);
 			InitTreeview ();
@@ -60,7 +62,7 @@ namespace CCExtractorTester
 
 		protected void OnConfigureApplicationActionActivated (object sender, EventArgs e)
 		{
-			ConfigWindow cw = new ConfigWindow();
+			ConfigWindow cw = new ConfigWindow(Config);
 			cw.Show();
 		}
 
@@ -84,7 +86,7 @@ namespace CCExtractorTester
 				filechooser.AddFilter (GetTestFilter());
 				if (filechooser.Run () == (int)ResponseType.Accept) {
 					try {
-						TestClass = new Tester(filechooser.Filename);
+						TestClass = new Tester(Config,filechooser.Filename);
 						AddEntries();
 					} catch(Exception){
 					}
@@ -130,14 +132,14 @@ namespace CCExtractorTester
 			foreach (TreePath tp in tree.Selection.GetSelectedRows()) {
 				TreeIter iter;
 				tree.Model.GetIter (out iter, tp);			
-				AddEntryDialog aed = new AddEntryDialog ((string)Store.GetValue (iter, 0), (string)Store.GetValue (iter, 1), (string)Store.GetValue (iter, 2),this,iter);
+				AddEntryDialog aed = new AddEntryDialog (Config,(string)Store.GetValue (iter, 0), (string)Store.GetValue (iter, 1), (string)Store.GetValue (iter, 2),this,iter);
 				aed.Show ();
 			}
 		}
 
 		protected void OnBtnAddRowClicked (object sender, EventArgs e)
 		{
-			AddEntryDialog aed = new AddEntryDialog (this,null);
+			AddEntryDialog aed = new AddEntryDialog (Config,this,null);
 			aed.Show ();
 		}
 
@@ -178,7 +180,7 @@ namespace CCExtractorTester
 
 		public void showProgressMessage (string message)
 		{
-			statusbar1.Pop ();
+			statusbar1.Pop (statusbar1.GetContextId ("Tester"));
 			statusbar1.Push (statusbar1.GetContextId ("Tester"), message);
 		}
 

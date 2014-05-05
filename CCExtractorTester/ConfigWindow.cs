@@ -6,51 +6,29 @@ namespace CCExtractorTester
 {
 	public partial class ConfigWindow : Gtk.Window
 	{
-		static Configuration cm = ConfigurationManager.OpenExeConfiguration (ConfigurationUserLevel.None);
+		private ConfigurationSettings Config { get; set; }
 
-		public ConfigWindow () : 
+		public ConfigWindow (ConfigurationSettings cs) : 
 			base (Gtk.WindowType.Toplevel)
 		{
 			this.Build ();
+			Config = cs;
 			this.InitComponents ();
-		}
-
-		public static bool IsAppConfigOK ()
-		{
-			return (
-				!String.IsNullOrEmpty (cm.AppSettings.Settings ["ReportFolder"].Value) &&
-				!String.IsNullOrEmpty (cm.AppSettings.Settings ["SampleFolder"].Value) &&
-				!String.IsNullOrEmpty (cm.AppSettings.Settings ["CorrectResultFolder"].Value) &&
-				!String.IsNullOrEmpty (cm.AppSettings.Settings ["CCExtractorLocation"].Value)
-			);			
-		}
-
-		public static string GetAppSetting (string key)
-		{
-			String value = cm.AppSettings.Settings[key].Value;
-			if(String.IsNullOrEmpty(value)){
-				return "";
-			}
-			return value;
-		}
-
-		public static void SetAppSetting(string key, string value){
-			cm.AppSettings.Settings[key].Value = value;
 		}
 
 		void InitComponents ()
 		{
-			this.txtReport.Text = GetAppSetting ("ReportFolder");
-			this.txtSample.Text = GetAppSetting ("SampleFolder");
-			this.txtResult.Text = GetAppSetting ("CorrectResultFolder");
-			this.txtCCExtractor.Text = GetAppSetting ("CCExtractorLocation");
-			this.txtDefault.Text = GetAppSetting ("DefaultTestFile");
+			this.txtReport.Text = Config.GetAppSetting ("ReportFolder");
+			this.txtSample.Text = Config.GetAppSetting ("SampleFolder");
+			this.txtResult.Text = Config.GetAppSetting ("CorrectResultFolder");
+			this.txtCCExtractor.Text = Config.GetAppSetting ("CCExtractorLocation");
+			this.txtDefault.Text = Config.GetAppSetting ("DefaultTestFile");
 		}
 
 		protected void OnBtnSaveClicked (object sender, EventArgs e)
 		{
-			cm.Save (ConfigurationSaveMode.Minimal);
-			if (IsAppConfigOK ()) {
+			Config.SaveConfiguration ();
+			if (Config.IsAppConfigOK ()) {
 				this.Destroy ();
 			}
 		}
@@ -66,7 +44,7 @@ namespace CCExtractorTester
 			) {
 				if (filechooser.Run () == (int)ResponseType.Accept) {
 					lbl.Text = filechooser.Filename;
-					SetAppSetting (key, filechooser.Filename);
+					Config.SetAppSetting (key, filechooser.Filename);
 				}
 				filechooser.Destroy ();
 			}

@@ -11,12 +11,15 @@ namespace CCExtractorTester
 	{
 		public List<TestEntry> Entries { get; private set; } 
 		private IProgressReportable Reporter { get; set; }
+		private ConfigurationSettings Config { get; set; }
 
-		public Tester(){
+		public Tester(ConfigurationSettings cfg){
 			Entries = new List<TestEntry> ();
+			Reporter = new NullReporter ();
+			Config = cfg;
 		}
 
-		public Tester (string xmlFile) : this()
+		public Tester (ConfigurationSettings cfg,string xmlFile) : this(cfg)
 		{
 			if (!String.IsNullOrEmpty(xmlFile)) {
 				loadAndParseXML (xmlFile);
@@ -80,10 +83,13 @@ namespace CCExtractorTester
 		}
 
 		public void RunTests(){
-			String cce = ConfigWindow.GetAppSetting ("CCExtractorLocation");
+			String cce = Config.GetAppSetting ("CCExtractorLocation");
 			if (!File.Exists (cce)) {
 				throw new InvalidOperationException ("CCExtractor location is not a valid file/executable");
 			}
+
+			String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
+
 
 			int i = 1;
 			int total = Entries.Count;
@@ -94,7 +100,10 @@ namespace CCExtractorTester
 
 			foreach (TestEntry te in Entries) {
 				Reporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
-				psi.Arguments = te.Command + ""; // TODO: add generic arguments!
+				psi.Arguments = te.Command + String.Format(@"-o ""{0}"" ""{1}""  ",location,te.TestFile);
+				Process p = new Process ();
+				p.StartInfo = psi;
+				p.Start ();
 				// TODO: run ccextractor
 				// TODO: compare files.
 				Reporter.showProgressMessage (String.Format ("Finished entry {0}", i));
@@ -105,6 +114,15 @@ namespace CCExtractorTester
 		public void SetReporter (IProgressReportable reporter)
 		{
 			Reporter = reporter;
+		}
+
+		class NullReporter : IProgressReportable {
+			#region IProgressReportable implementation
+			void IProgressReportable.showProgressMessage (string message)
+			{
+				// do nothing.
+			}
+			#endregion
 		}
 	}
 }
