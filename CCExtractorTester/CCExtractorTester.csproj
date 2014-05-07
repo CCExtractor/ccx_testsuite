@@ -84,6 +84,14 @@
     <Compile Include="ICalleable.cs" />
     <Compile Include="IProgressReportable.cs" />
     <Compile Include="ConfigurationSettings.cs" />
+    <Compile Include="IFileComparable.cs" />
+    <Compile Include="Ilogger.cs" />
+    <Compile Include="FileLogger.cs" />
+    <Compile Include="diffTool\Result.cs" />
+    <Compile Include="diffTool\Block.cs" />
+    <Compile Include="diffTool\DiffTool.cs" />
+    <Compile Include="diffTool\ModificationData.cs" />
+    <Compile Include="diffTool\EditLengthResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -94,5 +102,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="tests.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="diffTool\" />
   </ItemGroup>
 </Project>
