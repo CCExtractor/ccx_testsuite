@@ -4,6 +4,7 @@ using System.Xml;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using System.Threading;
 
 namespace CCExtractorTester
 {
@@ -11,12 +12,15 @@ namespace CCExtractorTester
 	{
 		public List<TestEntry> Entries { get; private set; } 
 		private IProgressReportable Reporter { get; set; }
+		private IFileComparable Comparer { get; set; }
 		private ConfigurationSettings Config { get; set; }
 
 		public Tester(ConfigurationSettings cfg){
 			Entries = new List<TestEntry> ();
 			Reporter = new NullReporter ();
+			Comparer = new NullComparer ();
 			Config = cfg;
+
 		}
 
 		public Tester (ConfigurationSettings cfg,string xmlFile) : this(cfg)
@@ -87,28 +91,53 @@ namespace CCExtractorTester
 			if (!File.Exists (cce)) {
 				throw new InvalidOperationException ("CCExtractor location is not a valid file/executable");
 			}
+			String sourceFolder = Config.GetAppSetting ("SampleFolder");
+			if (!Directory.Exists (sourceFolder)) {
+				throw new InvalidOperationException ("Sample folder does not exist!");
+			}
 
 			String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
-
+			location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
 
 			int i = 1;
 			int total = Entries.Count;
 
 			ProcessStartInfo psi = new ProcessStartInfo(cce);
-			psi.WindowStyle = ProcessWindowStyle.Minimized;
-			// TODO: add more options?
+			psi.UseShellExecute = false;
+			psi.RedirectStandardError = true;
+			psi.RedirectStandardOutput = true;
+			psi.CreateNoWindow = true;
 
 			foreach (TestEntry te in Entries) {
 				Reporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
-				psi.Arguments = te.Command + String.Format(@"-o ""{0}"" ""{1}""  ",location,te.TestFile);
+				psi.Arguments = te.Command + String.Format(@" -o ""{0}"" ""{1}""  ",Path.Combine(location,"tmp_"+te.ResultFile.Substring(te.ResultFile.LastIndexOf(Path.DirectorySeparatorChar)+1)),Path.Combine(sourceFolder,te.TestFile));
+				MainClass.Logger.Info (psi.Arguments);
 				Process p = new Process ();
 				p.StartInfo = psi;
+				p.ErrorDataReceived += processError;
+				p.OutputDataReceived += processOutput;
 				p.Start ();
-				// TODO: run ccextractor
-				// TODO: compare files.
-				Reporter.showProgressMessage (String.Format ("Finished entry {0}", i));
+				p.BeginOutputReadLine ();
+				p.BeginErrorReadLine ();
+				while (!p.HasExited) {
+					Thread.Sleep (1000);
+				}
+				if (p.ExitCode == 0) {
+					// TODO: implement report generating through calling the Comparer.
+				}
+				Reporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));
 				i++;
 			}
+		}
+
+		void processOutput (object sender, DataReceivedEventArgs e)
+		{
+			MainClass.Logger.Info (e.Data);
+		}
+
+		void processError (object sender, DataReceivedEventArgs e)
+		{
+			MainClass.Logger.Error (e.Data);
 		}
 
 		public void SetReporter (IProgressReportable reporter)
@@ -118,10 +147,26 @@ namespace CCExtractorTester
 
 		class NullReporter : IProgressReportable {
 			#region IProgressReportable implementation
-			void IProgressReportable.showProgressMessage (string message)
+			public void showProgressMessage (string message)
 			{
 				// do nothing.
 			}
+
+			public void showProgramMessage (string message)
+			{
+				// do nothing
+			}
+			#endregion
+		}
+
+		class NullComparer : IFileComparable {
+			#region IFileComparable implementation
+
+			public string Compare (string fileLocation1, string fileLocation2)
+			{
+				return "";
+			}
+
 			#endregion
 		}
 	}

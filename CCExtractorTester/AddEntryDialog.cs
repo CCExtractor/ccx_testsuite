@@ -37,7 +37,7 @@ namespace CCExtractorTester
 			) {
 				filechooser.SetCurrentFolder(Config.GetAppSetting ("SampleFolder"));
 				if (filechooser.Run () == (int)ResponseType.Accept) {
-					txtSample.Text = filechooser.Filename.Replace(Config.GetAppSetting ("SampleFolder"),"");
+					txtSample.Text = filechooser.Filename.Replace(Config.GetAppSetting ("SampleFolder"),"").Substring(1);
 				}
 				filechooser.Destroy ();
 			}
@@ -54,7 +54,7 @@ namespace CCExtractorTester
 			) {
 				filechooser.SetCurrentFolder(Config.GetAppSetting ("CorrectResultFolder"));
 				if (filechooser.Run () == (int)ResponseType.Accept) {
-					txtResult.Text = filechooser.Filename.Replace(Config.GetAppSetting ("CorrectResultFolder"),"");
+					txtResult.Text = filechooser.Filename.Replace(Config.GetAppSetting ("CorrectResultFolder"),"").Substring(1);
 				}
 				filechooser.Destroy ();
 			}

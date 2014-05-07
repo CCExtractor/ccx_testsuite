@@ -70,7 +70,11 @@ namespace CCExtractorTester
 		protected void OnRunTestsActionActivated (object sender, EventArgs e)
 		{
 			SyncEntries ();
-			TestClass.RunTests ();
+			try {
+				TestClass.RunTests ();
+			} catch(Exception ex){
+				ShowErrorDialog (ex.Message);
+			}
 		}
 
 		protected void OnOpenActionActivated (object sender, EventArgs e)
@@ -88,7 +92,8 @@ namespace CCExtractorTester
 					try {
 						TestClass = new Tester(Config,filechooser.Filename);
 						AddEntries();
-					} catch(Exception){
+					} catch(Exception ex){
+						ShowErrorDialog (ex.Message);
 					}
 				}
 				filechooser.Destroy ();
@@ -106,8 +111,12 @@ namespace CCExtractorTester
 					"Select", ResponseType.Accept)
 			) {
 				if (filechooser.Run () == (int)ResponseType.Accept) {
+					try {
 					SyncEntries ();
 					TestClass.SaveEntriesToXML (filechooser.Filename);
+					} catch(Exception ex){
+						ShowErrorDialog (ex.Message);
+					}
 				}
 				filechooser.Destroy ();
 			}
@@ -160,6 +169,13 @@ namespace CCExtractorTester
 			return f;
 		}
 
+		void ShowErrorDialog (string message)
+		{
+			MessageDialog md = new MessageDialog (this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "An exception occured: "+message);
+			md.Run ();
+			md.Destroy ();
+		}
+
 		#region ICalleable implementation
 
 		public void Call (Dictionary<string, object> callbackValues)
@@ -184,6 +200,13 @@ namespace CCExtractorTester
 			statusbar1.Push (statusbar1.GetContextId ("Tester"), message);
 		}
 
+
+		public void showProgramMessage (string message)
+		{
+			MessageDialog md = new MessageDialog (this, DialogFlags.Modal, MessageType.Warning, ButtonsType.Ok, message);
+			md.Run ();
+			md.Destroy ();
+		}
 		#endregion
 	}
 }

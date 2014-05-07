@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <tests>
-	<test>
-		<sample>Correct\No XDS\presidential.address.to.congress-no-xds.ts</sample>
-		<cmd></cmd>
-		<result>presidential.address.to.congress.srt</result>
-	</test>
+  <test>
+    <sample>Correct\No XDS\cea608_field1.mpg</sample>
+    <cmd>-autoprogram -out=txt -latin1</cmd>
+    <result>Correct\No XDS\cea608_field1.txt</result>
+  </test>
 </tests>
