@@ -87,11 +87,16 @@
     <Compile Include="IFileComparable.cs" />
     <Compile Include="Ilogger.cs" />
     <Compile Include="FileLogger.cs" />
-    <Compile Include="diffTool\Result.cs" />
-    <Compile Include="diffTool\Block.cs" />
-    <Compile Include="diffTool\DiffTool.cs" />
-    <Compile Include="diffTool\ModificationData.cs" />
-    <Compile Include="diffTool\EditLengthResult.cs" />
+    <Compile Include="DiffTool\Block.cs" />
+    <Compile Include="DiffTool\DiffResources.Designer.cs" />
+    <Compile Include="DiffTool\DiffTool.cs" />
+    <Compile Include="DiffTool\EditLengthResult.cs" />
+    <Compile Include="DiffTool\LineModel.cs" />
+    <Compile Include="DiffTool\ModificationData.cs" />
+    <Compile Include="DiffTool\Result.cs" />
+    <Compile Include="DiffTool\SideBySideBuilder.cs" />
+    <Compile Include="DiffTool\SideBySideModel.cs" />
+    <Compile Include="DiffTool\SingleSideModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -99,11 +104,15 @@
     <None Include="tests.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="DiffTool\Diff.css" />
+    <None Include="DiffTool\Diff.js" />
+    <None Include="DiffTool\DiffResources.resx" />
+    <None Include="DiffTool\jquery-1.11.1.min.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="tests.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="diffTool\" />
+    <Folder Include="DiffTool\" />
   </ItemGroup>
 </Project>

@@ -1,9 +1,10 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="CCExtractorTester\Tester.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="CCExtractorTester\DiffTool\SideBySideModel.cs">
     <Files>
-      <File FileName="CCExtractorTester\MainWindow.cs" Line="58" Column="1" />
+      <File FileName="CCExtractorTester\MainWindow.cs" Line="1" Column="1" />
       <File FileName="CCExtractorTester\Tester.cs" Line="23" Column="4" />
+      <File FileName="CCExtractorTester\DiffTool\SideBySideModel.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
