@@ -5,13 +5,13 @@ namespace CCExtractorTester.DiffTool
 {
 	public class SideBySideBuilder
 	{
-		private readonly DiffTool differ;
+		private readonly DifferTool differ;
 
 		delegate void PieceBuilder(string oldText, string newText, List<LineModel> oldPieces, List<LineModel> newPieces);
 
 		public static readonly char[] WordSeparaters = new[] {' ', '\t', '.', '(', ')', '{', '}', ','};
 
-		public SideBySideBuilder(DiffTool differ)
+		public SideBySideBuilder(DifferTool differ)
 		{
 			if (differ == null) throw new ArgumentNullException("differ");
 
