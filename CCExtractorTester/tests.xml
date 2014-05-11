@@ -5,4 +5,9 @@
     <cmd>-autoprogram -out=txt -latin1</cmd>
     <result>Correct\No XDS\cea608_field1.txt</result>
   </test>
+  <test>
+    <sample>Correct\With XDS\WLS.mpg</sample>
+    <cmd>-autoprogram -out=txt -latin1</cmd>
+    <result>Correct\With XDS\WLS.txt</result>
+  </test>
 </tests>

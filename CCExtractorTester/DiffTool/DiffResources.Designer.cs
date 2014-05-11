@@ -60,30 +60,7 @@ namespace CCExtractorTester.DiffTool {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to function InitializeDiffPanes() {
-        ///    var diffBox = $(&quot;#diffBox&quot;);
-        ///    var parent = diffBox.parent();
-        ///    var diffPane = $(&quot;.diffPane&quot;, diffBox);
-        ///    var leftTable = $(&quot;.diffTable&quot;, diffPane[0]);
-        ///    var rightTable = $(&quot;.diffTable&quot;, diffPane[1]);
-        ///    var diffPaneLinesLeft = $(&quot;td.line&quot;, leftTable);
-        ///    var diffPaneLineHeight = diffPaneLinesLeft.outerHeight();
-        ///    var scrollBarsActive = false;
-        ///
-        ///    SizeDiffTablesEqually();
-        ///    SizeDiffPanesToWindow();
-        ///
-        ///
-        ///    // synchronize the scroll bars
-        ///    $( [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string Diff {
-            get {
-                return ResourceManager.GetString("Diff", resourceCulture);
-            }
-        }
-        
+       
         /// <summary>
         ///   Looks up a localized string similar to #diffBar
         ///{
@@ -127,16 +104,6 @@ namespace CCExtractorTester.DiffTool {
         internal static string Diff1 {
             get {
                 return ResourceManager.GetString("Diff1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to /*! jQuery v1.11.1 | (c) 2005, 2014 jQuery Foundation, Inc. | jquery.org/license */
-        ///!function(a,b){&quot;object&quot;==typeof module&amp;&amp;&quot;object&quot;==typeof module.exports?module.exports=a.document?b(a,!0):function(a){if(!a.document)throw new Error(&quot;jQuery requires a window with a document&quot;);return b(a)}:b(a)}(&quot;undefined&quot;!=typeof window?window:this,function(a,b){var c=[],d=c.slice,e=c.concat,f=c.push,g=c.indexOf,h={},i=h.toString,j=h.hasOwnProperty,k={},l=&quot;1.11.1&quot;,m=function(a,b){return new m.fn.init(a,b)},n=/^[\s\uFEFF\xA [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string jquery_1_11_1_min {
-            get {
-                return ResourceManager.GetString("jquery_1_11_1_min", resourceCulture);
             }
         }
     }

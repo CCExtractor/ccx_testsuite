@@ -9,17 +9,20 @@ namespace CCExtractorTester
 		private Tester TestClass { get; set; }
 		private ListStore Store { get; set; }
 		private ConfigurationSettings Config { get; set; }
+		private Ilogger Logger { get; set; }
 
-		public MainWindow (ConfigurationSettings cs) : base (Gtk.WindowType.Toplevel)
+		public MainWindow (ConfigurationSettings cs,Ilogger logger) : base (Gtk.WindowType.Toplevel)
 		{
 			Build ();
 			Config = cs;
+			Logger = logger;
 			InitComponents ();
 		}
 
 		void InitComponents ()
 		{
 			if (!Config.IsAppConfigOK ()) {
+				Logger.Warn ("Configuration incomplete!");
 				MessageDialog md = new MessageDialog (this, DialogFlags.Modal, MessageType.Warning, ButtonsType.Ok, "The configuration is incomplete. Please configure the application using the 'Configure Application' menu item");
 				md.Run ();
 				md.Destroy ();
@@ -29,7 +32,7 @@ namespace CCExtractorTester
 			} else {
 				TestClass = new Tester (Config);
 			}
-			TestClass.SetReporter (this);
+			TestClass.SetProgressReporter (this);
 			InitTreeview ();
 			AddEntries ();
 		}
@@ -73,6 +76,7 @@ namespace CCExtractorTester
 			try {
 				TestClass.RunTests ();
 			} catch(Exception ex){
+				Logger.Error (ex);
 				ShowErrorDialog (ex.Message);
 			}
 		}
@@ -93,6 +97,7 @@ namespace CCExtractorTester
 						TestClass = new Tester(Config,filechooser.Filename);
 						AddEntries();
 					} catch(Exception ex){
+						Logger.Error(ex);
 						ShowErrorDialog (ex.Message);
 					}
 				}
@@ -115,6 +120,7 @@ namespace CCExtractorTester
 					SyncEntries ();
 					TestClass.SaveEntriesToXML (filechooser.Filename);
 					} catch(Exception ex){
+						Logger.Error(ex);
 						ShowErrorDialog (ex.Message);
 					}
 				}
@@ -171,7 +177,7 @@ namespace CCExtractorTester
 
 		void ShowErrorDialog (string message)
 		{
-			MessageDialog md = new MessageDialog (this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "An exception occured: "+message);
+			MessageDialog md = new MessageDialog (this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "An exception occured: "+message+"\n\nMore information in the log file");
 			md.Run ();
 			md.Destroy ();
 		}

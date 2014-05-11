@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace CCExtractorTester.DiffTool
 {
-	public class DiffTool
+	public class DifferTool
 	{
-		public DiffTool ()
+		public DifferTool ()
 		{
 		}
 

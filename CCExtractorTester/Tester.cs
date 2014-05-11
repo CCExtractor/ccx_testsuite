@@ -8,19 +8,19 @@ using System.Threading;
 
 namespace CCExtractorTester
 {
+	// TODO: add option to change Comparer, and add option for Logger.
 	public class Tester
 	{
 		public List<TestEntry> Entries { get; private set; } 
-		private IProgressReportable Reporter { get; set; }
+		private IProgressReportable ProgressReporter { get; set; }
 		private IFileComparable Comparer { get; set; }
 		private ConfigurationSettings Config { get; set; }
 
 		public Tester(ConfigurationSettings cfg){
 			Entries = new List<TestEntry> ();
-			Reporter = new NullReporter ();
-			Comparer = new NullComparer ();
+			ProgressReporter = new NullProgressReporter ();
+			Comparer = new DiffToolComparer ();
 			Config = cfg;
-
 		}
 
 		public Tester (ConfigurationSettings cfg,string xmlFile) : this(cfg)
@@ -109,8 +109,11 @@ namespace CCExtractorTester
 			psi.CreateNoWindow = true;
 
 			foreach (TestEntry te in Entries) {
-				Reporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
-				psi.Arguments = te.Command + String.Format(@" -o ""{0}"" ""{1}""  ",Path.Combine(location,"tmp_"+te.ResultFile.Substring(te.ResultFile.LastIndexOf(Path.DirectorySeparatorChar)+1)),Path.Combine(sourceFolder,te.TestFile));
+				ProgressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
+				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
+				string producedFile = Path.Combine (location, "tmp_" + te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
+				string expectedResultFile = Path.Combine (Config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
+				psi.Arguments = te.Command + String.Format(@" -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
 				MainClass.Logger.Info (psi.Arguments);
 				Process p = new Process ();
 				p.StartInfo = psi;
@@ -122,12 +125,15 @@ namespace CCExtractorTester
 				while (!p.HasExited) {
 					Thread.Sleep (1000);
 				}
+				string runtime = String.Format (@"CCExtractor started at {0} and quit at {1} - Runtime: {2}", p.StartTime.ToShortTimeString (), p.ExitTime.ToShortTimeString (), (p.ExitTime - p.StartTime).Duration ().ToString("c"));
 				if (p.ExitCode == 0) {
-					// TODO: implement report generating through calling the Comparer.
+						Comparer.CompareAndAddToResult (expectedResultFile, producedFile,runtime);
 				}
-				Reporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));
+
+				ProgressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));
 				i++;
 			}
+			File.WriteAllText(Path.Combine (Config.GetAppSetting("ReportFolder"),Comparer.GetReportFileName()),Comparer.GetResult ());
 		}
 
 		void processOutput (object sender, DataReceivedEventArgs e)
@@ -140,12 +146,12 @@ namespace CCExtractorTester
 			MainClass.Logger.Error (e.Data);
 		}
 
-		public void SetReporter (IProgressReportable reporter)
+		public void SetProgressReporter (IProgressReportable progressReporter)
 		{
-			Reporter = reporter;
+			ProgressReporter = progressReporter;
 		}
 
-		class NullReporter : IProgressReportable {
+		class NullProgressReporter : IProgressReportable {
 			#region IProgressReportable implementation
 			public void showProgressMessage (string message)
 			{
@@ -158,17 +164,5 @@ namespace CCExtractorTester
 			}
 			#endregion
 		}
-
-		class NullComparer : IFileComparable {
-			#region IFileComparable implementation
-
-			public string Compare (string fileLocation1, string fileLocation2)
-			{
-				return "";
-			}
-
-			#endregion
-		}
 	}
 }
-

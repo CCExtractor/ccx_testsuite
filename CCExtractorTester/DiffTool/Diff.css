@@ -1,37 +1,4 @@
-﻿#diffBar
-{
-	width: 3%;
-	height: 100%;
-	float: left;
-	position:relative;
-	background: #DDDDDD;
-}
-
-.diffBarLineLeft, .diffBarLineRight
-{
-	width: 50%;
-	float:left;
-	height:0px;
-	cursor:pointer;
-}
-
-.inView
-{
-	background-image: url("../Content/InView.png");
-	background-repeat: repeat;
-}
-
-#activeBar
-{
-	position:absolute;
-	top:0px;
-	background-color:#6699FF;
-	opacity:0.5;
-	filter:alpha(opacity='50');
-}
-
-
-#diffBox
+﻿.diffBox
 {
 	margin-left: auto;
 	margin-right: auto;
@@ -39,7 +6,7 @@
 }
 
 
-#leftPane, #rightPane
+.leftPane, .rightPane
 {
 	float: left;
 	width: 50%;
@@ -64,7 +31,7 @@
 .diffTable
 {
 	width: 100%;
-	height: 100%;
+	/*height: 100%;*/
 }
 
 .line

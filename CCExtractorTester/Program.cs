@@ -36,7 +36,7 @@ namespace CCExtractorTester
 				}
 				if (File.Exists (args [0]) && args [0].EndsWith (".xml")) {
 					Tester t = new Tester (config,args [0]);
-					t.SetReporter (new ConsoleReporter());
+					t.SetProgressReporter (new ConsoleReporter());
 					try {
 					t.RunTests ();
 					} catch(Exception e){
@@ -66,7 +66,7 @@ namespace CCExtractorTester
 					}
 					filechooser.Destroy ();
 				}
-				MainWindow win = new MainWindow (config);
+				MainWindow win = new MainWindow (config,Logger);
 				win.Show ();
 				Application.Run ();
 			}
