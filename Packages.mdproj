@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ItemType>PackagingProject</ItemType>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{AFE659F1-5DE6-4B80-9533-4690AB434799}</ProjectGuid>
+    <Packages>
+      <Packages xmlns="">
+        <Package name="Linux Binaries">
+          <Builder targetFile="CCExtractorTester.tar.gz" platform="Linux" configuration="Release|x86" ctype="BinariesZipPackageBuilder">
+            <ChildEntries>
+              <SolutionItemReference path="CCExtractorTester\CCExtractorTester.csproj" />
+            </ChildEntries>
+            <RootEntry path="CCExtractorTester.sln" id=":root:" />
+          </Builder>
+        </Package>
+      </Packages>
+    </Packages>
+  </PropertyGroup>
+</Project>
