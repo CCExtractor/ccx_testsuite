@@ -107,6 +107,7 @@
     <Compile Include="DiffTool\SingleSideModel.cs" />
     <Compile Include="DiffToolComparer.cs" />
     <Compile Include="DiffTool\DifferTool.cs" />
+    <Compile Include="GUI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
