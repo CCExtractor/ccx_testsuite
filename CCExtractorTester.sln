@@ -3,12 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCExtractorTester", "CCExtractorTester\CCExtractorTester.csproj", "{B95135C8-6C59-464D-BF64-153D13F4C827}"
 EndProject
+Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Packages", "Packages.mdproj", "{AFE659F1-5DE6-4B80-9533-4690AB434799}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AFE659F1-5DE6-4B80-9533-4690AB434799}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AFE659F1-5DE6-4B80-9533-4690AB434799}.Release|x86.ActiveCfg = Release|Any CPU
 		{B95135C8-6C59-464D-BF64-153D13F4C827}.Debug|x86.ActiveCfg = Debug|x86
 		{B95135C8-6C59-464D-BF64-153D13F4C827}.Debug|x86.Build.0 = Debug|x86
 		{B95135C8-6C59-464D-BF64-153D13F4C827}.Release|x86.ActiveCfg = Release|x86
