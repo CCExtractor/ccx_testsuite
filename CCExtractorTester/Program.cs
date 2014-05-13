@@ -15,6 +15,9 @@ namespace CCExtractorTester
 			Logger.Info ("If you encounter any issues using this program, get in touch, and keep this log close to you.");
 			if (args.Length > 0) {
 				Logger.Info ("Using console/command line");
+				foreach (String s in args) {
+					Logger.Debug ("Console argument: " + s);
+				}
 				ConfigurationSettings config = new ConfigurationSettings ();
 				if (args.Length > 1) {
 					if (File.Exists (args [1]) && args [1].EndsWith (".xml")) {
