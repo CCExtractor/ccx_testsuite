@@ -70,8 +70,8 @@ namespace CCExtractorTester.DiffTool
 		private string GetLineHTML(LineModel lm){
 			if (!string.IsNullOrEmpty(lm.Text))
 			{
-				string spaceValue = "\u00B7";
-				string tabValue = "\u00B7\u00B7";
+				string spaceValue = "&#183;";
+				string tabValue = "&#183;&#183;";
 				if (lm.Type == ChangeType.Deleted || lm.Type == ChangeType.Inserted || lm.Type == ChangeType.Unchanged)
 				{
 					return HttpUtility.HtmlEncode(lm.Text).Replace (" ", spaceValue).Replace ("\t", tabValue);
