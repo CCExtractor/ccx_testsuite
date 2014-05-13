@@ -15,15 +15,17 @@ namespace CCExtractorTester
 		private IProgressReportable ProgressReporter { get; set; }
 		private IFileComparable Comparer { get; set; }
 		private ConfigurationSettings Config { get; set; }
+		private ILogger Logger { get; set; }
 
-		public Tester(ConfigurationSettings cfg){
+		public Tester(ConfigurationSettings cfg,ILogger logger){
 			Entries = new List<TestEntry> ();
 			ProgressReporter = new NullProgressReporter ();
 			Comparer = new DiffToolComparer ();
 			Config = cfg;
+			Logger = logger;
 		}
 
-		public Tester (ConfigurationSettings cfg,string xmlFile) : this(cfg)
+		public Tester (ConfigurationSettings cfg,ILogger logger,string xmlFile) : this(cfg,logger)
 		{
 			if (!String.IsNullOrEmpty(xmlFile)) {
 				loadAndParseXML (xmlFile);
@@ -114,7 +116,7 @@ namespace CCExtractorTester
 				string producedFile = Path.Combine (location, "tmp_" + te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
 				string expectedResultFile = Path.Combine (Config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
 				psi.Arguments = te.Command + String.Format(@" -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
-				MainClass.Logger.Info (psi.Arguments);
+				Logger.Debug ("Passed arguments: "+psi.Arguments);
 				Process p = new Process ();
 				p.StartInfo = psi;
 				p.ErrorDataReceived += processError;
@@ -138,12 +140,14 @@ namespace CCExtractorTester
 
 		void processOutput (object sender, DataReceivedEventArgs e)
 		{
-			MainClass.Logger.Info (e.Data);
+			Logger.Debug (e.Data);
 		}
 
 		void processError (object sender, DataReceivedEventArgs e)
 		{
-			MainClass.Logger.Error (e.Data);
+			if (!String.IsNullOrEmpty (e.Data)) {
+				Logger.Error (e.Data);
+			}
 		}
 
 		public void SetProgressReporter (IProgressReportable progressReporter)

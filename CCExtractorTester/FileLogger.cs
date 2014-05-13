@@ -3,47 +3,56 @@ using System.IO;
 
 namespace CCExtractorTester
 {
-	public class FileLogger : Ilogger
+	public class FileLogger : ILogger
 	{
 		StreamWriter Writer { get; set; }
+		bool IsDebug { get; set; }
 
 
 		public FileLogger ()
 		{
 			Writer = File.CreateText ("Log-Run-"+DateTime.Now.ToFileTime()+".txt");
+			IsDebug = false;
 		}
 
 		#region Ilogger implementation
 
-		public void Info (string message)
+		public void ActivateDebug ()
+		{
+			IsDebug = true;
+		}
+
+		public virtual void Info (string message)
 		{
 			Writer.WriteLine ("[INFO] " + message);
 			Writer.Flush ();
 		}
 
-		public void Warn (string message)
+		public virtual void Warn (string message)
 		{
 			Writer.WriteLine ("[WARNING] " + message);
 			Writer.Flush ();
 		}
 
-		public void Error (string message)
+		public virtual void Error (string message)
 		{
 			Writer.WriteLine ("[ERROR] " + message);
 			Writer.Flush ();
 		}
 
-		public void Error (Exception e)
+		public virtual void Error (Exception e)
 		{
 			Error (e.Message);
 			Error ("Stacktrace:");
 			Error (e.StackTrace);
 		}
 
-		public void Debug (string message)
+		public virtual void Debug (string message)
 		{
-			Writer.WriteLine ("[DEBUG] " + message);
-			Writer.Flush ();
+			if (IsDebug) {
+				Writer.WriteLine ("[DEBUG] " + message);
+				Writer.Flush ();
+			}
 		}
 
 		#endregion

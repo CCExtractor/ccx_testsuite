@@ -6,7 +6,7 @@ namespace CCExtractorTester
 {
 	public class GUI
 	{
-		public static void Run(Ilogger logger){
+		public static void Run(ILogger logger){
 			Application.Init ();
 			ConfigurationSettings config = new ConfigurationSettings ();
 			using (FileChooserDialog filechooser =
