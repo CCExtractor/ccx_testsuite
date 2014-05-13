@@ -6,9 +6,10 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B95135C8-6C59-464D-BF64-153D13F4C827}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>CCExtractorTester</RootNamespace>
     <AssemblyName>CCExtractorTester</AssemblyName>
+    <StartupObject>CCExtractorTester.MainClass</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,6 +21,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <ConsolePause>false</ConsolePause>
+    <Commandlineparameters>-g</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>full</DebugType>
@@ -55,6 +57,9 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
+    <Reference Include="CommandLine">
+      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net40\CommandLine.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DiffTool\DiffResources.resx">
@@ -95,7 +100,6 @@
     <Compile Include="IProgressReportable.cs" />
     <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="IFileComparable.cs" />
-    <Compile Include="Ilogger.cs" />
     <Compile Include="FileLogger.cs" />
     <Compile Include="DiffTool\Block.cs" />
     <Compile Include="DiffTool\EditLengthResult.cs" />
@@ -108,6 +112,8 @@
     <Compile Include="DiffToolComparer.cs" />
     <Compile Include="DiffTool\DifferTool.cs" />
     <Compile Include="GUI.cs" />
+    <Compile Include="ConsoleFileLogger.cs" />
+    <Compile Include="ILogger.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -116,6 +122,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="DiffTool\Diff.css" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="tests.xml" />

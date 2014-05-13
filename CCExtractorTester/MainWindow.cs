@@ -9,9 +9,9 @@ namespace CCExtractorTester
 		private Tester TestClass { get; set; }
 		private ListStore Store { get; set; }
 		private ConfigurationSettings Config { get; set; }
-		private Ilogger Logger { get; set; }
+		private ILogger Logger { get; set; }
 
-		public MainWindow (ConfigurationSettings cs,Ilogger logger) : base (Gtk.WindowType.Toplevel)
+		public MainWindow (ConfigurationSettings cs,ILogger logger) : base (Gtk.WindowType.Toplevel)
 		{
 			Build ();
 			Config = cs;
@@ -28,9 +28,9 @@ namespace CCExtractorTester
 				md.Destroy ();
 			}
 			if (!String.IsNullOrEmpty (Config.GetAppSetting ("DefaultTestFile"))) {
-				TestClass = new Tester (Config,Config.GetAppSetting("DefaultTestFile"));
+				TestClass = new Tester (Config,Logger,Config.GetAppSetting("DefaultTestFile"));
 			} else {
-				TestClass = new Tester (Config);
+				TestClass = new Tester (Config,Logger);
 			}
 			TestClass.SetProgressReporter (this);
 			InitTreeview ();
@@ -94,7 +94,7 @@ namespace CCExtractorTester
 				filechooser.AddFilter (GetTestFilter());
 				if (filechooser.Run () == (int)ResponseType.Accept) {
 					try {
-						TestClass = new Tester(Config,filechooser.Filename);
+						TestClass = new Tester(Config,Logger,filechooser.Filename);
 						AddEntries();
 					} catch(Exception ex){
 						Logger.Error(ex);

@@ -1,76 +1,110 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
+using CommandLine;
+using CommandLine.Text;
 
 namespace CCExtractorTester
 {
-	// http://www.nat.li/linux/how-to-install-mono-2-11-2-on-debian-squeeze
+	class Options {
+		[Option('g',"gui",DefaultValue=false,Required=false,HelpText="Use the GUI instead of the CLI")]
+		public bool IsGUI { get; set; }
+		[Option('t',"test",HelpText="The file that contains a list of the samples to test in xml-format")]
+		public string SampleFile { get; set; }
+		[Option('c',"config",HelpText="The file that contains the configuration in xml-format")]
+		public string ConfigFile { get; set; }
+		[Option('d',"debug",DefaultValue=false,Required=false,HelpText="Use debugging")]
+		public bool Debug { get; set; }
+
+		[ParserState]
+		public IParserState LastParserState { get; set; }
+
+		[HelpOption(HelpText="Shows this screen")]
+		public string GetUsage(){
+			return HelpText.AutoBuild (this, (HelpText current) => HelpText.DefaultParsingErrorsHandler (this, current));
+		}
+	}
+
+	// Need mono? http://www.nat.li/linux/how-to-install-mono-2-11-2-on-debian-squeeze
 	class MainClass
 	{
-		public static FileLogger Logger = new FileLogger ();
+		public static ILogger Logger = new ConsoleFileLogger ();
 
 		public static void Main (string[] args)
 		{
-			Logger.Info ("Starting program - V0.5 written by Willem Van Iseghem during GSoC 2014");
-			Logger.Info ("If you encounter any issues using this program, get in touch, and keep this log close to you.");
-			if (args.Length > 0) {
-				Logger.Info ("Using console/command line");
-				ConfigurationSettings config = new ConfigurationSettings ();
-				if (args.Length > 1) {
-					if (File.Exists (args [1]) && args [1].EndsWith (".xml")) {
-						Logger.Debug ("Loading provided configuration");
+			var options = new Options ();
+			if (CommandLine.Parser.Default.ParseArguments (args, options)) {
+				Logger.Info ("Starting program - If you encounter any issues using this program, get in touch, and keep this log close to you. (enable CCExtractor output by using -d flag)");
+				if (options.Debug) {
+					Logger.ActivateDebug ();
+					Logger.Debug ("Debug activated");
+				}
+				if (options.IsGUI) {
+					Logger.Debug ("Using GUI - Switching logger to file only");
+					Logger = ((ConsoleFileLogger)Logger).Logger;
+					GUI.Run (Logger);
+				} else {
+					Logger.Debug ("Using console/command line");
+					Logger.Info ("");
+					Logger.Info ("If you want to see the usage, run this with --help. Press ctrl-c to abort if necessary");
+					Logger.Info ("");
+					ConfigurationSettings config = new ConfigurationSettings ();
+					if (!String.IsNullOrEmpty (options.ConfigFile) && options.ConfigFile.EndsWith (".xml") && File.Exists (options.ConfigFile)) {
+						Logger.Info ("Loading provided configuration");
 						XmlDocument doc = new XmlDocument ();
 						doc.Load (args [1]);
 						config = new ConfigurationSettings (doc, args [1]);
+					} else if(!String.IsNullOrEmpty (options.ConfigFile)) {
+						Logger.Warn ("Provided config file, but is no xml or does not exist - using default config");
+					}
+					if (!config.IsAppConfigOK ()) {
+						Logger.Error ("Fatal error - could not load config. Exiting application");
+						return;
+					}
+					if (IsValidPotentialSampleFile (options.SampleFile)) {
+						Logger.Info ("Running provided file");
+						StartTester (options.SampleFile, config,Logger);					
 					} else {
-						Logger.Error ("The second argument provided either doesn't exist or is not an .xml file - Default appsetting will be used if possible.");
-						Logger.Debug ("Second argument: " + args [1]);
-						Console.WriteLine ("[ERROR] The second argument provided either doesn't exist or is not an .xml file - The default appsettings will be used (if they exist)");
-						WriteConsoleSampleUsage ();
+						string sampleFile = config.GetAppSetting ("DefaultTestFile");
+						if (IsValidPotentialSampleFile (sampleFile)) {
+							Logger.Info ("Running config default file");
+							StartTester (sampleFile, config,Logger);
+						} else {
+							Logger.Error ("No file (or invalid file) provided and default can't be loaded either!");
+						}
 					}
 				}
-				if (!config.IsAppConfigOK ()) {
-					Logger.Error ("Fatal error - could not load config. Exiting application");
-					Console.WriteLine("[ERROR] Please edit the config file and try again");
-					return;
-				}
-				if (File.Exists (args [0]) && args [0].EndsWith (".xml")) {
-					Tester t = new Tester (config,args [0]);
-					t.SetProgressReporter (new ConsoleReporter());
-					try {
-					t.RunTests ();
-					} catch(Exception e){
-						Console.WriteLine ("[ERROR] "+e.Message+" (more info available in the logfile");
-						Logger.Error (e);
-					}
-				} else {
-					Logger.Error ("The first argument provided is either doesn't exist or is not an .xml file.");
-					Logger.Debug ("First argument: " + args [0]);
-					Logger.Debug("File exists: "+File.Exists(args[0]));
-					Console.WriteLine ("[ERROR] The first argument provided is either doesn't exist or is not an .xml file.");
-					WriteConsoleSampleUsage ();
-				}
-			} else {
-				Logger.Info ("Using GUI");
-				GUI.Run (Logger);
 			}
 		}
 
-		static void WriteConsoleSampleUsage ()
+		static bool IsValidPotentialSampleFile (string sampleFile)
 		{
-			Console.WriteLine ();
-			Console.WriteLine ("[INFO] Sample usage of this program is: ");
-			Console.WriteLine ("[INFO] ccextractortester path/to/tests-file.xml path/to/options.xml");
-			Console.WriteLine ("[INFO] where the .xml file is a valid CCEXtractorTexter tests file");
-			Console.WriteLine ();
+			return (!String.IsNullOrEmpty (sampleFile) && sampleFile.EndsWith (".xml") && File.Exists (sampleFile));
+		}
+
+		static void StartTester (string sampleFile,ConfigurationSettings config,ILogger logger)
+		{
+			Tester t = new Tester (config,logger, sampleFile);
+			t.SetProgressReporter (new ConsoleReporter (logger));
+			try {
+				t.RunTests ();
+			} catch (Exception e) {
+				Logger.Error (e);
+			}
 		}
 
 		class ConsoleReporter : IProgressReportable {
+			private ILogger Logger { get; set; }
+
+			public ConsoleReporter(ILogger logger){
+				Logger = logger;
+			}
+
 			#region IProgressReportable implementation
 
 			public void showProgressMessage (string message)
 			{
-				Console.WriteLine ("[PROGRESS] "+message);
+				Logger.Info (message);
 			}
 			#endregion
 		}
