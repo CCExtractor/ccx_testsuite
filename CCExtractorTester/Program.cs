@@ -15,9 +15,6 @@ namespace CCExtractorTester
 			Logger.Info ("If you encounter any issues using this program, get in touch, and keep this log close to you.");
 			if (args.Length > 0) {
 				Logger.Info ("Using console/command line");
-				foreach (String s in args) {
-					Logger.Debug ("Console argument: " + s);
-				}
 				ConfigurationSettings config = new ConfigurationSettings ();
 				if (args.Length > 1) {
 					if (File.Exists (args [1]) && args [1].EndsWith (".xml")) {
@@ -47,6 +44,9 @@ namespace CCExtractorTester
 						Logger.Error (e);
 					}
 				} else {
+					Logger.Error ("The first argument provided is either doesn't exist or is not an .xml file.");
+					Logger.Debug ("First argument: " + args [0]);
+					Logger.Debug("File exists: "+File.Exists(args[0]));
 					Console.WriteLine ("[ERROR] The first argument provided is either doesn't exist or is not an .xml file.");
 					WriteConsoleSampleUsage ();
 				}
