@@ -6,7 +6,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{AFE659F1-5DE6-4B80-9533-4690AB434799}</ProjectGuid>
     <Packages>
-      <Packages xmlns="">
+      <Packages>
         <Package name="Linux Binaries">
           <Builder targetFile="CCExtractorTester.tar.gz" platform="Linux" configuration="Release|x86" ctype="BinariesZipPackageBuilder">
             <ChildEntries>
