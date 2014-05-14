@@ -16,16 +16,16 @@ namespace CCExtractorTester
 
 		#region IFileComparable implementation
 
-		public void CompareAndAddToResult (string fileLocation1, string fileLocation2, string extraHTML = "")
+		public void CompareAndAddToResult (CompareData data)
 		{
-			Builder.AppendLine (extraHTML);
+			Builder.AppendLine ("Time needed for this entry: "+data.RunTime.ToString());
 			ProcessStartInfo psi = new ProcessStartInfo("diff");
 			psi.UseShellExecute = false;
 			psi.RedirectStandardError = true;
 			psi.RedirectStandardOutput = true;
 			psi.CreateNoWindow = true;
 
-			psi.Arguments = String.Format(@"-y ""{0}"" ""{1}""",fileLocation1,fileLocation2);
+			psi.Arguments = String.Format(@"-y ""{0}"" ""{1}""",data.CorrectFile,data.ProducedFile);
 			Process p = new Process ();
 			p.StartInfo = psi;
 			p.ErrorDataReceived += processError;

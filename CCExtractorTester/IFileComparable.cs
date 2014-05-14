@@ -4,7 +4,7 @@ namespace CCExtractorTester
 {
 	public interface IFileComparable
 	{
-		void CompareAndAddToResult(string fileLocation1,string fileLocation2,string extraHTML="");
+		void CompareAndAddToResult(CompareData data);
 		string GetResult();
 		string GetReportFileName();
 	}
