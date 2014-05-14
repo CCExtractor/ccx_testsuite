@@ -82,7 +82,7 @@ namespace CCExtractorTester.DiffTool
 					foreach (LineModel character in lm.SubPieces)
 					{
 						if (character.Type == ChangeType.Imaginary) continue;
-						sb.AppendFormat (@"<span class=""{0}Character"">{1}</span>", character.Type.ToString (), HttpUtility.HtmlEncode (character.Text.Replace (" ", spaceValue.ToString ())));
+						sb.AppendFormat (@"<span class=""{0}Character"">{1}</span>", character.Type.ToString (), HttpUtility.HtmlEncode (character.Text).Replace (" ", spaceValue.ToString ()));
 					}
 					return sb.ToString ();
 				}
