@@ -114,6 +114,7 @@
     <Compile Include="GUI.cs" />
     <Compile Include="ConsoleFileLogger.cs" />
     <Compile Include="ILogger.cs" />
+    <Compile Include="DiffLinuxComparer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
