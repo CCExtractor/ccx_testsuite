@@ -58,7 +58,7 @@ namespace CCExtractorTester
 						Logger.Warn ("Provided config file, but is no xml or does not exist - using default config");
 					}
 					if (!config.IsAppConfigOK ()) {
-						Logger.Error ("Fatal error - could not load config. Exiting application");
+						Logger.Error ("Fatal error - config not valid. Please check. Exiting application");
 						return;
 					}
 					if (IsValidPotentialSampleFile (options.SampleFile)) {

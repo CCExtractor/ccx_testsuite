@@ -142,9 +142,9 @@ namespace CCExtractorTester
 				while (!p.HasExited) {
 					Thread.Sleep (1000);
 				}
-				string runtime = String.Format (@"CCExtractor started at {0} and quit at {1} - Runtime: {2}", p.StartTime.ToShortTimeString (), p.ExitTime.ToShortTimeString (), (p.ExitTime - p.StartTime).Duration ().ToString("c"));
+				//string runtime = String.Format (@"CCExtractor started at {0} and quit at {1} - Runtime: {2}", p.StartTime.ToShortTimeString (), p.ExitTime.ToShortTimeString (), (p.ExitTime - p.StartTime).Duration ().ToString("c"));
 				if (p.ExitCode == 0) {
-						Comparer.CompareAndAddToResult (expectedResultFile, producedFile,runtime);
+					Comparer.CompareAndAddToResult (new CompareData(){ CorrectFile=expectedResultFile,ProducedFile=producedFile,RunTime=(p.ExitTime-p.StartTime)});
 				}
 
 				ProgressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));
