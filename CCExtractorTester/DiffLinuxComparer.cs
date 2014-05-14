@@ -25,7 +25,7 @@ namespace CCExtractorTester
 			psi.RedirectStandardOutput = true;
 			psi.CreateNoWindow = true;
 
-			psi.Arguments = String.Format("-y {0} {1}",fileLocation1,fileLocation2);
+			psi.Arguments = String.Format(@"-y ""{0}"" ""{1}""",fileLocation1,fileLocation2);
 			Process p = new Process ();
 			p.StartInfo = psi;
 			p.ErrorDataReceived += processError;
