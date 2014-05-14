@@ -20,9 +20,9 @@ namespace CCExtractorTester
 		public Tester(ConfigurationSettings cfg,ILogger logger){
 			Entries = new List<TestEntry> ();
 			ProgressReporter = new NullProgressReporter ();
-			Comparer = new DiffToolComparer ();
 			Config = cfg;
 			Logger = logger;
+			LoadComparer ();
 		}
 
 		public Tester (ConfigurationSettings cfg,ILogger logger,string xmlFile) : this(cfg,logger)
@@ -30,6 +30,21 @@ namespace CCExtractorTester
 			if (!String.IsNullOrEmpty(xmlFile)) {
 				loadAndParseXML (xmlFile);
 			}
+		}
+
+		void LoadComparer ()
+		{
+			switch (Config.GetAppSetting ("Comparer")) {
+			case "diff":
+				Comparer = new DiffLinuxComparer ();
+				break;
+			case "diffplex":
+				// Fall-through to default.
+			default:
+				Comparer = new DiffToolComparer ();
+				break;
+			}
+
 		}
 
 		public void SaveEntriesToXML(string fileName){
