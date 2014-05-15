@@ -153,7 +153,7 @@ namespace CCExtractorTester
 					if(ram != null && cpu != null){
 						Logger.Debug(String.Format("Process usage stats: {0} MB of ram, {1} % CPU",(ram.NextValue()/1024/1024),cpu.NextValue()));
 					}
-					Thread.Sleep (500);
+					Thread.Sleep (100);
 				}
 				Logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
 				Logger.Debug(String.Format("Process data: handles opened: {0}, peak paged mem: {1}, peak virtual mem: {2}, peak mem: {3}, privileged cpu time: {4}, total cpu time: {5}",p.HandleCount,p.PeakPagedMemorySize64,p.PeakVirtualMemorySize64,p.PeakWorkingSet64,p.PrivilegedProcessorTime,p.TotalProcessorTime));

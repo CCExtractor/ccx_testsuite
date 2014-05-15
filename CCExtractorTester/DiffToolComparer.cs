@@ -42,20 +42,27 @@ namespace CCExtractorTester
 
 			SideBySideModel sbsm = Differ.BuildDiffModel (oldText, newText);
 			int changes = sbsm.GetNumberOfChanges ();
-			/*String extra = "";
-			if (!String.IsNullOrEmpty (extraHTML)) {
-				extra = "<br>" + extraHTML;
-			}*/
-			//Builder.AppendFormat (@"<p>Files compared: {0} vs {1} {2}<br />Changes detected: {3} (<span onclick=""toggleNext(this);"">click here to expand<span>)</p>",fileLocation1,fileLocation2,extra,changes);
-			Builder.AppendFormat (@"<tr><td>{0}</td><td>{1}</td><td>{2}</td><td><span onclick=""toggle('{4}');"">{3}</span></td></tr>",data.CorrectFile,data.ProducedFile,data.RunTime.ToString(),changes,"entry_"+Count);
-			//Builder.Append (sbsm.GetDiffHTML (@"style=""display:none;"""));
-			BuilderDiff.Append (sbsm.GetDiffHTML (String.Format(@"style=""display:none;"" id=""{0}""","entry_"+Count)));
+			string onclick = "";
+			string clss = "green";
+			if (changes > 0) {
+				BuilderDiff.Append (sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count)));
+				onclick = String.Format(@"onclick=""toggle('{0}');""","entry_"+Count);
+				clss = "red";
+			}
+			Builder.AppendFormat (
+				@"<tr><td>{0}</td><td>{1}</td><td>{2}</td><td class=""{3}"" {4}>{5}</td></tr>",
+				data.CorrectFile,
+				data.ProducedFile,
+				data.RunTime.ToString(),
+				clss,
+				onclick,
+				changes);
 			Count++;
 		}
 
 		public string GetResult ()
 		{
-			string javascript = @"
+			string additionalHeader = @"
 				<script type=""text/javascript"">
 					function toggleNext(elm){
 						var next = elm.parentNode.nextElementSibling;
@@ -73,9 +80,17 @@ namespace CCExtractorTester
 							next.style.display = ""none"";
 						}
 					}
-				</script>";
+				</script>
+				<style type=""text/css"">
+					.green {
+						background-color: #00ff00;
+					}
+					.red {
+						background-color: #ff0000;
+					}
+				</style>";
 			string table = @"<table><tr><th>Correct file</th><th>CCExtractor result</th><th>Runtime</th><th>Changes (click to show)</th></tr>{0}</table>";
-			return SideBySideModel.GetHTML(String.Format(table,Builder.ToString ())+BuilderDiff.ToString(),"Report "+DateTime.Now.ToShortDateString(),javascript);
+			return SideBySideModel.GetHTML(String.Format(table,Builder.ToString ())+BuilderDiff.ToString(),"Report "+DateTime.Now.ToShortDateString(),additionalHeader);
 		}
 		#endregion
 	}
