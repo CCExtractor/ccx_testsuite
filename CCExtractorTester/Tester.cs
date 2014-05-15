@@ -125,6 +125,8 @@ namespace CCExtractorTester
 			psi.RedirectStandardOutput = true;
 			psi.CreateNoWindow = true;
 
+			PerformanceCounter ram, cpu;
+
 			foreach (TestEntry te in Entries) {
 				ProgressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
 				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
@@ -137,16 +139,32 @@ namespace CCExtractorTester
 				p.ErrorDataReceived += processError;
 				p.OutputDataReceived += processOutput;
 				p.Start ();
+
+				ram = cpu = null;
+				try {
+					ram = new PerformanceCounter ("Process", "Working Set", p.ProcessName);
+					cpu = new PerformanceCounter("Process", "% Processor Time", p.ProcessName);
+				} catch(Exception e){
+					Logger.Error (e);
+				}
 				p.BeginOutputReadLine ();
 				p.BeginErrorReadLine ();
 				while (!p.HasExited) {
-					Thread.Sleep (1000);
+					if(ram != null && cpu != null){
+						Logger.Debug(String.Format("Process usage stats: {0} MB of ram, {1} % CPU",(ram.NextValue()/1024/1024),cpu.NextValue()));
+					}
+					Thread.Sleep (500);
 				}
-				//string runtime = String.Format (@"CCExtractor started at {0} and quit at {1} - Runtime: {2}", p.StartTime.ToShortTimeString (), p.ExitTime.ToShortTimeString (), (p.ExitTime - p.StartTime).Duration ().ToString("c"));
+				Logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
+				Logger.Debug(String.Format("Process data: handles opened: {0}, peak paged mem: {1}, peak virtual mem: {2}, peak mem: {3}, privileged cpu time: {4}, total cpu time: {5}",p.HandleCount,p.PeakPagedMemorySize64,p.PeakVirtualMemorySize64,p.PeakWorkingSet64,p.PrivilegedProcessorTime,p.TotalProcessorTime));
 				if (p.ExitCode == 0) {
-					Comparer.CompareAndAddToResult (new CompareData(){ CorrectFile=expectedResultFile,ProducedFile=producedFile,RunTime=(p.ExitTime-p.StartTime)});
+					Comparer.CompareAndAddToResult (
+						new CompareData(){ 
+							CorrectFile=expectedResultFile,
+							ProducedFile=producedFile,
+							RunTime=(p.ExitTime-p.StartTime)
+						});
 				}
-
 				ProgressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));
 				i++;
 			}
