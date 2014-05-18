@@ -1,12 +1,11 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="CCExtractorTester\ConfigurationSettings.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="CCExtractorTester\DiffToolComparer.cs">
     <Files>
-      <File FileName="CCExtractorTester\Tester.cs" Line="145" Column="7" />
-      <File FileName="CCExtractorTester\app.config" Line="10" Column="38" />
-      <File FileName="CCExtractorTester\DiffToolComparer.cs" Line="53" Column="1" />
-      <File FileName="CCExtractorTester\DiffTool\SideBySideModel.cs" Line="85" Column="173" />
-      <File FileName="CCExtractorTester\ConfigurationSettings.cs" Line="55" Column="3" />
+      <File FileName="CCExtractorTester\Tester.cs" Line="161" Column="22" />
+      <File FileName="CCExtractorTester\app.config" Line="1" Column="1" />
+      <File FileName="CCExtractorTester\DiffToolComparer.cs" Line="91" Column="15" />
+      <File FileName="CCExtractorTester\DiffTool\SideBySideModel.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

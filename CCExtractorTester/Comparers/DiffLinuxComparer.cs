@@ -19,6 +19,8 @@ namespace CCExtractorTester
 		public void CompareAndAddToResult (CompareData data)
 		{
 			Builder.AppendLine ("Time needed for this entry: "+data.RunTime.ToString());
+			Builder.AppendLine ("Used command: " + data.Command);
+			Builder.AppendLine ("Sample file: " + data.SampleFile);
 			ProcessStartInfo psi = new ProcessStartInfo("diff");
 			psi.UseShellExecute = false;
 			psi.RedirectStandardError = true;
@@ -38,9 +40,9 @@ namespace CCExtractorTester
 			}
 		}
 
-		public string GetResult ()
+		public string GetResult (ResultData data)
 		{
-			return Builder.ToString ();
+			return "Report generated for version "+data.CCExtractorVersion+"\n"+Builder.ToString ();
 		}
 
 		public string GetReportFileName ()

@@ -5,7 +5,7 @@ namespace CCExtractorTester
 	public interface IFileComparable
 	{
 		void CompareAndAddToResult(CompareData data);
-		string GetResult();
+		string GetResult(ResultData data);
 		string GetReportFileName();
 	}
 }
