@@ -1,10 +1,10 @@
 ﻿using System;
-using System.IO;
-using System.Xml;
 using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
 using System.Threading;
+using System.Xml;
 
 namespace CCExtractorTester
 {
@@ -16,6 +16,7 @@ namespace CCExtractorTester
 		private IFileComparable Comparer { get; set; }
 		private ConfigurationSettings Config { get; set; }
 		private ILogger Logger { get; set; }
+		private IPerformanceLogger PerformanceLogger { get; set; }
 
 		public Tester(ConfigurationSettings cfg,ILogger logger){
 			Entries = new List<TestEntry> ();
@@ -23,6 +24,7 @@ namespace CCExtractorTester
 			Config = cfg;
 			Logger = logger;
 			LoadComparer ();
+			LoadPerformanceLogger ();
 		}
 
 		public Tester (ConfigurationSettings cfg,ILogger logger,string xmlFile) : this(cfg,logger)
@@ -45,6 +47,19 @@ namespace CCExtractorTester
 				break;
 			}
 
+		}
+
+		void LoadPerformanceLogger ()
+		{
+			switch (Environment.OSVersion.Platform) {
+			case PlatformID.Win32NT:
+				PerformanceLogger = new WindowsPerformanceCounters ();
+				break;			
+			default:
+				PerformanceLogger = new NullLogger ();
+				break;
+			}
+			
 		}
 
 		public void SaveEntriesToXML(string fileName){
@@ -115,6 +130,9 @@ namespace CCExtractorTester
 
 			String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
 			location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
+			if(!Directory.Exists(Path.Combine(location,"tmpFiles"))){
+				Directory.CreateDirectory (Path.Combine (location, "tmpFiles"));
+			}
 
 			int i = 1;
 			int total = Entries.Count;
@@ -125,13 +143,13 @@ namespace CCExtractorTester
 			psi.RedirectStandardOutput = true;
 			psi.CreateNoWindow = true;
 
-			PerformanceCounter ram, cpu;
-
 			foreach (TestEntry te in Entries) {
 				ProgressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
+
 				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
-				string producedFile = Path.Combine (location, "tmp_" + te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
+				string producedFile = Path.Combine (location,"tmpFiles", te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
 				string expectedResultFile = Path.Combine (Config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
+
 				psi.Arguments = te.Command + String.Format(@" -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
 				Logger.Debug ("Passed arguments: "+psi.Arguments);
 				Process p = new Process ();
@@ -140,35 +158,36 @@ namespace CCExtractorTester
 				p.OutputDataReceived += processOutput;
 				p.Start ();
 
-				ram = cpu = null;
-				try {
-					ram = new PerformanceCounter ("Process", "Working Set", p.ProcessName);
-					cpu = new PerformanceCounter("Process", "% Processor Time", p.ProcessName);
-				} catch(Exception e){
-					Logger.Error (e);
-				}
+				PerformanceLogger.SetUp (Logger, p);
+
 				p.BeginOutputReadLine ();
 				p.BeginErrorReadLine ();
 				while (!p.HasExited) {
-					if(ram != null && cpu != null){
-						Logger.Debug(String.Format("Process usage stats: {0} MB of ram, {1} % CPU",(ram.NextValue()/1024/1024),cpu.NextValue()));
-					}
+					PerformanceLogger.DebugValue ();
 					Thread.Sleep (100);
 				}
 				Logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
-				Logger.Debug(String.Format("Process data: handles opened: {0}, peak paged mem: {1}, peak virtual mem: {2}, peak mem: {3}, privileged cpu time: {4}, total cpu time: {5}",p.HandleCount,p.PeakPagedMemorySize64,p.PeakVirtualMemorySize64,p.PeakWorkingSet64,p.PrivilegedProcessorTime,p.TotalProcessorTime));
+				PerformanceLogger.DebugStats ();
 				if (p.ExitCode == 0) {
-					Comparer.CompareAndAddToResult (
-						new CompareData(){ 
-							CorrectFile=expectedResultFile,
-							ProducedFile=producedFile,
-							RunTime=(p.ExitTime-p.StartTime)
-						});
+					try {
+						Comparer.CompareAndAddToResult (
+							new CompareData(){ 
+								ProducedFile = producedFile,
+								CorrectFile = expectedResultFile,
+								SampleFile = sampleFile,
+								Command = te.Command,
+								RunTime=(p.ExitTime-p.StartTime)
+							});
+					} catch(Exception e){
+						Logger.Error (e);
+					}
 				}
 				ProgressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));
 				i++;
 			}
-			File.WriteAllText(Path.Combine (Config.GetAppSetting("ReportFolder"),Comparer.GetReportFileName()),Comparer.GetResult ());
+			File.WriteAllText(
+				Path.Combine (Config.GetAppSetting("ReportFolder"),Comparer.GetReportFileName()),
+				Comparer.GetResult (new ResultData(){CCExtractorVersion = cce+" "+DateTime.Now.ToShortDateString()}));
 		}
 
 		void processOutput (object sender, DataReceivedEventArgs e)
@@ -196,6 +215,26 @@ namespace CCExtractorTester
 			}
 
 			public void showProgramMessage (string message)
+			{
+				// do nothing
+			}
+			#endregion
+		}
+
+		class NullLogger : IPerformanceLogger {
+			#region IPerformanceLogger implementation
+
+			public void SetUp (ILogger logger, Process p)
+			{
+				// do nothing
+			}
+
+			public void DebugValue ()
+			{
+				// do nothing
+			}
+
+			public void DebugStats ()
 			{
 				// do nothing
 			}

@@ -51,8 +51,8 @@ namespace CCExtractorTester
 			}
 			Builder.AppendFormat (
 				@"<tr><td>{0}</td><td>{1}</td><td>{2}</td><td class=""{3}"" {4}>{5}</td></tr>",
-				data.CorrectFile,
-				data.ProducedFile,
+				data.SampleFile,
+				data.Command,
 				data.RunTime.ToString(),
 				clss,
 				onclick,
@@ -60,7 +60,7 @@ namespace CCExtractorTester
 			Count++;
 		}
 
-		public string GetResult ()
+		public string GetResult (ResultData data)
 		{
 			string additionalHeader = @"
 				<script type=""text/javascript"">
@@ -89,8 +89,13 @@ namespace CCExtractorTester
 						background-color: #ff0000;
 					}
 				</style>";
-			string table = @"<table><tr><th>Correct file</th><th>CCExtractor result</th><th>Runtime</th><th>Changes (click to show)</th></tr>{0}</table>";
-			return SideBySideModel.GetHTML(String.Format(table,Builder.ToString ())+BuilderDiff.ToString(),"Report "+DateTime.Now.ToShortDateString(),additionalHeader);
+			string table = @"<table><tr><th>Sample</th><th>Command</th><th>Runtime</th><th>Changes (click to show)</th></tr>{0}</table>";
+			string first = @"<p>Report generated for CCExtractor version {0}</p>";
+			return SideBySideModel.GetHTML(
+				String.Format(first,data.CCExtractorVersion)+String.Format(table,Builder.ToString ())+BuilderDiff.ToString(),
+				"Report "+DateTime.Now.ToShortDateString(),
+				additionalHeader
+			);
 		}
 		#endregion
 	}

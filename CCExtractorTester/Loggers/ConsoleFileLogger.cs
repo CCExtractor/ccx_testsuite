@@ -45,10 +45,7 @@ namespace CCExtractorTester
 
 		public void Debug (string message)
 		{
-			if (IsDebug) {
-				Console.WriteLine ("[DEBUG] " + message);
-				Logger.Debug (message);
-			}
+			Logger.Debug (message);
 		}
 	}
 }
