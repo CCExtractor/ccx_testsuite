@@ -40,10 +40,13 @@ namespace CCExtractorTester
 			case "diff":
 				Comparer = new DiffLinuxComparer ();
 				break;
+			case "diffplexreduced":
+				Comparer = new DiffToolComparer (true);
+				break;
 			case "diffplex":
 				// Fall-through to default.
 			default:
-				Comparer = new DiffToolComparer ();
+				Comparer = new DiffToolComparer (false);
 				break;
 			}
 
@@ -150,7 +153,7 @@ namespace CCExtractorTester
 				string producedFile = Path.Combine (location,"tmpFiles", te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
 				string expectedResultFile = Path.Combine (Config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
 
-				psi.Arguments = te.Command + String.Format(@" -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
+				psi.Arguments = te.Command + String.Format(@"--no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
 				Logger.Debug ("Passed arguments: "+psi.Arguments);
 				Process p = new Process ();
 				p.StartInfo = psi;

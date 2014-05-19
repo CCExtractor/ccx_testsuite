@@ -50,10 +50,10 @@ namespace CCExtractorTester
 					Logger.Info ("");
 					ConfigurationSettings config = new ConfigurationSettings ();
 					if (!String.IsNullOrEmpty (options.ConfigFile) && options.ConfigFile.EndsWith (".xml") && File.Exists (options.ConfigFile)) {
-						Logger.Info ("Loading provided configuration");
+						Logger.Info ("Loading provided configuration ("+options.ConfigFile+")");
 						XmlDocument doc = new XmlDocument ();
-						doc.Load (args [1]);
-						config = new ConfigurationSettings (doc, args [1]);
+						doc.Load (options.ConfigFile);
+						config = new ConfigurationSettings (doc, options.ConfigFile);
 					} else if(!String.IsNullOrEmpty (options.ConfigFile)) {
 						Logger.Warn ("Provided config file, but is no xml or does not exist - using default config");
 					}
