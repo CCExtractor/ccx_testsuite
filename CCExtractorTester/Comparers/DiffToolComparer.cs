@@ -11,13 +11,15 @@ namespace CCExtractorTester
 		private StringBuilder BuilderDiff { get; set; }
 		private SideBySideBuilder Differ { get; set; }
 		private int Count { get; set; }
+		private bool Reduce { get; set; }
 
-		public DiffToolComparer ()
+		public DiffToolComparer (bool reduce=false)
 		{
 			Builder = new StringBuilder ();
 			BuilderDiff = new StringBuilder ();
 			Differ = new SideBySideBuilder (new DifferTool ());
 			Count = 0;
+			Reduce = reduce;
 		}
 
 		#region IFileComparable implementation
@@ -45,7 +47,7 @@ namespace CCExtractorTester
 			string onclick = "";
 			string clss = "green";
 			if (changes > 0) {
-				BuilderDiff.Append (sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count)));
+				BuilderDiff.Append (sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count),Reduce));
 				onclick = String.Format(@"onclick=""toggle('{0}');""","entry_"+Count);
 				clss = "red";
 			}

@@ -28,7 +28,7 @@ namespace CCExtractorTester.DiffTool
 			return GetHTML(GetDiffHTML());
 		}
 
-		public string GetDiffHTML(string extraAttributesDiffBox = ""){
+		public string GetDiffHTML(string extraAttributesDiffBox = "",bool reduce=false){
 			string model = @"				
 				<div class=""diffBox"" {0}>
 			        <div class=""leftPane"">
@@ -42,10 +42,10 @@ namespace CCExtractorTester.DiffTool
 			        <div class=""clear"">
 			        </div>
 			    </div>";
-			return String.Format (model,extraAttributesDiffBox,GetSideDiffHTML (OldText), GetSideDiffHTML (NewText));
+			return String.Format (model,extraAttributesDiffBox,GetSideDiffHTML (OldText,reduce), GetSideDiffHTML (NewText,reduce));
 		}
 
-		private string GetSideDiffHTML(SingleSideModel side){
+		private string GetSideDiffHTML(SingleSideModel side,bool reduce=false){
 			string model = @"
 				<div class=""diffPane"">
 				    <table cellpadding=""0"" cellspacing=""0"" class=""diffTable"">
@@ -54,6 +54,9 @@ namespace CCExtractorTester.DiffTool
 				</div>";
 			StringBuilder sb = new StringBuilder ();
 			foreach (LineModel lm in side.Lines) {
+				if (reduce && lm.Type.Equals (ChangeType.Unchanged)) {
+					continue;
+				}
 				sb.AppendFormat (@"
 		<tr>
             <td class=""lineNumber"">{0}</td>
