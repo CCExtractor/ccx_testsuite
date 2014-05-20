@@ -2,8 +2,7 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
   <MonoDevelop.Ide.Workbench ActiveDocument="CCExtractorTester\Tester.cs">
     <Files>
-      <File FileName="CCExtractorTester\app.config" Line="9" Column="142" />
-      <File FileName="CCExtractorTester\Tester.cs" Line="156" Column="58" />
+      <File FileName="CCExtractorTester\Tester.cs" Line="127" Column="70" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
