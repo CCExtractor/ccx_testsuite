@@ -124,7 +124,7 @@ namespace CCExtractorTester
 		public void RunTests(){
 			String cce = Config.GetAppSetting ("CCExtractorLocation");
 			if (!File.Exists (cce)) {
-				throw new InvalidOperationException ("CCExtractor location is not a valid file/executable");
+				throw new InvalidOperationException ("CCExtractor location ("+cce+") is not a valid file/executable");
 			}
 			String sourceFolder = Config.GetAppSetting ("SampleFolder");
 			if (!Directory.Exists (sourceFolder)) {
@@ -153,7 +153,7 @@ namespace CCExtractorTester
 				string producedFile = Path.Combine (location,"tmpFiles", te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
 				string expectedResultFile = Path.Combine (Config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
 
-				psi.Arguments = te.Command + String.Format(@"--no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
+				psi.Arguments = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
 				Logger.Debug ("Passed arguments: "+psi.Arguments);
 				Process p = new Process ();
 				p.StartInfo = psi;
