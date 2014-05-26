@@ -135,9 +135,10 @@ namespace CCExtractorTester
 
 		protected void OnBtnRemoveRowClicked (object sender, EventArgs e)
 		{
-			foreach(TreePath tp in tree.Selection.GetSelectedRows()){
+			TreePath[] treePaths = tree.Selection.GetSelectedRows ();
+			for (int i = treePaths.Length-1; i >=0; i--) {
 				TreeIter iter;
-				tree.Model.GetIter(out iter,tp);
+				tree.Model.GetIter(out iter,treePaths[i]);
 				Store.Remove (ref iter);
 			}
 		}

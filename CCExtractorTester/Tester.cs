@@ -91,12 +91,14 @@ namespace CCExtractorTester
 			if (File.Exists (xmlFile)) {
 				ValidateXML (xmlFile);
 				XmlDocument doc = new XmlDocument ();
-				doc.Load (xmlFile);
-				foreach (XmlNode node in doc.SelectNodes("//test")) {
-					XmlNode sampleFile = node.SelectSingleNode ("sample");
-					XmlNode command = node.SelectSingleNode ("cmd");
-					XmlNode resultFile = node.SelectSingleNode ("result");
-					Entries.Add(new TestEntry(sampleFile.InnerText,command.InnerText,resultFile.InnerText));
+				using(FileStream fs = new FileStream(xmlFile,FileMode.Open)){
+					doc.Load (fs);
+					foreach (XmlNode node in doc.SelectNodes("//test")) {
+						XmlNode sampleFile = node.SelectSingleNode ("sample");
+						XmlNode command = node.SelectSingleNode ("cmd");
+						XmlNode resultFile = node.SelectSingleNode ("result");
+						Entries.Add(new TestEntry(sampleFile.InnerText,command.InnerText,resultFile.InnerText));
+					}
 				}
 				return;
 			}
@@ -111,8 +113,9 @@ namespace CCExtractorTester
 				settings.Schemas.Add (null, r);
 				settings.ValidationType = ValidationType.Schema;
 				settings.ValidationEventHandler += new System.Xml.Schema.ValidationEventHandler (settings_ValidationEventHandler);
-
-				var reader = XmlReader.Create (xml, settings);
+				using (FileStream fs = new FileStream (xml, FileMode.Open)) {
+					var reader = XmlReader.Create (fs, settings);
+				}
 			}
 		}
 
