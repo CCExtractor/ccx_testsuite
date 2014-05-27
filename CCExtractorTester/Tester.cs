@@ -97,7 +97,7 @@ namespace CCExtractorTester
 						XmlNode sampleFile = node.SelectSingleNode ("sample");
 						XmlNode command = node.SelectSingleNode ("cmd");
 						XmlNode resultFile = node.SelectSingleNode ("result");
-						Entries.Add(new TestEntry(sampleFile.InnerText,command.InnerText,resultFile.InnerText));
+						Entries.Add(new TestEntry(ConvertFolderDelimiters(sampleFile.InnerText),command.InnerText,ConvertFolderDelimiters(resultFile.InnerText)));
 					}
 				}
 				return;
@@ -117,6 +117,22 @@ namespace CCExtractorTester
 					var reader = XmlReader.Create (fs, settings);
 				}
 			}
+		}
+
+		string ConvertFolderDelimiters (string path)
+		{
+			char env = '\\';
+			switch (Environment.OSVersion.Platform) {
+			case PlatformID.Win32NT:
+			case PlatformID.Win32S:
+			case PlatformID.Win32Windows:
+			case PlatformID.WinCE:
+				env = '/';
+					break;			
+				default:					
+					break;
+			}
+			return path.Replace (env, Path.DirectorySeparatorChar);
 		}
 
 		void settings_ValidationEventHandler (object sender, System.Xml.Schema.ValidationEventArgs e)
