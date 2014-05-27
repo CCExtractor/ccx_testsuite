@@ -28,7 +28,13 @@ namespace CCExtractorTester
 				md.Destroy ();
 			}
 			if (!String.IsNullOrEmpty (Config.GetAppSetting ("DefaultTestFile"))) {
+				try {
 				TestClass = new Tester (Config,Logger,Config.GetAppSetting("DefaultTestFile"));
+				} catch(Exception e){
+					Logger.Error ("Could not find default Test file!");
+					Logger.Error (e);
+					TestClass = new Tester (Config, Logger);
+				}
 			} else {
 				TestClass = new Tester (Config,Logger);
 			}
