@@ -159,14 +159,34 @@ namespace CCExtractorTester
 			int i = 1;
 			int total = Entries.Count;
 
-			ProcessStartInfo psi = new ProcessStartInfo(cce);
+			/*ProcessStartInfo psi = new ProcessStartInfo(cce);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardError = true;
 			psi.RedirectStandardOutput = true;
-			psi.CreateNoWindow = true;
+			psi.CreateNoWindow = true;*/
+
+			TestEntryProcessing.cce = cce;
+			TestEntryProcessing.Comparer = Comparer;
+			TestEntryProcessing.Config = Config;
+			TestEntryProcessing.location = location;
+			TestEntryProcessing.Logger = Logger;
+			TestEntryProcessing.PerformanceLogger = PerformanceLogger;
+			TestEntryProcessing.progressReporter = ProgressReporter;
+			TestEntryProcessing.sourceFolder = sourceFolder;
+			TestEntryProcessing.total = total;
+
+			ManualResetEvent[] mres = new ManualResetEvent[Entries.Count];
 
 			foreach (TestEntry te in Entries) {
-				ProgressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
+				mres [i-1] = new ManualResetEvent (false);
+				TestEntryProcessing tep = new TestEntryProcessing (te, i);
+				tep.eventX = mres[i-1];
+
+				//Thread oThread = new Thread(new ThreadStart(tep.Process));
+				//oThread.Start();
+				ThreadPool.QueueUserWorkItem (new WaitCallback (tep.Process));
+
+				/*ProgressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
 
 				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
 				string producedFile = Path.Combine (location,"tmpFiles", te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
@@ -204,12 +224,20 @@ namespace CCExtractorTester
 						Logger.Error (e);
 					}
 				}
-				ProgressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));
+				ProgressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));*/
+
 				i++;
 			}
+			WaitHandle.WaitAll (mres);
+			//eventX.WaitOne(Timeout.Infinite,true);
 			File.WriteAllText(
 				Path.Combine (Config.GetAppSetting("ReportFolder"),Comparer.GetReportFileName()),
 				Comparer.GetResult (new ResultData(){CCExtractorVersion = cce+" "+DateTime.Now.ToShortDateString()}));
+		}
+
+		public void SetProgressReporter (IProgressReportable progressReporter)
+		{
+			ProgressReporter = progressReporter;
 		}
 
 		void processOutput (object sender, DataReceivedEventArgs e)
@@ -224,9 +252,88 @@ namespace CCExtractorTester
 			}
 		}
 
-		public void SetProgressReporter (IProgressReportable progressReporter)
-		{
-			ProgressReporter = progressReporter;
+		class TestEntryProcessing {
+			public static string cce;
+			public static IProgressReportable progressReporter;
+			public static string sourceFolder;
+			public static string location;
+			public static ConfigurationSettings Config;
+			public static int total;
+			public static ILogger Logger;
+			public static IFileComparable Comparer;
+			public static IPerformanceLogger PerformanceLogger;
+
+			private TestEntry te;
+			private int current;
+
+			public ManualResetEvent eventX;
+
+			public TestEntryProcessing(TestEntry testingEntry,int curr){
+				te = testingEntry;
+				current = curr;
+			}
+
+			public void Process(object state){
+				ProcessStartInfo psi = new ProcessStartInfo(cce);
+				psi.UseShellExecute = false;
+				psi.RedirectStandardError = true;
+				psi.RedirectStandardOutput = true;
+				psi.CreateNoWindow = true;
+
+				progressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", current, total));
+
+				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
+				string producedFile = Path.Combine (location,"tmpFiles", te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
+				string expectedResultFile = Path.Combine (Config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
+
+				psi.Arguments = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
+				Logger.Debug ("Passed arguments: "+psi.Arguments);
+				Process p = new Process ();
+				p.StartInfo = psi;
+				p.ErrorDataReceived += processError;
+				p.OutputDataReceived += processOutput;
+				p.Start ();
+
+				PerformanceLogger.SetUp (Logger, p);
+
+				p.BeginOutputReadLine ();
+				p.BeginErrorReadLine ();
+				while (!p.HasExited) {
+					//try {
+					PerformanceLogger.DebugValue ();
+					Thread.Sleep (100);
+				}
+				Logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
+				PerformanceLogger.DebugStats ();
+				if (p.ExitCode == 0) {
+					try {
+						Comparer.CompareAndAddToResult (
+							new CompareData(){ 
+								ProducedFile = producedFile,
+								CorrectFile = expectedResultFile,
+								SampleFile = sampleFile,
+								Command = te.Command,
+								RunTime=(p.ExitTime-p.StartTime)
+							});
+					} catch(Exception e){
+						Logger.Error (e);
+					}
+				}
+				progressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", current,p.ExitCode));
+				eventX.Set ();
+			}
+
+			void processOutput (object sender, DataReceivedEventArgs e)
+			{
+				Logger.Debug (e.Data);
+			}
+
+			void processError (object sender, DataReceivedEventArgs e)
+			{
+				if (!String.IsNullOrEmpty (e.Data)) {
+					Logger.Error (e.Data);
+				}
+			} 
 		}
 
 		class NullProgressReporter : IProgressReportable {

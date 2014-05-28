@@ -29,7 +29,10 @@ namespace CCExtractorTester
 		public void DebugValue ()
 		{
 			if(Ram != null && Cpu != null){
+				try {
 				Logger.Debug(String.Format("Process usage stats: {0} MB of ram, {1} % CPU",(Ram.NextValue()/1024/1024),Cpu.NextValue()));
+				} catch(Exception){
+				}
 			}
 		}
 
