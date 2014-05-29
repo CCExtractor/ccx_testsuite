@@ -8,7 +8,7 @@ namespace CCExtractorTester
 	public class DiffToolComparer : IFileComparable
 	{
 		private StringBuilder Builder { get; set; }
-		private StringBuilder BuilderDiff { get; set; }
+		private StreamWriter BuilderDiff { get; set; }
 		private SideBySideBuilder Differ { get; set; }
 		private int Count { get; set; }
 		private bool Reduce { get; set; }
@@ -16,7 +16,7 @@ namespace CCExtractorTester
 		public DiffToolComparer (bool reduce=false)
 		{
 			Builder = new StringBuilder ();
-			BuilderDiff = new StringBuilder ();
+			BuilderDiff = new StreamWriter ("tmpHTML.html", false);
 			Differ = new SideBySideBuilder (new DifferTool ());
 			Count = 0;
 			Reduce = reduce;
@@ -47,7 +47,8 @@ namespace CCExtractorTester
 			string onclick = "";
 			string clss = "green";
 			if (changes > 0) {
-				BuilderDiff.Append (sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count),Reduce));
+				BuilderDiff.WriteLine(sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count),Reduce));
+				BuilderDiff.Flush ();
 				onclick = String.Format(@"onclick=""toggle('{0}');""","entry_"+Count);
 				clss = "red";
 			}
@@ -62,7 +63,7 @@ namespace CCExtractorTester
 			Count++;
 		}
 
-		public string GetResult (ResultData data)
+		public void SaveReport (string pathToFolder, ResultData data)
 		{
 			string additionalHeader = @"
 				<script type=""text/javascript"">
@@ -91,13 +92,28 @@ namespace CCExtractorTester
 						background-color: #ff0000;
 					}
 				</style>";
-			string table = @"<table><tr><th>Sample</th><th>Command</th><th>Runtime</th><th>Changes (click to show)</th></tr>{0}</table>";
-			string first = @"<p>Report generated for CCExtractor version {0}</p>";
-			return SideBySideModel.GetHTML(
-				String.Format(first,data.CCExtractorVersion)+String.Format(table,Builder.ToString ())+BuilderDiff.ToString(),
-				"Report "+DateTime.Now.ToShortDateString(),
-				additionalHeader
-			);
+			string table = String.Format(@"<table><tr><th>Sample</th><th>Command</th><th>Runtime</th><th>Changes (click to show)</th></tr>{0}</table>",Builder.ToString());
+			string first = String.Format(@"<p>Report generated for CCExtractor version {0}</p>",data.CCExtractorVersion);
+
+			BuilderDiff.Close ();
+
+			using (StreamWriter sw = new StreamWriter(Path.Combine(pathToFolder,GetReportFileName()))) {
+				sw.WriteLine (String.Format (@"
+				<html>
+					<head>
+						<title>{0}</title>
+						<style type=""text/css"">{1}</style>
+						{2}
+					</head>
+					<body>", "Report " + DateTime.Now.ToShortDateString (), SideBySideModel.GetCSS (), additionalHeader));
+				sw.WriteLine (first);
+				sw.WriteLine (table);
+				string[] lines = File.ReadAllLines ("tmpHTML.html");
+				foreach (string line in lines) {
+					sw.WriteLine (line);
+				}
+				sw.WriteLine ("</body></html>");
+			}
 		}
 		#endregion
 	}

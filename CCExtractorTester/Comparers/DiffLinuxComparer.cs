@@ -2,6 +2,7 @@
 using System.Text;
 using System.Diagnostics;
 using System.Threading;
+using System.IO;
 
 namespace CCExtractorTester
 {
@@ -40,14 +41,17 @@ namespace CCExtractorTester
 			}
 		}
 
-		public string GetResult (ResultData data)
-		{
-			return "Report generated for version "+data.CCExtractorVersion+"\n"+Builder.ToString ();
-		}
-
 		public string GetReportFileName ()
 		{
 			return "Report_" + DateTime.Now.ToFileTime () + ".txt";
+		}
+
+		public void SaveReport (string pathToFolder, ResultData data)
+		{
+			using (StreamWriter sw = new StreamWriter(Path.Combine(pathToFolder,GetReportFileName()))) {
+				sw.WriteLine ("Report generated for version " + data.CCExtractorVersion);
+				sw.WriteLine (Builder.ToString ());
+			}
 		}
 
 		#endregion

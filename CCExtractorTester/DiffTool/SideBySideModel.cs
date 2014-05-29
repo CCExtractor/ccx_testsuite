@@ -106,11 +106,12 @@ namespace CCExtractorTester.DiffTool
 				 	{3}
 					</body>
 				</html>";
-			DiffResources.Culture = CultureInfo.InvariantCulture;
-			return String.Format (html, title,DiffResources.Diff1,additionalHeader,body);
+			return String.Format (html, title,GetCSS(),additionalHeader,body);
 		}
 
-
+		public static string GetCSS(){
+			DiffResources.Culture = CultureInfo.InvariantCulture;
+			return DiffResources.Diff1;
+		}
 	}
 }
-
