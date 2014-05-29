@@ -23,7 +23,6 @@ namespace CCExtractorTester
 			ProgressReporter = new NullProgressReporter ();
 			Config = cfg;
 			Logger = logger;
-			LoadComparer ();
 			LoadPerformanceLogger ();
 		}
 
@@ -150,10 +149,18 @@ namespace CCExtractorTester
 				throw new InvalidOperationException ("Sample folder does not exist!");
 			}
 
+			LoadComparer ();
+
 			String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
 			location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
 			if(!Directory.Exists(Path.Combine(location,"tmpFiles"))){
 				Directory.CreateDirectory (Path.Combine (location, "tmpFiles"));
+			}
+
+			bool useThreading = false;
+			if (!String.IsNullOrEmpty(Config.GetAppSetting ("UseThreading")) && Config.GetAppSetting("UseThreading") == "true") {
+				useThreading = true;
+				Logger.Info ("Using threading");
 			}
 
 			int i = 1;
@@ -177,62 +184,26 @@ namespace CCExtractorTester
 
 			ManualResetEvent[] mres = new ManualResetEvent[Entries.Count];
 
+			DateTime start = DateTime.Now;
+
 			foreach (TestEntry te in Entries) {
 				mres [i-1] = new ManualResetEvent (false);
 				TestEntryProcessing tep = new TestEntryProcessing (te, i);
 				tep.eventX = mres[i-1];
 
-				//Thread oThread = new Thread(new ThreadStart(tep.Process));
-				//oThread.Start();
-				ThreadPool.QueueUserWorkItem (new WaitCallback (tep.Process));
-
-				/*ProgressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
-
-				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
-				string producedFile = Path.Combine (location,"tmpFiles", te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
-				string expectedResultFile = Path.Combine (Config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
-
-				psi.Arguments = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
-				Logger.Debug ("Passed arguments: "+psi.Arguments);
-				Process p = new Process ();
-				p.StartInfo = psi;
-				p.ErrorDataReceived += processError;
-				p.OutputDataReceived += processOutput;
-				p.Start ();
-
-				PerformanceLogger.SetUp (Logger, p);
-
-				p.BeginOutputReadLine ();
-				p.BeginErrorReadLine ();
-				while (!p.HasExited) {
-					PerformanceLogger.DebugValue ();
-					Thread.Sleep (100);
+				if (useThreading) {
+					ThreadPool.QueueUserWorkItem (new WaitCallback (tep.Process));
+				} else {
+					tep.Process (null);
 				}
-				Logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
-				PerformanceLogger.DebugStats ();
-				if (p.ExitCode == 0) {
-					try {
-						Comparer.CompareAndAddToResult (
-							new CompareData(){ 
-								ProducedFile = producedFile,
-								CorrectFile = expectedResultFile,
-								SampleFile = sampleFile,
-								Command = te.Command,
-								RunTime=(p.ExitTime-p.StartTime)
-							});
-					} catch(Exception e){
-						Logger.Error (e);
-					}
-				}
-				ProgressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));*/
 
 				i++;
 			}
 			WaitHandle.WaitAll (mres);
-			//eventX.WaitOne(Timeout.Infinite,true);
-			File.WriteAllText(
-				Path.Combine (Config.GetAppSetting("ReportFolder"),Comparer.GetReportFileName()),
-				Comparer.GetResult (new ResultData(){CCExtractorVersion = cce+" "+DateTime.Now.ToShortDateString()}));
+			DateTime end = DateTime.Now;
+			Logger.Info ("Runtime: "+(end.Subtract(start)).ToString());
+			Comparer.SaveReport (Config.GetAppSetting ("ReportFolder"), new ResultData (){ CCExtractorVersion = cce + " " + DateTime.Now.ToShortDateString () });
+			Comparer = null;
 		}
 
 		public void SetProgressReporter (IProgressReportable progressReporter)
@@ -299,7 +270,6 @@ namespace CCExtractorTester
 				p.BeginOutputReadLine ();
 				p.BeginErrorReadLine ();
 				while (!p.HasExited) {
-					//try {
 					PerformanceLogger.DebugValue ();
 					Thread.Sleep (100);
 				}
