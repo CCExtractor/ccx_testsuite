@@ -6,6 +6,9 @@ using CommandLine.Text;
 
 namespace CCExtractorTester
 {
+	/// <summary>
+	/// The Options that are available for use in the command line interface.
+	/// </summary>
 	class Options {
 		[Option('g',"gui",DefaultValue=false,Required=false,HelpText="Use the GUI instead of the CLI")]
 		public bool IsGUI { get; set; }
@@ -25,11 +28,21 @@ namespace CCExtractorTester
 		}
 	}
 
-	// Need mono? http://www.nat.li/linux/how-to-install-mono-2-11-2-on-debian-squeeze
+	/// <summary>
+	/// Main class of the program.
+	/// </summary>
 	class MainClass
 	{
+		/// <summary>
+		/// The logger used to log the things that happen while this program runs.
+		/// Defaults to the Console + File logger.
+		/// </summary>
 		public static ILogger Logger = new ConsoleFileLogger ();
 
+		/// <summary>
+		/// The entry point of the program, where the program control starts and ends.
+		/// </summary>
+		/// <param name="args">The command-line arguments.</param>
 		public static void Main (string[] args)
 		{
 			var options = new Options ();
@@ -77,11 +90,22 @@ namespace CCExtractorTester
 			}
 		}
 
+		/// <summary>
+		/// Determines if the provided sampleFile is a valid potential sample file. Checks if it's not empty, has an xml extension and if the file exists.
+		/// </summary>
+		/// <returns><c>true</c> if the file exists, has an xml extension and the string is not null or empty; otherwise, <c>false</c>.</returns>
+		/// <param name="sampleFile">Sample file.</param>
 		static bool IsValidPotentialSampleFile (string sampleFile)
 		{
 			return (!String.IsNullOrEmpty (sampleFile) && sampleFile.EndsWith (".xml") && File.Exists (sampleFile));
 		}
 
+		/// <summary>
+		/// Starts the tester.
+		/// </summary>
+		/// <param name="sampleFile">The sample file the tester will be running.</param>
+		/// <param name="config">The configuration that will be used by the tester.</param>
+		/// <param name="logger">The logger that will be used by the tester.</param>
 		static void StartTester (string sampleFile,ConfigurationSettings config,ILogger logger)
 		{
 			Tester t = new Tester (config,logger, sampleFile);
@@ -93,6 +117,7 @@ namespace CCExtractorTester
 			}
 		}
 
+		// An internal class for logging progress to the console.
 		class ConsoleReporter : IProgressReportable {
 			private ILogger Logger { get; set; }
 
