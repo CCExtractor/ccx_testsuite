@@ -10,7 +10,7 @@ using CommandLine;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("CCExtractor")]
 [assembly: AssemblyProduct ("")]
-[assembly: AssemblyCopyright ("Copyright (C) 2014 CCExtractor - developed by Willem Van Iseghem during GSoC 2014")]
+[assembly: AssemblyCopyright ("Copyright (C) 2014 CCExtractor - developed by Willem Van Iseghem during GSoC 2014 - see LICENSE")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
