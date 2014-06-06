@@ -5,14 +5,41 @@ using System.IO;
 
 namespace CCExtractorTester
 {
+	/// <summary>
+	/// Difference comparer using the built-in tool. Generates HTML.
+	/// </summary>
 	public class DiffToolComparer : IFileComparable
 	{
+		/// <summary>
+		/// Gets or sets the stringbuilder.
+		/// </summary>
+		/// <value>The builder.</value>
 		private StringBuilder Builder { get; set; }
+		/// <summary>
+		/// Gets or sets the builder diff. Uses streamwriter for preventing out-of-memory exceptions.
+		/// </summary>
+		/// <value>The builder diff.</value>
 		private StreamWriter BuilderDiff { get; set; }
+		/// <summary>
+		/// Gets or sets the instance that actually does the differ.
+		/// </summary>
+		/// <value>The differ.</value>
 		private SideBySideBuilder Differ { get; set; }
+		/// <summary>
+		/// Gets or sets the number of entries that have been processed so far.
+		/// </summary>
+		/// <value>The count.</value>
 		private int Count { get; set; }
+		/// <summary>
+		/// If <c>true</c>, only the differences will be saved to the report. Otherwise the entire file will be shown in the differ.
+		/// </summary>
+		/// <value><c>true</c> if reduce; otherwise, <c>false</c>.</value>
 		private bool Reduce { get; set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffToolComparer"/> class.
+		/// </summary>
+		/// <param name="reduce">If set to <c>true</c>, only show the changed lines.</param>
 		public DiffToolComparer (bool reduce=false)
 		{
 			Builder = new StringBuilder ();
@@ -23,12 +50,18 @@ namespace CCExtractorTester
 		}
 
 		#region IFileComparable implementation
-
+		/// <summary>
+		/// Gets the name of the report file.
+		/// </summary>
+		/// <returns>The report file name.</returns>
 		public string GetReportFileName ()
 		{
 			return "Report_" + DateTime.Now.ToFileTime () + ".html";
 		}
-
+		/// <summary>
+		/// Compares the files provided in the data and add to an internal result.
+		/// </summary>
+		/// <param name="data">The data for this entry.</param>
 		public void CompareAndAddToResult (CompareData data)
 		{
 			string oldText = string.Empty;
@@ -62,7 +95,11 @@ namespace CCExtractorTester
 				changes);
 			Count++;
 		}
-
+		/// <summary>
+		/// Saves the report to a given file, with some extra data provided.
+		/// </summary>
+		/// <param name="pathToFolder">Path to folder to save the report in</param>
+		/// <param name="data">The extra result data that should be in the report.</param>
 		public void SaveReport (string pathToFolder, ResultData data)
 		{
 			string additionalHeader = @"
