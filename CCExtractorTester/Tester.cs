@@ -8,25 +8,61 @@ using System.Xml;
 
 namespace CCExtractorTester
 {
-	// TODO: add option to change Comparer, and add option for Logger.
+	/// <summary>
+	/// The class that does the heavy lifting in this application.
+	/// </summary>
 	public class Tester
 	{
+		/// <summary>
+		/// A list of the TestEntry instances that will be processed.
+		/// </summary>
+		/// <value>The entries.</value>
 		public List<TestEntry> Entries { get; private set; } 
+		/// <summary>
+		/// Gets or sets the progress reporter that will be used.
+		/// </summary>
+		/// <value>The progress reporter.</value>
 		private IProgressReportable ProgressReporter { get; set; }
+		/// <summary>
+		/// Gets or sets the comparer that will be used by the tester.
+		/// </summary>
+		/// <value>The comparer.</value>
 		private IFileComparable Comparer { get; set; }
+		/// <summary>
+		/// Gets or sets the configuration instance that will be used.
+		/// </summary>
+		/// <value>The config.</value>
 		private ConfigurationSettings Config { get; set; }
+		/// <summary>
+		/// Gets or sets the logger.
+		/// </summary>
+		/// <value>The logger.</value>
 		private ILogger Logger { get; set; }
+		/// <summary>
+		/// Gets or sets the performance logger.
+		/// </summary>
+		/// <value>The performance logger.</value>
 		private IPerformanceLogger PerformanceLogger { get; set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.Tester"/> class.
+		/// </summary>
+		/// <param name="cfg">The configuration that will be used.</param>
+		/// <param name="logger">The logger that will be used.</param>
 		public Tester(ConfigurationSettings cfg,ILogger logger){
 			Entries = new List<TestEntry> ();
 			ProgressReporter = new NullProgressReporter ();
 			Config = cfg;
 			Logger = logger;
-			LoadComparer ();
 			LoadPerformanceLogger ();
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.Tester"/> class.
+		/// </summary>
+		/// <param name="cfg">The configuration that will be used.</param>
+		/// <param name="logger">The logger that will be used.</param>
+		/// <param name="xmlFile">The XML file containing all test entries.</param>
 		public Tester (ConfigurationSettings cfg,ILogger logger,string xmlFile) : this(cfg,logger)
 		{
 			if (!String.IsNullOrEmpty(xmlFile)) {
@@ -34,6 +70,9 @@ namespace CCExtractorTester
 			}
 		}
 
+		/// <summary>
+		/// Sets the comparer based on the "Comparer" config setting.
+		/// </summary>
 		void LoadComparer ()
 		{
 			switch (Config.GetAppSetting ("Comparer")) {
@@ -52,6 +91,9 @@ namespace CCExtractorTester
 
 		}
 
+		/// <summary>
+		/// Loads the performance logger, based on the used platform.
+		/// </summary>
 		void LoadPerformanceLogger ()
 		{
 			switch (Environment.OSVersion.Platform) {
@@ -65,6 +107,10 @@ namespace CCExtractorTester
 			
 		}
 
+		/// <summary>
+		/// Saves the entries to XML on a given fileName.
+		/// </summary>
+		/// <param name="fileName">The file name to save the XML to.</param>
 		public void SaveEntriesToXML(string fileName){
 			XmlDocument doc = new XmlDocument ();
 			doc.LoadXml (@"<?xml version=""1.0"" encoding=""UTF-8""?><tests></tests>");
@@ -86,12 +132,17 @@ namespace CCExtractorTester
 			doc.Save (fileName);
 		}
 
-		void loadAndParseXML (string xmlFile)
+
+		/// <summary>
+		/// Loads the given XML file and tries to parse it into XML.
+		/// </summary>
+		/// <param name="xmlFileName">The location of the XML file to load and parse.</param>
+		void loadAndParseXML (string xmlFileName)
 		{
-			if (File.Exists (xmlFile)) {
-				ValidateXML (xmlFile);
+			if (File.Exists (xmlFileName)) {
+				ValidateXML (xmlFileName);
 				XmlDocument doc = new XmlDocument ();
-				using(FileStream fs = new FileStream(xmlFile,FileMode.Open)){
+				using(FileStream fs = new FileStream(xmlFileName,FileMode.Open)){
 					doc.Load (fs);
 					foreach (XmlNode node in doc.SelectNodes("//test")) {
 						XmlNode sampleFile = node.SelectSingleNode ("sample");
@@ -105,7 +156,11 @@ namespace CCExtractorTester
 			throw new InvalidDataException ("File does not exist");
 		}
 
-		void ValidateXML (string xml)
+		/// <summary>
+		/// Validates the given XML at the location against our scheme.
+		/// </summary>
+		/// <param name="xmlFileName">The location of the XML file to validate.</param>
+		void ValidateXML (string xmlFileName)
 		{
 			using (StringReader sr = new StringReader (Resources.tests)) {
 				XmlReader r = XmlReader.Create (sr);
@@ -113,12 +168,17 @@ namespace CCExtractorTester
 				settings.Schemas.Add (null, r);
 				settings.ValidationType = ValidationType.Schema;
 				settings.ValidationEventHandler += new System.Xml.Schema.ValidationEventHandler (settings_ValidationEventHandler);
-				using (FileStream fs = new FileStream (xml, FileMode.Open)) {
+				using (FileStream fs = new FileStream (xmlFileName, FileMode.Open)) {
 					var reader = XmlReader.Create (fs, settings);
 				}
 			}
 		}
 
+		/// <summary>
+		/// Converts the folder delimiters between platforms to ensure no issues when running test xmls created on another platform.
+		/// </summary>
+		/// <returns>The converted path.</returns>
+		/// <param name="path">The path to check and if necessary, convert.</param>
 		string ConvertFolderDelimiters (string path)
 		{
 			char env = '\\';
@@ -135,11 +195,19 @@ namespace CCExtractorTester
 			return path.Replace (env, Path.DirectorySeparatorChar);
 		}
 
+		/// <summary>
+		/// The validation event handler for the settings XSD scheme.
+		/// </summary>
+		/// <param name="sender">Sender.</param>
+		/// <param name="e">E.</param>
 		void settings_ValidationEventHandler (object sender, System.Xml.Schema.ValidationEventArgs e)
 		{
 			throw new InvalidDataException ("XML File is not formatted correctly");
 		}
 
+		/// <summary>
+		/// Runs the tests.
+		/// </summary>
 		public void RunTests(){
 			String cce = Config.GetAppSetting ("CCExtractorLocation");
 			if (!File.Exists (cce)) {
@@ -150,49 +218,144 @@ namespace CCExtractorTester
 				throw new InvalidOperationException ("Sample folder does not exist!");
 			}
 
+			LoadComparer ();
+
 			String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
 			location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
 			if(!Directory.Exists(Path.Combine(location,"tmpFiles"))){
 				Directory.CreateDirectory (Path.Combine (location, "tmpFiles"));
 			}
 
-			int i = 1;
-			int total = Entries.Count;
+			bool useThreading = false;
+			if (!String.IsNullOrEmpty(Config.GetAppSetting ("UseThreading")) && Config.GetAppSetting("UseThreading") == "true") {
+				useThreading = true;
+				Logger.Info ("Using threading");
+			}
 
-			ProcessStartInfo psi = new ProcessStartInfo(cce);
-			psi.UseShellExecute = false;
-			psi.RedirectStandardError = true;
-			psi.RedirectStandardOutput = true;
-			psi.CreateNoWindow = true;
+			int i = 1;
+			SetUpTestEntryProcessing (cce, location,sourceFolder,Entries.Count);
+			ManualResetEvent[] mres = new ManualResetEvent[Entries.Count];
+			DateTime start = DateTime.Now;
 
 			foreach (TestEntry te in Entries) {
-				ProgressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", i, total));
+				mres [i-1] = new ManualResetEvent (false);
+				TestEntryProcessing tep = new TestEntryProcessing (te, i);
+				tep.eventX = mres[i-1];
+
+				if (useThreading) {
+					ThreadPool.QueueUserWorkItem (new WaitCallback (tep.Process));
+				} else {
+					tep.Process (null);
+				}
+
+				i++;
+			}
+			if (useThreading) {
+				WaitHandle.WaitAll (mres);
+			}
+			DateTime end = DateTime.Now;
+			Logger.Info ("Runtime: "+(end.Subtract(start)).ToString());
+			Comparer.SaveReport (Config.GetAppSetting ("ReportFolder"), new ResultData (){ CCExtractorVersion = cce + " " + DateTime.Now.ToShortDateString () });
+			Comparer = null;
+		}
+
+		/// <summary>
+		/// Sets up test entry processing.
+		/// </summary>
+		/// <param name="cce">The CCExtractor executable location.</param>
+		/// <param name="location">The folder from where this program is executed.</param>
+		/// <param name="sourceFolder">The folder with the samples in.</param>
+		/// <param name="total">The number of test entries to process.</param>
+		void SetUpTestEntryProcessing (string cce, string location,string sourceFolder, int total)
+		{
+			TestEntryProcessing.ccextractorLocation = cce;
+			TestEntryProcessing.location = location;
+			TestEntryProcessing.sourceFolder = sourceFolder;
+			TestEntryProcessing.total = total;
+
+			TestEntryProcessing.comparer = Comparer;
+			TestEntryProcessing.config = Config;
+			TestEntryProcessing.logger = Logger;
+			TestEntryProcessing.performanceLogger = PerformanceLogger;
+			TestEntryProcessing.progressReporter = ProgressReporter;
+		}
+
+		/// <summary>
+		/// Sets the progress reporter.
+		/// </summary>
+		/// <param name="progressReporter">Progress reporter.</param>
+		public void SetProgressReporter (IProgressReportable progressReporter)
+		{
+			ProgressReporter = progressReporter;
+		}
+
+		/// <summary>
+		/// Internal class that processes a single entry.
+		/// </summary>
+		class TestEntryProcessing {
+			public static string ccextractorLocation;
+			public static IProgressReportable progressReporter;
+			public static string sourceFolder;
+			public static string location;
+			public static ConfigurationSettings config;
+			public static int total;
+			public static ILogger logger;
+			public static IFileComparable comparer;
+			public static IPerformanceLogger performanceLogger;
+
+			private TestEntry te;
+			private int current;
+
+			public ManualResetEvent eventX;
+
+			/// <summary>
+			/// Initializes a new instance of the <see cref="CCExtractorTester.Tester+TestEntryProcessing"/> class.
+			/// </summary>
+			/// <param name="testingEntry">Testing entry.</param>
+			/// <param name="curr">Curr.</param>
+			public TestEntryProcessing(TestEntry testingEntry,int curr){
+				te = testingEntry;
+				current = curr;
+			}
+
+			/// <summary>
+			/// Process the current entry.
+			/// </summary>
+			/// <param name="state">State.</param>
+			public void Process(object state){
+				ProcessStartInfo psi = new ProcessStartInfo(ccextractorLocation);
+				psi.UseShellExecute = false;
+				psi.RedirectStandardError = true;
+				psi.RedirectStandardOutput = true;
+				psi.CreateNoWindow = true;
+
+				progressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", current, total));
 
 				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
 				string producedFile = Path.Combine (location,"tmpFiles", te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
-				string expectedResultFile = Path.Combine (Config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
+				string expectedResultFile = Path.Combine (config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
 
 				psi.Arguments = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
-				Logger.Debug ("Passed arguments: "+psi.Arguments);
+				logger.Debug ("Passed arguments: "+psi.Arguments);
 				Process p = new Process ();
 				p.StartInfo = psi;
 				p.ErrorDataReceived += processError;
 				p.OutputDataReceived += processOutput;
 				p.Start ();
 
-				PerformanceLogger.SetUp (Logger, p);
+				performanceLogger.SetUp (logger, p);
 
 				p.BeginOutputReadLine ();
 				p.BeginErrorReadLine ();
 				while (!p.HasExited) {
-					PerformanceLogger.DebugValue ();
+					performanceLogger.DebugValue ();
 					Thread.Sleep (100);
 				}
-				Logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
-				PerformanceLogger.DebugStats ();
+				logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
+				performanceLogger.DebugStats ();
 				if (p.ExitCode == 0) {
 					try {
-						Comparer.CompareAndAddToResult (
+						comparer.CompareAndAddToResult (
 							new CompareData(){ 
 								ProducedFile = producedFile,
 								CorrectFile = expectedResultFile,
@@ -201,34 +364,39 @@ namespace CCExtractorTester
 								RunTime=(p.ExitTime-p.StartTime)
 							});
 					} catch(Exception e){
-						Logger.Error (e);
+						logger.Error (e);
 					}
 				}
-				ProgressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", i,p.ExitCode));
-				i++;
+				progressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", current,p.ExitCode));
+				eventX.Set ();
 			}
-			File.WriteAllText(
-				Path.Combine (Config.GetAppSetting("ReportFolder"),Comparer.GetReportFileName()),
-				Comparer.GetResult (new ResultData(){CCExtractorVersion = cce+" "+DateTime.Now.ToShortDateString()}));
-		}
 
-		void processOutput (object sender, DataReceivedEventArgs e)
-		{
-			Logger.Debug (e.Data);
-		}
+			/// <summary>
+			/// Processes the output received from CCExtractor.
+			/// </summary>
+			/// <param name="sender">Sender.</param>
+			/// <param name="e">E.</param>
+			void processOutput (object sender, DataReceivedEventArgs e)
+			{
+				logger.Debug (e.Data);
+			}
 
-		void processError (object sender, DataReceivedEventArgs e)
-		{
-			if (!String.IsNullOrEmpty (e.Data)) {
-				Logger.Error (e.Data);
+			/// <summary>
+			/// Processes the errors received from CCExtractor.
+			/// </summary>
+			/// <param name="sender">Sender.</param>
+			/// <param name="e">E.</param>
+			void processError (object sender, DataReceivedEventArgs e)
+			{
+				if (!String.IsNullOrEmpty (e.Data)) {
+					logger.Error (e.Data);
+				}
 			}
 		}
 
-		public void SetProgressReporter (IProgressReportable progressReporter)
-		{
-			ProgressReporter = progressReporter;
-		}
-
+		/// <summary>
+		/// Internal class that does nothing with the incoming progress reports
+		/// </summary>
 		class NullProgressReporter : IProgressReportable {
 			#region IProgressReportable implementation
 			public void showProgressMessage (string message)
@@ -243,6 +411,9 @@ namespace CCExtractorTester
 			#endregion
 		}
 
+		/// <summary>
+		/// Internal class that does nothing with log entries
+		/// </summary>
 		class NullLogger : IPerformanceLogger {
 			#region IPerformanceLogger implementation
 

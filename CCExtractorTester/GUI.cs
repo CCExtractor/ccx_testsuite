@@ -4,8 +4,15 @@ using System.Xml;
 
 namespace CCExtractorTester
 {
+	/// <summary>
+	/// The class that handles the start-up of a GUI. Separated from the Program class to avoid issues with GTK when only wanting to use the console.
+	/// </summary>
 	public class GUI
 	{
+		/// <summary>
+		/// Runs the GUI with a specified logger.
+		/// </summary>
+		/// <param name="logger">The logger to pass on to the GUI.</param>
 		public static void Run(ILogger logger){
 			Application.Init ();
 			ConfigurationSettings config = new ConfigurationSettings ();
@@ -30,4 +37,3 @@ namespace CCExtractorTester
 		}
 	}
 }
-
