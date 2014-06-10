@@ -27,7 +27,13 @@ namespace CCExtractorTester.DiffTool
 		/// </summary>
 		public int InsertCountB { get; private set; }
 
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffTool.Block"/> class.
+		/// </summary>
+		/// <param name="deleteStartA">Delete start a.</param>
+		/// <param name="deleteCountA">Delete count a.</param>
+		/// <param name="insertStartB">Insert start b.</param>
+		/// <param name="insertCountB">Insert count b.</param>
 		public Block(int deleteStartA, int deleteCountA, int insertStartB, int insertCountB)
 		{
 			DeleteStartA = deleteStartA;

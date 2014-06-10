@@ -10,24 +10,41 @@ namespace CCExtractorTester.DiffTool
 	/// </summary>
 	public class SideBySideModel
 	{
-		public SingleSideModel OldText { get; private set; }
-		public SingleSideModel NewText { get; private set; }
+		public SingleSideModel FirstText { get; private set; }
+		public SingleSideModel SecondText { get; private set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffTool.SideBySideModel"/> class.
+		/// </summary>
 		public SideBySideModel()
 		{
-			OldText = new SingleSideModel();
-			NewText = new SingleSideModel();
+			FirstText = new SingleSideModel();
+			SecondText = new SingleSideModel();
 		}
 
+		/// <summary>
+		/// Gets the number of changes.
+		/// </summary>
+		/// <returns>The number of changes.</returns>
 		public int GetNumberOfChanges ()
 		{
-			return OldText.Lines.Count - OldText.Lines.FindAll (l => l.Type == ChangeType.Unchanged).Count;
+			return FirstText.Lines.Count - FirstText.Lines.FindAll (l => l.Type == ChangeType.Unchanged).Count;
 		}
 
+		/// <summary>
+		/// Creates the HTML.
+		/// </summary>
+		/// <returns>The HTML.</returns>
 		public string CreateHTML(){
 			return GetHTML(GetDiffHTML());
 		}
 
+		/// <summary>
+		/// Gets the diff HTML.
+		/// </summary>
+		/// <returns>The diff HTML.</returns>
+		/// <param name="extraAttributesDiffBox">Extra attributes for the diffBox html div</param>
+		/// <param name="reduce">If set to <c>true</c>, reduce to only show the changed lines.</param>
 		public string GetDiffHTML(string extraAttributesDiffBox = "",bool reduce=false){
 			string model = @"				
 				<div class=""diffBox"" {0}>
@@ -42,9 +59,15 @@ namespace CCExtractorTester.DiffTool
 			        <div class=""clear"">
 			        </div>
 			    </div>";
-			return String.Format (model,extraAttributesDiffBox,GetSideDiffHTML (OldText,reduce), GetSideDiffHTML (NewText,reduce));
+			return String.Format (model,extraAttributesDiffBox,GetSideDiffHTML (FirstText,reduce), GetSideDiffHTML (SecondText,reduce));
 		}
 
+		/// <summary>
+		/// Gets the HTML for a single side.
+		/// </summary>
+		/// <returns>The HTML for a single side.</returns>
+		/// <param name="side">A single side of the diff model.</param>
+		/// <param name="reduce">If set to <c>true</c>, reduce to only show the changed lines.</param>
 		private string GetSideDiffHTML(SingleSideModel side,bool reduce=false){
 			string model = @"
 				<div class=""diffPane"">
@@ -69,7 +92,11 @@ namespace CCExtractorTester.DiffTool
 			}
 			return String.Format (model, sb.ToString ());
 		}
-
+		/// <summary>
+		/// Gets the line HTML for a single line.
+		/// </summary>
+		/// <returns>The line HTML.</returns>
+		/// <param name="lm">The line model.</param>
 		private string GetLineHTML(LineModel lm){
 			if (!string.IsNullOrEmpty(lm.Text))
 			{
@@ -93,7 +120,13 @@ namespace CCExtractorTester.DiffTool
 			}
 			return "";
 		}
-
+		/// <summary>
+		/// Gets the HTML.
+		/// </summary>
+		/// <returns>The HTML.</returns>
+		/// <param name="body">The body of this page.</param>
+		/// <param name="title">Title.</param>
+		/// <param name="additionalHeader">Additional header.</param>
 		public static string GetHTML(string body,string title="Comparing 2 strings",string additionalHeader=""){
 			string html = @"
 				<html>
@@ -108,7 +141,10 @@ namespace CCExtractorTester.DiffTool
 				</html>";
 			return String.Format (html, title,GetCSS(),additionalHeader,body);
 		}
-
+		/// <summary>
+		/// Gets the CSS.
+		/// </summary>
+		/// <returns>The CSS string.</returns>
 		public static string GetCSS(){
 			DiffResources.Culture = CultureInfo.InvariantCulture;
 			return DiffResources.Diff1;
