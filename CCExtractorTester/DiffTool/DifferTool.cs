@@ -4,40 +4,69 @@ using System.Linq;
 
 namespace CCExtractorTester.DiffTool
 {
+	/// <summary>
+	/// A class used to create differences from two files (or strings)
+	/// </summary>
 	public class DifferTool
 	{
-		public DifferTool ()
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffTool.DifferTool"/> class.
+		/// </summary>
+		public DifferTool (){}
+
+		/// <summary>
+		/// Creates a result containing the differences between the two given strings.
+		/// </summary>
+		/// <returns>A model holding all the differences</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		/// <param name="ignoreWhitespace">If set to <c>true</c> ignore whitespace.</param>
+		public Result CreateLineDifferences(string firstText, string secondText, bool ignoreWhitespace)
 		{
+			return CreateLineDifferences(firstText, secondText, ignoreWhitespace, false);
 		}
-
-		public Result CreateLineDiffs(string oldText, string newText, bool ignoreWhitespace)
+		/// <summary>
+		/// Creates a result containing the differences between the two given strings.
+		/// </summary>
+		/// <returns>A model holding all the differences</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		/// <param name="ignoreWhitespace">If set to <c>true</c> ignore whitespace.</param>
+		/// <param name="ignoreCase">If set to <c>true</c> ignore case.</param>
+		public Result CreateLineDifferences(string firstText, string secondText, bool ignoreWhitespace, bool ignoreCase)
 		{
-			return CreateLineDiffs(oldText, newText, ignoreWhitespace, false);
+			if (firstText == null) throw new ArgumentNullException("first text provided is null");
+			if (secondText == null) throw new ArgumentNullException("second text provided is null");
+
+			return CreateCustomDifferences(firstText, secondText, ignoreWhitespace,ignoreCase, str => NormalizeNewlines(str).Split('\n'));
 		}
-
-		public Result CreateLineDiffs(string oldText, string newText, bool ignoreWhitespace, bool ignoreCase)
+		/// <summary>
+		/// Creates a result containing the differences between the two given strings, character by character.
+		/// </summary>
+		/// <returns>A model holding all the differences.</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		/// <param name="ignoreWhitespace">If set to <c>true</c> ignore whitespace.</param>
+		public Result CreateCharacterDifferences(string firstText, string secondText, bool ignoreWhitespace)
 		{
-			if (oldText == null) throw new ArgumentNullException("oldText");
-			if (newText == null) throw new ArgumentNullException("newText");
-
-
-			return CreateCustomDiffs(oldText, newText, ignoreWhitespace,ignoreCase, str => NormalizeNewlines(str).Split('\n'));
+			return CreateCharacterDifferences(firstText, secondText, ignoreWhitespace, false);
 		}
-
-		public Result CreateCharacterDiffs(string oldText, string newText, bool ignoreWhitespace)
+		/// <summary>
+		/// Creates a result containing the differences between the two given strings, character by character.
+		/// </summary>
+		/// <returns>A model holding all the differences.</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		/// <param name="ignoreWhitespace">If set to <c>true</c> ignore whitespace.</param>
+		/// <param name="ignoreCase">If set to <c>true</c> ignore case.</param>
+		public Result CreateCharacterDifferences(string firstText, string secondText, bool ignoreWhitespace, bool ignoreCase)
 		{
-			return CreateCharacterDiffs(oldText, newText, ignoreWhitespace, false);
-		}
+			if (firstText == null) throw new ArgumentNullException("first text provided is null");
+			if (secondText == null) throw new ArgumentNullException("second text provided is null");
 
-		public Result CreateCharacterDiffs(string oldText, string newText, bool ignoreWhitespace, bool ignoreCase)
-		{
-			if (oldText == null) throw new ArgumentNullException("oldText");
-			if (newText == null) throw new ArgumentNullException("newText");
-
-
-			return CreateCustomDiffs(
-				oldText,
-				newText,
+			return CreateCustomDifferences(
+				firstText,
+				secondText,
 				ignoreWhitespace,
 				ignoreCase,
 				str =>
@@ -47,93 +76,130 @@ namespace CCExtractorTester.DiffTool
 					return s;
 				});
 		}
-
-		public Result CreateWordDiffs(string oldText, string newText, bool ignoreWhitespace, char[] separators)
+		/// <summary>
+		/// Creates a result containing the differences between the two given strings, word by word. Gets split on the given separators
+		/// </summary>
+		/// <returns>A model holding all the differences.</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		/// <param name="ignoreWhitespace">If set to <c>true</c> ignore whitespace.</param>
+		/// <param name="separators">Separators.</param>
+		public Result CreateWordDifferences(string firstText, string secondText, bool ignoreWhitespace, char[] separators)
 		{
-			return CreateWordDiffs(oldText, newText, ignoreWhitespace, false, separators);
+			return CreateWordDifferences(firstText, secondText, ignoreWhitespace, false, separators);
 		}
-
-		public Result CreateWordDiffs(string oldText, string newText, bool ignoreWhitespace, bool ignoreCase, char[] separators)
+		/// <summary>
+		/// Creates a result containing the differences between the two given strings, word by word. Gets split on the given separators
+		/// </summary>
+		/// <returns>A model holding all the differences.</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		/// <param name="ignoreWhitespace">If set to <c>true</c> ignore whitespace.</param>
+		/// <param name="ignoreCase">If set to <c>true</c> ignore case.</param>
+		/// <param name="separators">Separators.</param>
+		public Result CreateWordDifferences(string firstText, string secondText, bool ignoreWhitespace, bool ignoreCase, char[] separators)
 		{
-			if (oldText == null) throw new ArgumentNullException("oldText");
-			if (newText == null) throw new ArgumentNullException("newText");
+			if (firstText == null) throw new ArgumentNullException("first given text is null");
+			if (secondText == null) throw new ArgumentNullException("second given text is null");
 
-
-			return CreateCustomDiffs(
-				oldText,
-				newText,
+			return CreateCustomDifferences(
+				firstText,
+				secondText,
 				ignoreWhitespace,
 				ignoreCase,
 				str => SmartSplit(str, separators));
 		}
-
-		public Result CreateCustomDiffs(string oldText, string newText, bool ignoreWhiteSpace, Func<string, string[]> chunker)
+		/// <summary>
+		/// Creates a result containing the differences between the two given strings, using a given predicate to split the strings.
+		/// </summary>
+		/// <returns>A model holding all the differences.</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		/// <param name="ignoreWhiteSpace">If set to <c>true</c> ignore white space.</param>
+		/// <param name="stringSplitter">The predicate used to split the strings in pieces to compare.</param>
+		public Result CreateCustomDifferences(string firstText, string secondText, bool ignoreWhiteSpace, Func<string, string[]> stringSplitter)
 		{
-			return CreateCustomDiffs(oldText, newText, ignoreWhiteSpace, false, chunker);
+			return CreateCustomDifferences(firstText, secondText, ignoreWhiteSpace, false, stringSplitter);
 		}
-
-		public Result CreateCustomDiffs(string oldText, string newText, bool ignoreWhiteSpace, bool ignoreCase, Func<string, string[]> chunker)
+		/// <summary>
+		/// Creates a result containing the differences between the two given strings, using a given predicate to split the strings.
+		/// </summary>
+		/// <returns>A model holding all the differences.</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		/// <param name="ignoreWhiteSpace">If set to <c>true</c> ignore white space.</param>
+		/// <param name="ignoreCase">If set to <c>true</c> ignore case.</param>
+		/// <param name="stringSplitter">Predicate used to split the strings in pieces for comparison.</param>
+		public Result CreateCustomDifferences(string firstText, string secondText, bool ignoreWhiteSpace, bool ignoreCase, Func<string, string[]> stringSplitter)
 		{
-			if (oldText == null) throw new ArgumentNullException("oldText");
-			if (newText == null) throw new ArgumentNullException("newText");
-			if (chunker == null) throw new ArgumentNullException("chunker");
+			if (firstText == null) throw new ArgumentNullException("Given first text is null");
+			if (secondText == null) throw new ArgumentNullException("Given second text is null");
+			if (stringSplitter == null) throw new ArgumentNullException("The provided splitter predicate is null");
 
 			var pieceHash = new Dictionary<string, int>();
-			var lineDiffs = new List<Block>();
+			var lineDifferences = new List<Block>();
 
-			var modOld = new ModificationData(oldText);
-			var modNew = new ModificationData(newText);
+			var modificationFirst = new ModificationData(firstText);
+			var modificationSecond = new ModificationData(secondText);
 
-			BuildPieceHashes(pieceHash, modOld, ignoreWhiteSpace, ignoreCase, chunker);
-			BuildPieceHashes(pieceHash, modNew, ignoreWhiteSpace, ignoreCase, chunker);
+			CreatePieceHashes(pieceHash, modificationFirst, ignoreWhiteSpace, ignoreCase, stringSplitter);
+			CreatePieceHashes(pieceHash, modificationSecond, ignoreWhiteSpace, ignoreCase, stringSplitter);
 
-			BuildModificationData(modOld, modNew);
+			BuildModificationData(modificationFirst, modificationSecond);
 
-			int piecesALength = modOld.HashedPieces.Length;
-			int piecesBLength = modNew.HashedPieces.Length;
-			int posA = 0;
-			int posB = 0;
+			int lengthFirstPieces = modificationFirst.HashedPieces.Length;
+			int lengthSecondPieces = modificationSecond.HashedPieces.Length;
+			int positionFirst = 0,positionSecond = 0;
 
 			do
 			{
-				while (posA < piecesALength
-					&& posB < piecesBLength
-					&& !modOld.Modifications[posA]
-					&& !modNew.Modifications[posB])
+				while (positionFirst < lengthFirstPieces
+					&& positionSecond < lengthSecondPieces
+					&& !modificationFirst.Modifications[positionFirst]
+					&& !modificationSecond.Modifications[positionSecond])
 				{
-					posA++;
-					posB++;
+					positionFirst++;
+					positionSecond++;
 				}
 
-				int beginA = posA;
-				int beginB = posB;
-				for (; posA < piecesALength && modOld.Modifications[posA]; posA++) ;
+				int startOfFirst = positionFirst;
+				int startOfSecond = positionSecond;
+				for (; positionFirst < lengthFirstPieces && modificationFirst.Modifications[positionFirst]; positionFirst++) ;
 
-				for (; posB < piecesBLength && modNew.Modifications[posB]; posB++) ;
+				for (; positionSecond < lengthSecondPieces && modificationSecond.Modifications[positionSecond]; positionSecond++) ;
 
-				int deleteCount = posA - beginA;
-				int insertCount = posB - beginB;
-				if (deleteCount > 0 || insertCount > 0)
+				int numberRemoved = positionFirst - startOfFirst;
+				int numberInsertd = positionSecond - startOfSecond;
+				if (numberRemoved > 0 || numberInsertd > 0)
 				{
-					lineDiffs.Add(new Block(beginA, deleteCount, beginB, insertCount));
+					lineDifferences.Add(new Block(startOfFirst, numberRemoved, startOfSecond, numberInsertd));
 				}
-			} while (posA < piecesALength && posB < piecesBLength);
+			} while (positionFirst < lengthFirstPieces && positionSecond < lengthSecondPieces);
 
-			return new Result(modOld.Pieces, modNew.Pieces, lineDiffs);
+			return new Result(modificationFirst.Pieces, modificationSecond.Pieces, lineDifferences);
 		}
-
+		/// <summary>
+		/// Normalizes the newlines by replacing \r\n with \n and \r with \n.
+		/// </summary>
+		/// <returns>The newlines.</returns>
+		/// <param name="str">String.</param>
 		private static string NormalizeNewlines(string str)
 		{
 			return str.Replace("\r\n", "\n").Replace("\r", "\n");
 		}
-
-		private static string[] SmartSplit(string str, IEnumerable<char> delims)
+		/// <summary>
+		/// Splits a given string in a smart way.
+		/// </summary>
+		/// <returns>The chunks</returns>
+		/// <param name="str">The string to split</param>
+		/// <param name="delimiters">The delimiters that are used to split the string..</param>
+		private static string[] SmartSplit(string str, IEnumerable<char> delimiters)
 		{
 			var list = new List<string>();
 			int begin = 0;
 			for (int i = 0; i < str.Length; i++)
 			{
-				if (delims.Contains(str[i]))
+				if (delimiters.Contains(str[i]))
 				{
 					list.Add(str.Substring(begin, (i + 1 - begin)));
 					begin = i + 1;
@@ -290,8 +356,6 @@ namespace CCExtractorTester.DiffTool
 					}
 				}
 			}
-
-
 			throw new Exception("Should never get here");
 		}
 
@@ -305,15 +369,7 @@ namespace CCExtractorTester.DiffTool
 			BuildModificationData(A, 0, N, B, 0, M, forwardDiagonal, reverseDiagonal);
 		}
 
-		private static void BuildModificationData
-		(ModificationData A,
-			int startA,
-			int endA,
-			ModificationData B,
-			int startB,
-			int endB,
-			int[] forwardDiagonal,
-			int[] reverseDiagonal)
+		private static void BuildModificationData(ModificationData A,int startA,int endA,ModificationData B,int startB,int endB,int[] forwardDiagonal,int[] reverseDiagonal)
 		{
 
 			while (startA < endA && startB < endB && A.HashedPieces[startA].Equals(B.HashedPieces[startB]))
@@ -359,7 +415,7 @@ namespace CCExtractorTester.DiffTool
 			}
 		}
 
-		private static void BuildPieceHashes(IDictionary<string, int> pieceHash, ModificationData data, bool ignoreWhitespace, bool ignoreCase, Func<string, string[]> chunker)
+		private static void CreatePieceHashes(IDictionary<string, int> pieceHash, ModificationData data, bool ignoreWhitespace, bool ignoreCase, Func<string, string[]> chunker)
 		{
 			string[] pieces;
 
