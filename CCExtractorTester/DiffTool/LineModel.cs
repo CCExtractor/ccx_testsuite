@@ -12,6 +12,9 @@ namespace CCExtractorTester.DiffTool
 		Modified
 	}
 
+	/// <summary>
+	/// Line model. Represents a single line of the differences model.
+	/// </summary>
 	public class LineModel
 	{
 		public ChangeType Type { get; set; }
@@ -19,6 +22,12 @@ namespace CCExtractorTester.DiffTool
 		public string Text { get; set; }
 		public List<LineModel> SubPieces { get; set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffTool.LineModel"/> class.
+		/// </summary>
+		/// <param name="text">Text.</param>
+		/// <param name="type">Type.</param>
+		/// <param name="position">Position.</param>
 		public LineModel(string text, ChangeType type, int? position)
 		{
 			Text = text;
@@ -26,15 +35,15 @@ namespace CCExtractorTester.DiffTool
 			Type = type;
 			SubPieces = new List<LineModel>();
 		}
-
-		public LineModel(string text, ChangeType type)
-			: this(text, type, null)
-		{
-		}
-
-		public LineModel()
-			: this(null, ChangeType.Imaginary)
-		{
-		}
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffTool.LineModel"/> class.
+		/// </summary>
+		/// <param name="text">Text.</param>
+		/// <param name="type">Type.</param>
+		public LineModel(string text, ChangeType type): this(text, type, null){}
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffTool.LineModel"/> class.
+		/// </summary>
+		public LineModel(): this(null, ChangeType.Imaginary){}
 	}
 }

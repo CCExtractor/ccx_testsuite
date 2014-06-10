@@ -6,14 +6,14 @@ namespace CCExtractorTester.DiffTool
 	public class Result
 	{
 		/// <summary>
-		/// The chunked peices of the old text
+		/// The chunked pieces of the first text
 		/// </summary>
-		public string[] PiecesOld { get; private set; }
+		public string[] PiecesFirst { get; private set; }
 
 		/// <summary>
-		/// The chunked peices of the new text
+		/// The chunked pieces of the second text
 		/// </summary>
-		public string[] PiecesNew { get; private set; }
+		public string[] PiecesSecond { get; private set; }
 
 
 		/// <summary>
@@ -21,10 +21,16 @@ namespace CCExtractorTester.DiffTool
 		/// </summary>
 		public IList<Block> DiffBlocks { get; private set; }
 
-		public Result(string[] peicesOld, string[] piecesNew, IList<Block> blocks)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffTool.Result"/> class.
+		/// </summary>
+		/// <param name="piecesFirst">Pieces first.</param>
+		/// <param name="piecesSecond">Pieces second.</param>
+		/// <param name="blocks">Blocks.</param>
+		public Result(string[] piecesFirst, string[] piecesSecond, IList<Block> blocks)
 		{
-			PiecesOld = peicesOld;
-			PiecesNew = piecesNew;
+			PiecesFirst = piecesFirst;
+			PiecesSecond = piecesSecond;
 			DiffBlocks = blocks;
 		}
 	}

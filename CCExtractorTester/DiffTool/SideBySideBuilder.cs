@@ -3,14 +3,21 @@ using System.Collections.Generic;
 
 namespace CCExtractorTester.DiffTool
 {
+	/// <summary>
+	/// Side by side builder.
+	/// </summary>
 	public class SideBySideBuilder
 	{
 		private readonly DifferTool differ;
 
-		delegate void PieceBuilder(string oldText, string newText, List<LineModel> oldPieces, List<LineModel> newPieces);
+		delegate void PieceBuilder(string firstText, string secondText, List<LineModel> firstPieces, List<LineModel> secondPieces);
 
-		public static readonly char[] WordSeparaters = new[] {' ', '\t', '.', '(', ')', '{', '}', ','};
+		public static readonly char[] WordSeparators = new[] {' ', '\t', '.', '(', ')', '{', '}', ','};
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffTool.SideBySideBuilder"/> class.
+		/// </summary>
+		/// <param name="differ">Differ.</param>
 		public SideBySideBuilder(DifferTool differ)
 		{
 			if (differ == null) throw new ArgumentNullException("differ");
@@ -18,29 +25,55 @@ namespace CCExtractorTester.DiffTool
 			this.differ = differ;
 		}
 
-		public SideBySideModel BuildDiffModel(string oldText, string newText)
+		/// <summary>
+		/// Builds the diff model.
+		/// </summary>
+		/// <returns>The diff model.</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		public SideBySideModel BuildDiffModel(string firstText, string secondText)
 		{
-			if (oldText == null) throw new ArgumentNullException("oldText");
-			if (newText == null) throw new ArgumentNullException("newText");
+			if (firstText == null) throw new ArgumentNullException("first given text is null");
+			if (secondText == null) throw new ArgumentNullException("second given text is null");
 
-			return BuildLineDiff(oldText, newText);
+			return BuildLineDiff(firstText, secondText);
 		}
 
-		private SideBySideModel BuildLineDiff(string oldText, string newText)
+		/// <summary>
+		/// Builds the line diff.
+		/// </summary>
+		/// <returns>The line diff.</returns>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		private SideBySideModel BuildLineDiff(string firstText, string secondText)
 		{
 			var model = new SideBySideModel();
-			var diffResult = differ.CreateLineDiffs(oldText, newText, true);
-			BuildDiffPieces(diffResult, model.OldText.Lines, model.NewText.Lines, BuildWordDiffPieces);
+			var diffResult = differ.CreateLineDifferences(firstText, secondText, true);
+			BuildDiffPieces(diffResult, model.FirstText.Lines, model.SecondText.Lines, BuildWordDiffPieces);
 			return model;
 		}
 
-		private void BuildWordDiffPieces(string oldText, string newText, List<LineModel> oldPieces, List<LineModel> newPieces)
+		/// <summary>
+		/// Builds the word diff pieces.
+		/// </summary>
+		/// <param name="firstText">First text.</param>
+		/// <param name="secondText">Second text.</param>
+		/// <param name="firstPieces">First pieces.</param>
+		/// <param name="secondPieces">Second pieces.</param>
+		private void BuildWordDiffPieces(string firstText, string secondText, List<LineModel> firstPieces, List<LineModel> secondPieces)
 		{
-			var diffResult = differ.CreateWordDiffs(oldText, newText, false, WordSeparaters);
-			BuildDiffPieces(diffResult, oldPieces, newPieces, null);
+			var diffResult = differ.CreateWordDifferences(firstText, secondText, false, WordSeparators);
+			BuildDiffPieces(diffResult, firstPieces, secondPieces, null);
 		}
 
-		private static void BuildDiffPieces(Result diffResult, List<LineModel> oldPieces, List<LineModel> newPieces, PieceBuilder subPieceBuilder)
+		/// <summary>
+		/// Builds the diff pieces.
+		/// </summary>
+		/// <param name="diffResult">Diff result.</param>
+		/// <param name="firstPieces">First pieces.</param>
+		/// <param name="secondPieces">Second pieces.</param>
+		/// <param name="subPieceBuilder">Sub piece builder.</param>
+		private static void BuildDiffPieces(Result diffResult, List<LineModel> firstPieces, List<LineModel> secondPieces, PieceBuilder subPieceBuilder)
 		{
 			int aPos = 0;
 			int bPos = 0;
@@ -49,8 +82,8 @@ namespace CCExtractorTester.DiffTool
 			{
 				while (bPos < diffBlock.InsertStartB && aPos < diffBlock.DeleteStartA)
 				{
-					oldPieces.Add(new LineModel(diffResult.PiecesOld[aPos], ChangeType.Unchanged, aPos + 1));
-					newPieces.Add(new LineModel(diffResult.PiecesNew[bPos], ChangeType.Unchanged, bPos + 1));
+					firstPieces.Add(new LineModel(diffResult.PiecesFirst[aPos], ChangeType.Unchanged, aPos + 1));
+					secondPieces.Add(new LineModel(diffResult.PiecesSecond[bPos], ChangeType.Unchanged, bPos + 1));
 					aPos++;
 					bPos++;
 				}
@@ -58,17 +91,17 @@ namespace CCExtractorTester.DiffTool
 				int i = 0;
 				for (; i < Math.Min(diffBlock.DeleteCountA, diffBlock.InsertCountB); i++)
 				{
-					var oldPiece = new LineModel(diffResult.PiecesOld[i + diffBlock.DeleteStartA], ChangeType.Deleted, aPos + 1);
-					var newPiece = new LineModel(diffResult.PiecesNew[i + diffBlock.InsertStartB], ChangeType.Inserted, bPos + 1);
+					var oldPiece = new LineModel(diffResult.PiecesFirst[i + diffBlock.DeleteStartA], ChangeType.Deleted, aPos + 1);
+					var newPiece = new LineModel(diffResult.PiecesSecond[i + diffBlock.InsertStartB], ChangeType.Inserted, bPos + 1);
 
 					if (subPieceBuilder != null)
 					{
-						subPieceBuilder(diffResult.PiecesOld[aPos], diffResult.PiecesNew[bPos], oldPiece.SubPieces, newPiece.SubPieces);
+						subPieceBuilder(diffResult.PiecesFirst[aPos], diffResult.PiecesSecond[bPos], oldPiece.SubPieces, newPiece.SubPieces);
 						newPiece.Type = oldPiece.Type = ChangeType.Modified;
 					}
 
-					oldPieces.Add(oldPiece);
-					newPieces.Add(newPiece);
+					firstPieces.Add(oldPiece);
+					secondPieces.Add(newPiece);
 					aPos++;
 					bPos++;
 				}
@@ -77,8 +110,8 @@ namespace CCExtractorTester.DiffTool
 				{
 					for (; i < diffBlock.DeleteCountA; i++)
 					{
-						oldPieces.Add(new LineModel(diffResult.PiecesOld[i + diffBlock.DeleteStartA], ChangeType.Deleted, aPos + 1));
-						newPieces.Add(new LineModel());
+						firstPieces.Add(new LineModel(diffResult.PiecesFirst[i + diffBlock.DeleteStartA], ChangeType.Deleted, aPos + 1));
+						secondPieces.Add(new LineModel());
 						aPos++;
 					}
 				}
@@ -86,21 +119,20 @@ namespace CCExtractorTester.DiffTool
 				{
 					for (; i < diffBlock.InsertCountB; i++)
 					{
-						newPieces.Add(new LineModel(diffResult.PiecesNew[i + diffBlock.InsertStartB], ChangeType.Inserted, bPos + 1));
-						oldPieces.Add(new LineModel());
+						secondPieces.Add(new LineModel(diffResult.PiecesSecond[i + diffBlock.InsertStartB], ChangeType.Inserted, bPos + 1));
+						firstPieces.Add(new LineModel());
 						bPos++;
 					}
 				}
 			}
 
-			while (bPos < diffResult.PiecesNew.Length && aPos < diffResult.PiecesOld.Length)
+			while (bPos < diffResult.PiecesSecond.Length && aPos < diffResult.PiecesFirst.Length)
 			{
-				oldPieces.Add(new LineModel(diffResult.PiecesOld[aPos], ChangeType.Unchanged, aPos + 1));
-				newPieces.Add(new LineModel(diffResult.PiecesNew[bPos], ChangeType.Unchanged, bPos + 1));
+				firstPieces.Add(new LineModel(diffResult.PiecesFirst[aPos], ChangeType.Unchanged, aPos + 1));
+				secondPieces.Add(new LineModel(diffResult.PiecesSecond[bPos], ChangeType.Unchanged, bPos + 1));
 				aPos++;
 				bPos++;
 			}
 		}		
 	}
 }
-
