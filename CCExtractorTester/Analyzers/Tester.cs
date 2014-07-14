@@ -51,7 +51,7 @@ namespace CCExtractorTester
 		/// <param name="logger">The logger that will be used.</param>
 		public Tester(ConfigurationSettings cfg,ILogger logger){
 			Entries = new List<TestEntry> ();
-			ProgressReporter = new NullProgressReporter ();
+			ProgressReporter = NullProgressReporter.Instance;
 			Config = cfg;
 			Logger = logger;
 			LoadPerformanceLogger ();
@@ -101,7 +101,7 @@ namespace CCExtractorTester
 				PerformanceLogger = new WindowsPerformanceCounters ();
 				break;			
 			default:
-				PerformanceLogger = new NullLogger ();
+				PerformanceLogger = NullPerformanceLogger.Instance;
 				break;
 			}
 			
@@ -268,16 +268,14 @@ namespace CCExtractorTester
 		/// <param name="total">The number of test entries to process.</param>
 		void SetUpTestEntryProcessing (string cce, string location,string sourceFolder, int total)
 		{
-			TestEntryProcessing.ccextractorLocation = cce;
 			TestEntryProcessing.location = location;
 			TestEntryProcessing.sourceFolder = sourceFolder;
 			TestEntryProcessing.total = total;
-
 			TestEntryProcessing.comparer = Comparer;
 			TestEntryProcessing.config = Config;
 			TestEntryProcessing.logger = Logger;
-			TestEntryProcessing.performanceLogger = PerformanceLogger;
 			TestEntryProcessing.progressReporter = ProgressReporter;
+			TestEntryProcessing.runner = new Runner (cce, Logger, PerformanceLogger);
 		}
 
 		/// <summary>
@@ -293,15 +291,14 @@ namespace CCExtractorTester
 		/// Internal class that processes a single entry.
 		/// </summary>
 		class TestEntryProcessing {
-			public static string ccextractorLocation;
-			public static IProgressReportable progressReporter;
+			public static Runner runner;
 			public static string sourceFolder;
 			public static string location;
-			public static ConfigurationSettings config;
 			public static int total;
 			public static ILogger logger;
 			public static IFileComparable comparer;
-			public static IPerformanceLogger performanceLogger;
+			public static IProgressReportable progressReporter;
+			public static ConfigurationSettings config;
 
 			private TestEntry te;
 			private int current;
@@ -323,37 +320,17 @@ namespace CCExtractorTester
 			/// </summary>
 			/// <param name="state">State.</param>
 			public void Process(object state){
-				ProcessStartInfo psi = new ProcessStartInfo(ccextractorLocation);
-				psi.UseShellExecute = false;
-				psi.RedirectStandardError = true;
-				psi.RedirectStandardOutput = true;
-				psi.CreateNoWindow = true;
-
 				progressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", current, total));
 
 				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
 				string producedFile = Path.Combine (location,"tmpFiles", te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
 				string expectedResultFile = Path.Combine (config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
 
-				psi.Arguments = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
-				logger.Debug ("Passed arguments: "+psi.Arguments);
-				Process p = new Process ();
-				p.StartInfo = psi;
-				p.ErrorDataReceived += processError;
-				p.OutputDataReceived += processOutput;
-				p.Start ();
+				string command = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
 
-				performanceLogger.SetUp (logger, p);
+				RunData rd = runner.Run (command,processError,processOutput);
 
-				p.BeginOutputReadLine ();
-				p.BeginErrorReadLine ();
-				while (!p.HasExited) {
-					performanceLogger.DebugValue ();
-					Thread.Sleep (100);
-				}
-				logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
-				performanceLogger.DebugStats ();
-				if (p.ExitCode == 0) {
+				if (rd.ExitCode == 0) {
 					try {
 						comparer.CompareAndAddToResult (
 							new CompareData(){ 
@@ -361,13 +338,13 @@ namespace CCExtractorTester
 								CorrectFile = expectedResultFile,
 								SampleFile = sampleFile,
 								Command = te.Command,
-								RunTime=(p.ExitTime-p.StartTime)
+								RunTime= rd.Runtime
 							});
 					} catch(Exception e){
 						logger.Error (e);
 					}
 				}
-				progressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", current,p.ExitCode));
+				progressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", current,rd.ExitCode));
 				eventX.Set ();
 			}
 
@@ -392,46 +369,6 @@ namespace CCExtractorTester
 					logger.Error (e.Data);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Internal class that does nothing with the incoming progress reports
-		/// </summary>
-		class NullProgressReporter : IProgressReportable {
-			#region IProgressReportable implementation
-			public void showProgressMessage (string message)
-			{
-				// do nothing.
-			}
-
-			public void showProgramMessage (string message)
-			{
-				// do nothing
-			}
-			#endregion
-		}
-
-		/// <summary>
-		/// Internal class that does nothing with log entries
-		/// </summary>
-		class NullLogger : IPerformanceLogger {
-			#region IPerformanceLogger implementation
-
-			public void SetUp (ILogger logger, Process p)
-			{
-				// do nothing
-			}
-
-			public void DebugValue ()
-			{
-				// do nothing
-			}
-
-			public void DebugStats ()
-			{
-				// do nothing
-			}
-			#endregion
 		}
 	}
 }
