@@ -2,6 +2,7 @@
 using System.Text;
 using CCExtractorTester.DiffTool;
 using System.IO;
+using System.Linq;
 
 namespace CCExtractorTester
 {
@@ -80,10 +81,12 @@ namespace CCExtractorTester
 			string onclick = "";
 			string clss = "green";
 			if (changes > 0) {
-				BuilderDiff.WriteLine(sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count),Reduce));
-				BuilderDiff.Flush ();
-				onclick = String.Format(@"onclick=""toggle('{0}');""","entry_"+Count);
-				clss = "red";
+				lock (this) {
+					BuilderDiff.WriteLine (sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count), Reduce));
+					BuilderDiff.Flush ();
+				}
+				onclick = String.Format (@"onclick=""toggle('{0}');""", "entry_" + Count);
+				clss = "red";				
 			}
 			Builder.AppendFormat (
 				@"<tr><td>{0}</td><td>{1}</td><td>{2}</td><td class=""{3}"" {4}>{5}</td></tr>",
