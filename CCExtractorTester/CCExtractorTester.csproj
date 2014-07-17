@@ -81,20 +81,15 @@
       <DependentUpon>DiffResources.resx</DependentUpon>
     </Compile>
     <Compile Include="gtk-gui\generated.cs" />
-    <Compile Include="MainWindow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="gtk-gui\CCExtractorTester.MainWindow.cs" />
-    <Compile Include="ConfigWindow.cs" />
     <Compile Include="gtk-gui\CCExtractorTester.ConfigWindow.cs" />
-    <Compile Include="Tester.cs" />
-    <Compile Include="TestEntry.cs" />
     <Compile Include="Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="AddEntryDialog.cs" />
     <Compile Include="gtk-gui\CCExtractorTester.AddEntryDialog.cs" />
     <Compile Include="ICalleable.cs" />
     <Compile Include="IProgressReportable.cs" />
@@ -119,6 +114,16 @@
     <Compile Include="Loggers\ConsoleFileLogger.cs" />
     <Compile Include="PerformanceLoggers\IPerformanceLogger.cs" />
     <Compile Include="PerformanceLoggers\WindowsPerformanceCounters.cs" />
+    <Compile Include="Analyzers\TestEntry.cs" />
+    <Compile Include="Analyzers\Tester.cs" />
+    <Compile Include="Windows\AddEntryDialog.cs" />
+    <Compile Include="Windows\ConfigWindow.cs" />
+    <Compile Include="Windows\MainWindow.cs" />
+    <Compile Include="Analyzers\Runner.cs" />
+    <Compile Include="Analyzers\Reporter.cs" />
+    <Compile Include="Analyzers\RunData.cs" />
+    <Compile Include="PerformanceLoggers\NullPerformanceLogger.cs" />
+    <Compile Include="NullProgressReporter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -137,5 +142,7 @@
     <Folder Include="Comparers\" />
     <Folder Include="Loggers\" />
     <Folder Include="PerformanceLoggers\" />
+    <Folder Include="Analyzers\" />
+    <Folder Include="Windows\" />
   </ItemGroup>
 </Project>
