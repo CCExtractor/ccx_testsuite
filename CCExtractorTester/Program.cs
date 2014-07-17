@@ -76,11 +76,14 @@ namespace CCExtractorTester
 						Logger.Error ("Fatal error - config not valid. Please check. Exiting application");
 						return;
 					}
-					if (IsValidDirectory (options.Matrix)) {
+					if (!String.IsNullOrEmpty(options.Matrix)) {
 						Logger.Info ("Running in report mode, generating matrix");
-						StartMatrixGenerator (options.Matrix, config, Logger);
-					}
-					if (IsValidPotentialSampleFile (options.SampleFile)) {
+						if (IsValidDirectory (options.Matrix)) {
+							StartMatrixGenerator (options.Matrix, config, Logger);
+						} else {
+							Logger.Error ("Invalid directory provided for matrix generation!");
+						}
+					} else if (IsValidPotentialSampleFile (options.SampleFile)) {
 						Logger.Info ("Running provided file");
 						StartTester (options.SampleFile, config,Logger);					
 					} else {
