@@ -18,6 +18,8 @@ namespace CCExtractorTester
 		public string ConfigFile { get; set; }
 		[Option('d',"debug",DefaultValue=false,Required=false,HelpText="Use debugging")]
 		public bool Debug { get; set; }
+		[Option('m',"matrix",Required=false,HelpText="Generate a matrix report (features) for all files in this folder")]
+		public string Matrix { get; set; }
 
 		[ParserState]
 		public IParserState LastParserState { get; set; }
@@ -74,7 +76,14 @@ namespace CCExtractorTester
 						Logger.Error ("Fatal error - config not valid. Please check. Exiting application");
 						return;
 					}
-					if (IsValidPotentialSampleFile (options.SampleFile)) {
+					if (!String.IsNullOrEmpty(options.Matrix)) {
+						Logger.Info ("Running in report mode, generating matrix");
+						if (IsValidDirectory (options.Matrix)) {
+							StartMatrixGenerator (options.Matrix, config, Logger);
+						} else {
+							Logger.Error ("Invalid directory provided for matrix generation!");
+						}
+					} else if (IsValidPotentialSampleFile (options.SampleFile)) {
 						Logger.Info ("Running provided file");
 						StartTester (options.SampleFile, config,Logger);					
 					} else {
@@ -101,6 +110,16 @@ namespace CCExtractorTester
 		}
 
 		/// <summary>
+		/// Determines if the given directory is a valid and existing directory.
+		/// </summary>
+		/// <returns><c>true</c> if it is a valid and existing directory; otherwise, <c>false</c>.</returns>
+		/// <param name="directory">The directory string to check.</param>
+		static bool IsValidDirectory (string directory)
+		{
+			return (!String.IsNullOrEmpty (directory) && Directory.Exists (directory));
+		}
+
+		/// <summary>
 		/// Starts the tester.
 		/// </summary>
 		/// <param name="sampleFile">The sample file the tester will be running.</param>
@@ -115,6 +134,17 @@ namespace CCExtractorTester
 			} catch (Exception e) {
 				Logger.Error (e);
 			}
+		}
+
+		static void StartMatrixGenerator (string matrix, ConfigurationSettings config, ILogger logger)
+		{
+			Reporter r = new Reporter (config, logger, matrix);
+			r.SetProgressReporter (new ConsoleReporter (logger));
+			try {
+				r.GenerateMatrix();
+			} catch(Exception e){
+				Logger.Error (e);
+			};
 		}
 
 		// An internal class for logging progress to the console.
