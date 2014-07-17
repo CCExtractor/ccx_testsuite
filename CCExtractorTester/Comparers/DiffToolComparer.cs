@@ -85,7 +85,7 @@ namespace CCExtractorTester
 					BuilderDiff.WriteLine (sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count), Reduce));
 					BuilderDiff.Flush ();
 				}
-				onclick = String.Format (@"onclick=""toggle('{0}');""", "entry_" + Count);
+				onclick = String.Format (@"onclick=""toggle('{0}'); mark(this);""", "entry_" + Count);
 				clss = "red";				
 			}
 			Builder.AppendFormat (
@@ -123,6 +123,14 @@ namespace CCExtractorTester
 							next.style.display = ""none"";
 						}
 					}
+					function mark(elm){
+						var clsses = elm.className;
+						if(clsses.indexOf(""mark"") > -1){
+							elm.className = clsses.replace("" mark"","""");
+						} else {
+							elm.className += "" mark"";
+						}
+					}
 				</script>
 				<style type=""text/css"">
 					.green {
@@ -130,6 +138,9 @@ namespace CCExtractorTester
 					}
 					.red {
 						background-color: #ff0000;
+					}
+					.mark {
+						background-color: #0000ff;
 					}
 				</style>";
 			string table = String.Format(@"<table><tr><th>Sample</th><th>Command</th><th>Runtime</th><th>Changes (click to show)</th></tr>{0}</table>",Builder.ToString());
