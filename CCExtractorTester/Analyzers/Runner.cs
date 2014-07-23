@@ -17,7 +17,7 @@ namespace CCExtractorTester
 			PerformanceLogger = performanceLogger;
 		}
 
-		public RunData Run(string command,DataReceivedEventHandler processError,DataReceivedEventHandler processOutput){
+		public RunData Run(string command,DataReceivedEventHandler processError,DataReceivedEventHandler processOutput,int timeOut=180){
 			ProcessStartInfo psi = new ProcessStartInfo(CCExtractorLocation);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardError = true;
@@ -37,17 +37,37 @@ namespace CCExtractorTester
 
 			p.BeginOutputReadLine ();
 			p.BeginErrorReadLine ();
-			while (!p.HasExited) {
+
+			bool canRun = true;
+
+			System.Timers.Timer t = new System.Timers.Timer (timeOut * 1000);
+			t.AutoReset = false;
+			t.Elapsed += delegate(object sender, System.Timers.ElapsedEventArgs e) {
+				canRun = false;
+			};
+			t.Start ();
+			while (!p.HasExited && canRun) {
 				PerformanceLogger.DebugValue ();
 				Thread.Sleep (100);
 			}
-			Logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
-			PerformanceLogger.DebugStats ();
+			if (!p.HasExited) {
+				Logger.Warn ("Aborting CCExtractor, maximum time elapsed.");
+				p.CancelErrorRead ();
+				p.CancelOutputRead ();
+				p.Kill ();
+				return new RunData () {
+					ExitCode = -1,
+					Runtime = new TimeSpan (0, 0, timeOut)
+				};
+			} else {
+				Logger.Debug ("Process Exited. Exit code: " + p.ExitCode);
+				PerformanceLogger.DebugStats ();
 
-			return new RunData(){
-				ExitCode = p.ExitCode,
-				Runtime = p.ExitTime-p.StartTime
-			};
+				return new RunData () {
+					ExitCode = p.ExitCode,
+					Runtime = p.ExitTime - p.StartTime
+				};
+			}
 		}
 	}
 }
