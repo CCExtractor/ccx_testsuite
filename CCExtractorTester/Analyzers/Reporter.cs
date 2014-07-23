@@ -76,7 +76,7 @@ namespace CCExtractorTester
 					</head>
 					<body>", "Matrix " + DateTime.Now.ToShortDateString ()));
 				sw.WriteLine ("<table>");
-				sw.WriteLine("<tr><th>File</th><th>Stream Mode</th><th>EIA-608</th><th>CEA-708</th><th>Teletext</th><th>DVB</th><th>MPEG4 Timed Text</th></tr>");
+				sw.WriteLine("<tr><th>File</th><th>Stream Mode</th><th>EIA-608</th><th>CEA-708</th><th>Teletext</th><th>DVB</th><th>MPEG4 Timed Text</th><th>XDS Packets</th></tr>");
 				sw.WriteLine (sb.ToString ());
 				sw.WriteLine ("</table>");
 				sw.WriteLine ("</body></html>");
@@ -123,6 +123,7 @@ namespace CCExtractorTester
 			public Bool HasDVB { get; private set; }
 			public Bool HasTeletext { get; private set; }
 			public Bool HasMPEG4TimedText { get; private set; }
+			public Bool HasXDS { get; private set; }
 
 			public ReportData(ILogger logger){
 				Logger = logger;
@@ -147,7 +148,12 @@ namespace CCExtractorTester
 				case "CEA-708":
 					Has708 = GetBoolFromString (value);
 					break;
-
+				case "MPEG-4 Timed Text":
+					HasMPEG4TimedText = GetBoolFromString (value);
+					break;
+				case "XDS":
+					HasXDS = GetBoolFromString (value);
+					break;
 				default:
 					break;
 				}
@@ -164,8 +170,9 @@ namespace CCExtractorTester
 						<td>{4}</td>
 						<td>{5}</td>
 						<td>{6}</td>
+						<td>{7}</td>
 					</tr>"
-					,path,StreamMode,Has608,Has708,HasTeletext,HasDVB,HasMPEG4TimedText);
+					,path,StreamMode,Has608,Has708,HasTeletext,HasDVB,HasMPEG4TimedText,HasXDS);
 			}
 
 			public Bool GetBoolFromString(string value){
