@@ -20,6 +20,8 @@ namespace CCExtractorTester
 		public bool Debug { get; set; }
 		[Option('m',"matrix",Required=false,HelpText="Generate a matrix report (features) for all files in this folder")]
 		public string Matrix { get; set; }
+		[Option('e',"executable",HelpText="The CCExtractor executable path (overrides the config file)")]
+		public string CCExtractorExecutable { get; set; }
 
 		[ParserState]
 		public IParserState LastParserState { get; set; }
@@ -75,6 +77,15 @@ namespace CCExtractorTester
 					if (!config.IsAppConfigOK ()) {
 						Logger.Error ("Fatal error - config not valid. Please check. Exiting application");
 						return;
+					}
+					if (!String.IsNullOrEmpty (options.CCExtractorExecutable)) {
+						if (File.Exists (options.CCExtractorExecutable)) {
+							config.SetAppSetting ("CCExtractorLocation", options.CCExtractorExecutable);
+							Logger.Info ("Overriding CCExtractorLocation with given version (located at: " + options.CCExtractorExecutable + ")");
+						} else {
+							Logger.Error ("Given CCExtractor executable path does not exist. Exiting application");
+							return;
+						}
 					}
 					if (!String.IsNullOrEmpty(options.Matrix)) {
 						Logger.Info ("Running in report mode, generating matrix");
