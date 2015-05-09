@@ -20,8 +20,19 @@ namespace CCExtractorTester
 		public bool Debug { get; set; }
 		[Option('m',"matrix",Required=false,HelpText="Generate a matrix report (features) for all files in this folder")]
 		public string Matrix { get; set; }
+		[Option('p',"program",DefaultValue=false,Required=false,HelpText="Will the output be parsed by an external program?")]
+		public bool IsProgram { get; set; }
+		// Options that will override the config settings
 		[Option('e',"executable",HelpText="The CCExtractor executable path (overrides the config file)")]
 		public string CCExtractorExecutable { get; set; }
+		[Option('r',"reportfolder",HelpText="The path to the folder where the reports will be stored (overrides the config file)")]
+		public string ReportFolder { get; set; }
+		[Option('s',"samplefolder",HelpText="The path to the folder that contains the samples (overrides the config file)")]
+		public string SampleFolder { get; set; }
+		[Option('f',"resultfolder",HelpText="The path to the folder that contains the results (overrides the config file)")]
+		public string ResultFolder { get; set; }
+		[Option('h',"comparer",HelpText="The type of comparer to use  (overrides the config file)")]
+		public string Comparer { get; set; }
 
 		[ParserState]
 		public IParserState LastParserState { get; set; }
@@ -65,6 +76,7 @@ namespace CCExtractorTester
 					Logger.Info ("");
 					Logger.Info ("If you want to see the usage, run this with --help. Press ctrl-c to abort if necessary");
 					Logger.Info ("");
+					// Loading configuration
 					ConfigurationSettings config = new ConfigurationSettings ();
 					if (!String.IsNullOrEmpty (options.ConfigFile) && options.ConfigFile.EndsWith (".xml") && File.Exists (options.ConfigFile)) {
 						Logger.Info ("Loading provided configuration ("+options.ConfigFile+")");
@@ -78,6 +90,7 @@ namespace CCExtractorTester
 						Logger.Error ("Fatal error - config not valid. Please check. Exiting application");
 						return;
 					}
+					// See what overrides are specified
 					if (!String.IsNullOrEmpty (options.CCExtractorExecutable)) {
 						if (File.Exists (options.CCExtractorExecutable)) {
 							config.SetAppSetting ("CCExtractorLocation", options.CCExtractorExecutable);
@@ -87,6 +100,23 @@ namespace CCExtractorTester
 							return;
 						}
 					}
+					if (!String.IsNullOrEmpty (options.Comparer)) {
+						config.SetAppSetting ("Comparer", options.Comparer);
+						Logger.Info ("Overriding Comparer with: " + options.Comparer);
+					}
+					if (!String.IsNullOrEmpty (options.ReportFolder)) {
+						config.SetAppSetting ("ReportFolder", options.ReportFolder);
+						Logger.Info ("Overriding ReportFolder with: " + options.ReportFolder);
+					}
+					if (!String.IsNullOrEmpty (options.ResultFolder)) {
+						config.SetAppSetting ("ResultFolder", options.ResultFolder);
+						Logger.Info ("Overriding ResultFolder with: " + options.ResultFolder);
+					}
+					if (!String.IsNullOrEmpty (options.SampleFolder)) {
+						config.SetAppSetting ("SampleFolder", options.SampleFolder);
+						Logger.Info ("Overriding SampleFolder with: " + options.SampleFolder);
+					}
+					// Continue with parameter parsing
 					if (!String.IsNullOrEmpty(options.Matrix)) {
 						Logger.Info ("Running in report mode, generating matrix");
 						if (IsValidDirectory (options.Matrix)) {
