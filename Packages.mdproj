@@ -8,7 +8,7 @@
     <Packages>
       <Packages>
         <Package name="Linux Binaries">
-          <Builder targetFile="..\..\Dropbox\CCExtractor\CCExtractorTester.tar.gz" platform="Linux" configuration="Release|x86" ctype="BinariesZipPackageBuilder">
+          <Builder targetFile="..\..\OwnCloud\CCExtractor\Tester-Releases\CCExtractorTester.tar.gz" platform="Linux" configuration="Release|x86" ctype="BinariesZipPackageBuilder">
             <ChildEntries>
               <SolutionItemReference path="CCExtractorTester\CCExtractorTester.csproj" />
             </ChildEntries>

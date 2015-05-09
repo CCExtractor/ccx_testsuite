@@ -1,6 +1,11 @@
 ﻿<Properties StartupItem="CCExtractorTester\CCExtractorTester.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="CCExtractorTester\Program.cs">
+    <Files>
+      <File FileName="CCExtractorTester\Program.cs" Line="42" Column="64" />
+      <File FileName="CCExtractorTester\app.config" Line="4" Column="25" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
