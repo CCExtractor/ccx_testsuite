@@ -255,7 +255,7 @@ namespace CCExtractorTester
 			}
 			DateTime end = DateTime.Now;
 			Logger.Info ("Runtime: "+(end.Subtract(start)).ToString());
-			Comparer.SaveReport (Config.GetAppSetting ("ReportFolder"), new ResultData (){ CCExtractorVersion = cce + " " + DateTime.Now.ToShortDateString () });
+			Comparer.SaveReport (Config.GetAppSetting ("ReportFolder"), new ResultData (){ CCExtractorVersion = cce + " on " + DateTime.Now.ToShortDateString () });
 			Comparer = null;
 		}
 
