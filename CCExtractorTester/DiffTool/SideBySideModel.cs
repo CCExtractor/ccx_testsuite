@@ -146,8 +146,104 @@ namespace CCExtractorTester.DiffTool
 		/// </summary>
 		/// <returns>The CSS string.</returns>
 		public static string GetCSS(){
-			DiffResources.Culture = CultureInfo.InvariantCulture;
-			return DiffResources.Diff1;
+			return @"
+.diffBox
+{
+	margin-left: auto;
+	margin-right: auto;
+	border: solid 2px #000000;
+}
+
+
+.leftPane, .rightPane
+{
+	float: left;
+	width: 50%;
+}
+
+.diffHeader
+{
+	font-weight: bold;
+	padding: 2px 0px 2px 10px;
+	background-color: #FFFFFF;
+	text-align: center;
+}
+.diffPane
+{
+	margin-right: 0px;
+	padding: 0px;
+	overflow: auto;
+	font-family: Courier New;
+	font-size: 1em;
+}
+
+.diffTable
+{
+	width: 100%;
+}
+
+.line
+{
+	padding-left: .2em;
+	white-space: nowrap;
+	width: 100%;
+}
+
+.lineNumber
+{
+	padding: 0 .3em;
+	background-color: #FFFFFF;
+	text-align: right;
+}
+
+.InsertedLine
+{
+	background-color: #FFFF00;
+}
+
+.ModifiedLine
+{
+	background-color: #DCDCFF;
+}
+
+.DeletedLine
+{
+	background-color: #FFC864;
+}
+
+.UnchangedLine
+{
+	background-color: #FFFFFF;
+}
+
+.ImaginaryLine
+{
+	background-color: #C8C8C8;
+}
+
+.InsertedCharacter
+{
+	background-color: #FFFF96;
+}
+
+.DeletedCharacter
+{
+	background-color: #C86464;
+}
+
+.UnchangedCharacter
+{
+}
+
+.ImaginaryCharacter
+{
+}
+
+.clear
+{
+	clear: both;
+}			
+";
 		}
 	}
 }

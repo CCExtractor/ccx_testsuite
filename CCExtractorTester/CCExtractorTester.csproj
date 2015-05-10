@@ -62,10 +62,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="DiffTool\DiffResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>DiffResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
       <LogicalName>gui.stetic</LogicalName>
     </EmbeddedResource>
@@ -75,11 +71,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DiffTool\DiffResources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DiffResources.resx</DependentUpon>
-    </Compile>
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -131,7 +122,6 @@
     <None Include="tests.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="DiffTool\Diff.css" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
