@@ -222,8 +222,9 @@ namespace CCExtractorTester
 
 			String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
 			location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
-			if(!Directory.Exists(Path.Combine(location,"tmpFiles"))){
-				Directory.CreateDirectory (Path.Combine (location, "tmpFiles"));
+			String temporaryFolder = Config.GetAppSetting ("temporaryFolder");
+			if(!Directory.Exists(temporaryFolder)){
+				Directory.CreateDirectory (temporaryFolder);
 			}
 
 			bool useThreading = false;
@@ -323,7 +324,7 @@ namespace CCExtractorTester
 				progressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", current, total));
 
 				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
-				string producedFile = Path.Combine (location,"tmpFiles", te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
+				string producedFile = Path.Combine (config.GetAppSetting ("temporaryFolder"), te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
 				string expectedResultFile = Path.Combine (config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
 
 				string command = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);

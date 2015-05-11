@@ -22,6 +22,8 @@ namespace CCExtractorTester
 		public string Matrix { get; set; }
 		[Option('p',"program",DefaultValue=false,Required=false,HelpText="Will the output be parsed by an external program?")]
 		public bool IsProgram { get; set; }
+		[Option('t',"tempfolder",HelpText="Uses the provided location as a temp folder to store the results in")]
+		public string TempFolder { get; set; }
 		// Options that will override the config settings
 		[Option('e',"executable",HelpText="The CCExtractor executable path (overrides the config file)")]
 		public string CCExtractorExecutable { get; set; }
@@ -90,6 +92,14 @@ namespace CCExtractorTester
 						Logger.Error ("Fatal error - config not valid. Please check. Exiting application");
 						return;
 					}
+					String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
+					location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
+					String temporaryFolder = Path.Combine (location, "tmpFiles");
+					if (!String.IsNullOrEmpty (options.TempFolder) && IsValidDirectory (options.TempFolder)) {
+						temporaryFolder = options.TempFolder;
+					}
+					config.SetAppSetting ("temporaryFolder", temporaryFolder);
+					Logger.Info ("Generated result files will be stored in " + temporaryFolder + "(when running multiple tests after another, files might be overwritten)");
 					// See what overrides are specified
 					if (!String.IsNullOrEmpty (options.CCExtractorExecutable)) {
 						if (File.Exists (options.CCExtractorExecutable)) {
