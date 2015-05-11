@@ -22,7 +22,7 @@ namespace CCExtractorTester
 		public string Matrix { get; set; }
 		[Option('p',"program",DefaultValue=false,Required=false,HelpText="Will the output be parsed by an external program?")]
 		public bool IsProgram { get; set; }
-		[Option('t',"tempfolder",HelpText="Uses the provided location as a temp folder to store the results in")]
+		[Option('i',"tempfolder",HelpText="Uses the provided location as a temp folder to store the results in")]
 		public string TempFolder { get; set; }
 		// Options that will override the config settings
 		[Option('e',"executable",HelpText="The CCExtractor executable path (overrides the config file)")]
