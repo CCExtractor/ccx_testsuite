@@ -24,7 +24,7 @@ namespace CCExtractorTester
 		/// </summary>
 		public FileLogger ()
 		{
-			Writer = File.CreateText ("Log-Run-"+DateTime.Now.ToFileTime()+".txt");
+			Writer = File.CreateText ("logs/Log-Run-"+DateTime.Now.ToFileTime()+".txt");
 			IsDebug = false;
 		}
 
