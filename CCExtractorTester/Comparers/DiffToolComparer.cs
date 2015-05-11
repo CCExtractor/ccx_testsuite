@@ -12,6 +12,11 @@ namespace CCExtractorTester
 	public class DiffToolComparer : IFileComparable
 	{
 		/// <summary>
+		/// Gets or sets the name of the temp file.
+		/// </summary>
+		/// <value>The name of the temp file.</value>
+		private string TempFileName { get; set; }
+		/// <summary>
 		/// Gets or sets the stringbuilder.
 		/// </summary>
 		/// <value>The builder.</value>
@@ -44,7 +49,8 @@ namespace CCExtractorTester
 		public DiffToolComparer (bool reduce=false)
 		{
 			Builder = new StringBuilder ();
-			BuilderDiff = new StreamWriter ("tmpHTML.html", false);
+			TempFileName = "tmpHTML" + (DateTime.UtcNow - new DateTime (1970, 1, 1)).TotalSeconds + ".html";
+			BuilderDiff = new StreamWriter(TempFileName, false);
 			Differ = new SideBySideBuilder (new DifferTool ());
 			Count = 0;
 			Reduce = reduce;
@@ -159,7 +165,7 @@ namespace CCExtractorTester
 					<body>", "Report " + DateTime.Now.ToShortDateString (), SideBySideModel.GetCSS (), additionalHeader));
 				sw.WriteLine (first);
 				sw.WriteLine (table);
-				string[] lines = File.ReadAllLines ("tmpHTML.html");
+				string[] lines = File.ReadAllLines (TempFileName);
 				foreach (string line in lines) {
 					sw.WriteLine (line);
 				}
