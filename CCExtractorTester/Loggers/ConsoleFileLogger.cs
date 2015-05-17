@@ -11,7 +11,7 @@ namespace CCExtractorTester
 		/// Gets the internal Logger. All the log requests will be passed on to this one.
 		/// </summary>
 		/// <value>The logger.</value>
-		public ILogger Logger { get; private set; }
+		public ILogger FileLogger { get; private set; }
 		/// <summary>
 		/// Gets or sets a value indicating whether this instance logging debug messages.
 		/// </summary>
@@ -21,10 +21,11 @@ namespace CCExtractorTester
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CCExtractorTester.ConsoleFileLogger"/> class.
 		/// </summary>
-		public ConsoleFileLogger (): base()
+		/// <param name="logDirectory">The directory to create the log file in.</param>
+		public ConsoleFileLogger (String logDirectory): base()
 		{
 			IsDebug = false;
-			Logger = new FileLogger ();
+			FileLogger = new FileLogger (logDirectory);
 		}
 
 		#region Ilogger implementation
@@ -34,7 +35,7 @@ namespace CCExtractorTester
 		public void ActivateDebug ()
 		{
 			IsDebug = true;
-			Logger.ActivateDebug ();
+			FileLogger.ActivateDebug ();
 		}
 
 		/// <summary>
@@ -44,7 +45,7 @@ namespace CCExtractorTester
 		public void Info (string message)
 		{
 			Console.WriteLine ("[INFO] " + message);
-			Logger.Info (message);
+			FileLogger.Info (message);
 		}
 
 		/// <summary>
@@ -54,7 +55,7 @@ namespace CCExtractorTester
 		public void Warn (string message)
 		{
 			Console.WriteLine ("[WARN] " + message);
-			Logger.Warn (message);
+			FileLogger.Warn (message);
 		}
 
 		/// <summary>
@@ -64,7 +65,7 @@ namespace CCExtractorTester
 		public void Error (string message)
 		{
 			Console.WriteLine ("[ERROR] " + message);
-			Logger.Error (message);
+			FileLogger.Error (message);
 		}
 
 		/// <summary>
@@ -75,7 +76,7 @@ namespace CCExtractorTester
 		public void Error (Exception e)
 		{
 			Console.WriteLine ("[ERROR] " + e.Message);
-			Logger.Error (e);
+			FileLogger.Error (e);
 		}
 
 		/// <summary>
@@ -84,7 +85,7 @@ namespace CCExtractorTester
 		/// <param name="message">A message to log.</param>
 		public void Debug (string message)
 		{
-			Logger.Debug (message);
+			FileLogger.Debug (message);
 		}
 		#endregion
 	}

@@ -54,7 +54,7 @@ namespace CCExtractorTester
 		/// The logger used to log the things that happen while this program runs.
 		/// Defaults to the Console + File logger.
 		/// </summary>
-		public static ILogger Logger = new ConsoleFileLogger ();
+		public static ILogger Logger = null;
 
 		/// <summary>
 		/// The entry point of the program, where the program control starts and ends.
@@ -62,6 +62,9 @@ namespace CCExtractorTester
 		/// <param name="args">The command-line arguments.</param>
 		public static void Main (string[] args)
 		{
+			String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
+			location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
+			Logger = new ConsoleFileLogger (Path.Combine (location, "logs"));
 			var options = new Options ();
 			if (CommandLine.Parser.Default.ParseArguments (args, options)) {
 				Logger.Info ("Starting program - If you encounter any issues using this program, get in touch, and keep this log close to you. (enable CCExtractor output by using -d flag)");
@@ -71,7 +74,7 @@ namespace CCExtractorTester
 				}
 				if (options.IsGUI) {
 					Logger.Debug ("Using GUI - Switching logger to file only");
-					Logger = ((ConsoleFileLogger)Logger).Logger;
+					Logger = ((ConsoleFileLogger)Logger).FileLogger;
 					GUI.Run (Logger);
 				} else {
 					Logger.Debug ("Using console/command line");
@@ -92,8 +95,6 @@ namespace CCExtractorTester
 						Logger.Error ("Fatal error - config not valid. Please check. Exiting application");
 						return;
 					}
-					String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
-					location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
 					String temporaryFolder = Path.Combine (location, "tmpFiles");
 					if (!String.IsNullOrEmpty (options.TempFolder) && IsValidDirectory (options.TempFolder)) {
 						temporaryFolder = options.TempFolder;

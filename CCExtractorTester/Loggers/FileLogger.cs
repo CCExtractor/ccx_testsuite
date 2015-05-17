@@ -22,9 +22,10 @@ namespace CCExtractorTester
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CCExtractorTester.FileLogger"/> class.
 		/// </summary>
-		public FileLogger ()
+		/// <param name="logDirectory">The directory to create the log file in.</param>
+		public FileLogger (String logDirectory)
 		{
-			Writer = File.CreateText ("logs/Log-Run-"+DateTime.Now.ToFileTime()+".txt");
+			Writer = File.CreateText (Path.Combine(logDirectory,"Log-Run-"+DateTime.Now.ToFileTime()+".txt"));
 			IsDebug = false;
 		}
 
