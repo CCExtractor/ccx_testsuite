@@ -170,6 +170,8 @@ namespace CCExtractorTester
 					sw.WriteLine (line);
 				}
 				sw.WriteLine ("</body></html>");
+				// Delete temporary html.
+				File.Delete(TempFileName);
 			}
 		}
 		#endregion
