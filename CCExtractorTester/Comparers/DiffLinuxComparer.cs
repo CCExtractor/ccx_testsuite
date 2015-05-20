@@ -35,22 +35,26 @@ namespace CCExtractorTester
 			Builder.AppendLine ("Time needed for this entry: "+data.RunTime.ToString());
 			Builder.AppendLine ("Used command: " + data.Command);
 			Builder.AppendLine ("Sample file: " + data.SampleFile);
-			ProcessStartInfo psi = new ProcessStartInfo("diff");
-			psi.UseShellExecute = false;
-			psi.RedirectStandardError = true;
-			psi.RedirectStandardOutput = true;
-			psi.CreateNoWindow = true;
+			if (!Hasher.filesAreEqual (data.CorrectFile, data.ProducedFile)) {
+				ProcessStartInfo psi = new ProcessStartInfo ("diff");
+				psi.UseShellExecute = false;
+				psi.RedirectStandardError = true;
+				psi.RedirectStandardOutput = true;
+				psi.CreateNoWindow = true;
 
-			psi.Arguments = String.Format(@"-y ""{0}"" ""{1}""",data.CorrectFile,data.ProducedFile);
-			Process p = new Process ();
-			p.StartInfo = psi;
-			p.ErrorDataReceived += processError;
-			p.OutputDataReceived += processOutput;
-			p.Start ();
-			p.BeginOutputReadLine ();
-			p.BeginErrorReadLine ();
-			while (!p.HasExited) {
-				Thread.Sleep (1000);
+				psi.Arguments = String.Format (@"-y ""{0}"" ""{1}""", data.CorrectFile, data.ProducedFile);
+				Process p = new Process ();
+				p.StartInfo = psi;
+				p.ErrorDataReceived += processError;
+				p.OutputDataReceived += processOutput;
+				p.Start ();
+				p.BeginOutputReadLine ();
+				p.BeginErrorReadLine ();
+				while (!p.HasExited) {
+					Thread.Sleep (1000);
+				}
+			} else {
+				Builder.AppendLine ("Samples are equal (hash)");
 			}
 		}
 		/// <summary>

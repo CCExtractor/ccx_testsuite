@@ -71,21 +71,52 @@ namespace CCExtractorTester
 		/// <param name="data">The data for this entry.</param>
 		public void CompareAndAddToResult (CompareData data)
 		{
-			string oldText = string.Empty;
-			using (StreamReader streamReader = new StreamReader(data.CorrectFile, Encoding.UTF8))
-			{            
-				oldText = streamReader.ReadToEnd();
-			}
-			string newText = string.Empty;
-			using (StreamReader streamReader = new StreamReader(data.ProducedFile, Encoding.UTF8))
-			{            
-				newText = streamReader.ReadToEnd();
-			}
-
-			SideBySideModel sbsm = Differ.BuildDiffModel (oldText, newText);
-			int changes = sbsm.GetNumberOfChanges ();
 			string onclick = "";
 			string clss = "green";
+			int changes = 0;
+			SideBySideModel sbsm = null;
+			if (!Hasher.filesAreEqual (data.CorrectFile, data.ProducedFile)) {
+				string oldText = string.Empty;
+				string newText = string.Empty;
+				if (data.ProducedFile.EndsWith (".bin")) {					
+					using (FileStream fs = new FileStream (data.CorrectFile, FileMode.Open)) {
+						StringBuilder sb = new StringBuilder ();
+						int hexIn, counter = 1;
+						while ((hexIn = fs.ReadByte ()) != -1) {
+							sb.AppendFormat ("{0:X2} ", hexIn);
+							if (counter % 17 == 0) {
+								sb.AppendLine ();
+								counter = 0;
+							}
+							counter++;
+						}
+						oldText = sb.ToString ();
+					}
+					using (FileStream fs = new FileStream (data.ProducedFile, FileMode.Open)) {
+						StringBuilder sb = new StringBuilder ();
+						int hexIn, counter = 1;
+						while ((hexIn = fs.ReadByte ()) != -1) {
+							sb.AppendFormat ("{0:X2} ", hexIn);
+							if (counter % 17 == 0) {
+								sb.AppendLine ();
+								counter = 0;
+							}
+							counter++;
+						}
+						newText = sb.ToString ();
+					}
+				} else {
+					using (StreamReader streamReader = new StreamReader (data.CorrectFile, Encoding.UTF8)) {            
+						oldText = streamReader.ReadToEnd ();
+					}
+					using (StreamReader streamReader = new StreamReader (data.ProducedFile, Encoding.UTF8)) {            
+						newText = streamReader.ReadToEnd ();
+					}
+				}
+
+				sbsm = Differ.BuildDiffModel (oldText, newText);
+				changes = sbsm.GetNumberOfChanges ();
+			}
 			if (changes > 0) {
 				lock (this) {
 					BuilderDiff.WriteLine (sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count), Reduce));
