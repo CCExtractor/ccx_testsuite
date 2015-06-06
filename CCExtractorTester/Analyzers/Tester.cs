@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using System.Xml.Schema;
 
 namespace CCExtractorTester
 {
@@ -144,11 +145,20 @@ namespace CCExtractorTester
 				XmlDocument doc = new XmlDocument ();
 				using(FileStream fs = new FileStream(xmlFileName,FileMode.Open)){
 					doc.Load (fs);
-					foreach (XmlNode node in doc.SelectNodes("//test")) {
-						XmlNode sampleFile = node.SelectSingleNode ("sample");
-						XmlNode command = node.SelectSingleNode ("cmd");
-						XmlNode resultFile = node.SelectSingleNode ("result");
-						Entries.Add(new TestEntry(ConvertFolderDelimiters(sampleFile.InnerText),command.InnerText,ConvertFolderDelimiters(resultFile.InnerText)));
+					XmlNodeList testNodes = doc.SelectNodes ("//test");
+					if (testNodes.Count > 0) {
+						foreach (XmlNode node in testNodes) {
+							XmlNode sampleFile = node.SelectSingleNode ("sample");
+							XmlNode command = node.SelectSingleNode ("cmd");
+							XmlNode resultFile = node.SelectSingleNode ("result");
+							Entries.Add (new TestEntry (ConvertFolderDelimiters (sampleFile.InnerText), command.InnerText, ConvertFolderDelimiters (resultFile.InnerText)));
+						}
+					} else {
+						// Dealing with multi file
+						foreach (XmlNode node in doc.SelectNodes ("//testfile")) {
+							String testFileLocation = ConvertFolderDelimiters(node.SelectSingleNode ("location").InnerText);
+							// TODO: add to separate list, which then will be parsed following the same pattern.
+						}
 					}
 				}
 				return;
@@ -162,14 +172,33 @@ namespace CCExtractorTester
 		/// <param name="xmlFileName">The location of the XML file to validate.</param>
 		void ValidateXML (string xmlFileName)
 		{
+			try {
+				ValidateAgainstSchema (xmlFileName, Resources.tests);
+			} catch(XmlSchemaValidationException){
+				try {
+				ValidateAgainstSchema (xmlFileName, Resources.multitest);
+				} catch(XmlSchemaValidationException){
+					throw new InvalidDataException ("Given XML is neither a test XML file nor a multitest XML file.");
+				}
+			}
+		}
+
+		/// <summary>
+		/// Validates the XML against a given schema.
+		/// </summary>
+		/// <param name="xmlFileName">Xml file name.</param>
+		/// <param name="xmlSchema">Xml schema.</param>
+		private void ValidateAgainstSchema(string xmlFileName, string xmlSchema){
 			using (StringReader sr = new StringReader (Resources.tests)) {
 				XmlReader r = XmlReader.Create (sr);
 				XmlReaderSettings settings = new XmlReaderSettings ();
 				settings.Schemas.Add (null, r);
 				settings.ValidationType = ValidationType.Schema;
-				settings.ValidationEventHandler += new System.Xml.Schema.ValidationEventHandler (settings_ValidationEventHandler);
 				using (FileStream fs = new FileStream (xmlFileName, FileMode.Open)) {
 					var reader = XmlReader.Create (fs, settings);
+					while (reader.Read ()) {
+						// Nothing in here, just need to read out the entire file in a loop.
+					}
 				}
 			}
 		}
@@ -193,16 +222,6 @@ namespace CCExtractorTester
 					break;
 			}
 			return path.Replace (env, Path.DirectorySeparatorChar);
-		}
-
-		/// <summary>
-		/// The validation event handler for the settings XSD scheme.
-		/// </summary>
-		/// <param name="sender">Sender.</param>
-		/// <param name="e">E.</param>
-		void settings_ValidationEventHandler (object sender, System.Xml.Schema.ValidationEventArgs e)
-		{
-			throw new InvalidDataException ("XML File is not formatted correctly");
 		}
 
 		/// <summary>
