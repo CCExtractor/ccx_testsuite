@@ -15,10 +15,20 @@ namespace CCExtractorTester
 	public class Tester
 	{
 		/// <summary>
+		/// The name of the loaded file.
+		/// </summary>
+		/// <value>The name of the loaded file.</value>
+		public String LoadedFileName { get; private set; }
+		/// <summary>
 		/// A list of the TestEntry instances that will be processed.
 		/// </summary>
 		/// <value>The entries.</value>
 		public List<TestEntry> Entries { get; private set; } 
+		/// <summary>
+		/// Contains the multi test list.
+		/// </summary>
+		/// <value>The multi test.</value>
+		public List<string> MultiTest { get; private set; }
 		/// <summary>
 		/// Gets or sets the progress reporter that will be used.
 		/// </summary>
@@ -52,6 +62,7 @@ namespace CCExtractorTester
 		/// <param name="logger">The logger that will be used.</param>
 		public Tester(ConfigurationSettings cfg,ILogger logger){
 			Entries = new List<TestEntry> ();
+			MultiTest = new List<String> ();
 			ProgressReporter = NullProgressReporter.Instance;
 			Config = cfg;
 			Logger = logger;
@@ -146,7 +157,9 @@ namespace CCExtractorTester
 				using(FileStream fs = new FileStream(xmlFileName,FileMode.Open)){
 					doc.Load (fs);
 					XmlNodeList testNodes = doc.SelectNodes ("//test");
+					FileInfo fi = new FileInfo (xmlFileName);
 					if (testNodes.Count > 0) {
+						LoadedFileName = fi.Name.Replace(".xml","");
 						foreach (XmlNode node in testNodes) {
 							XmlNode sampleFile = node.SelectSingleNode ("sample");
 							XmlNode command = node.SelectSingleNode ("cmd");
@@ -157,7 +170,8 @@ namespace CCExtractorTester
 						// Dealing with multi file
 						foreach (XmlNode node in doc.SelectNodes ("//testfile")) {
 							String testFileLocation = ConvertFolderDelimiters(node.SelectSingleNode ("location").InnerText);
-							// TODO: add to separate list, which then will be parsed following the same pattern.
+							testFileLocation = Path.Combine (fi.DirectoryName, testFileLocation);
+							MultiTest.Add (testFileLocation);
 						}
 					}
 				}
@@ -176,7 +190,7 @@ namespace CCExtractorTester
 				ValidateAgainstSchema (xmlFileName, Resources.tests);
 			} catch(XmlSchemaValidationException){
 				try {
-				ValidateAgainstSchema (xmlFileName, Resources.multitest);
+					ValidateAgainstSchema (xmlFileName, Resources.multitest);
 				} catch(XmlSchemaValidationException){
 					throw new InvalidDataException ("Given XML is neither a test XML file nor a multitest XML file.");
 				}
@@ -189,7 +203,7 @@ namespace CCExtractorTester
 		/// <param name="xmlFileName">Xml file name.</param>
 		/// <param name="xmlSchema">Xml schema.</param>
 		private void ValidateAgainstSchema(string xmlFileName, string xmlSchema){
-			using (StringReader sr = new StringReader (Resources.tests)) {
+			using (StringReader sr = new StringReader (xmlSchema)) {
 				XmlReader r = XmlReader.Create (sr);
 				XmlReaderSettings settings = new XmlReaderSettings ();
 				settings.Schemas.Add (null, r);
@@ -237,8 +251,6 @@ namespace CCExtractorTester
 				throw new InvalidOperationException ("Sample folder does not exist!");
 			}
 
-			LoadComparer ();
-
 			String location = System.Reflection.Assembly.GetExecutingAssembly ().Location;
 			location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
 			String temporaryFolder = Config.GetAppSetting ("temporaryFolder");
@@ -251,6 +263,51 @@ namespace CCExtractorTester
 				useThreading = true;
 				Logger.Info ("Using threading");
 			}
+
+			if (MultiTest.Count > 0) {
+				// Override ReportFolder and create subdirectory for it if necessary
+				String subFolder = Path.Combine(Config.GetAppSetting("ReportFolder"),"Testsuite_Report_"+DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
+				if (!Directory.Exists (subFolder)) {
+					Directory.CreateDirectory (subFolder);
+				}
+				Logger.Info ("Multitest, overriding report folder to: " + subFolder);
+				Config.SetAppSetting ("ReportFolder", subFolder);
+				// Run through test files
+				StringBuilder sb = new StringBuilder(@"
+				<html>
+					<head>
+						<title>Test suite result index</title>
+						<style>.green { background-color: green; } .red { background-color: red; }</style>
+					</head>
+					<body>
+						<table>
+							<tr>
+								<th>Report name</th>
+								<th>Tests passed</th>
+							</tr>");
+				foreach (string s in MultiTest) {
+					Entries.Clear();
+					loadAndParseXML (s);
+					int nrTests = Entries.Count;
+					Tuple<int,string> singleTest = RunSingleFileTests (useThreading, cce, location, sourceFolder);
+					sb.AppendFormat (
+						@"<tr><td><a href=""{0}"">{1}</a></td><td class=""{2}"">{3}/{4}</td></tr>",
+						singleTest.Item2,LoadedFileName,
+						(singleTest.Item1 == nrTests)?"green":"red",
+						singleTest.Item1,nrTests
+					);
+				}
+				sb.Append ("</table></body></html>");
+				using (StreamWriter sw = new StreamWriter (Path.Combine (subFolder, "index.html"))) {
+					sw.WriteLine (sb.ToString ());
+				}
+			} else {
+				RunSingleFileTests (useThreading, cce, location, sourceFolder);
+			}
+		}
+
+		Tuple<int,string> RunSingleFileTests(bool useThreading, String cce, String location, String sourceFolder){
+			LoadComparer ();
 
 			int i = 1;
 			SetUpTestEntryProcessing (cce, location,sourceFolder,Entries.Count);
@@ -275,8 +332,17 @@ namespace CCExtractorTester
 			}
 			DateTime end = DateTime.Now;
 			Logger.Info ("Runtime: "+(end.Subtract(start)).ToString());
-			Comparer.SaveReport (Config.GetAppSetting ("ReportFolder"), new ResultData (){ CCExtractorVersion = cce + " on " + DateTime.Now.ToShortDateString () });
+			String reportName = Comparer.SaveReport (
+				Config.GetAppSetting ("ReportFolder"), 
+				new ResultData (){ 
+					FileName = LoadedFileName, 
+					CCExtractorVersion = cce + " on " + DateTime.Now.ToShortDateString (),
+					StartTime = start
+				}
+			);
+			int unchanged = Comparer.GetSuccessNumber();
 			Comparer = null;
+			return Tuple.Create(unchanged,reportName);
 		}
 
 		/// <summary>
@@ -350,20 +416,20 @@ namespace CCExtractorTester
 
 				RunData rd = runner.Run (command,processError,processOutput);
 
-				if (rd.ExitCode == 0) {
-					try {
-						comparer.CompareAndAddToResult (
-							new CompareData(){ 
-								ProducedFile = producedFile,
-								CorrectFile = expectedResultFile,
-								SampleFile = sampleFile,
-								Command = te.Command,
-								RunTime= rd.Runtime
-							});
-					} catch(Exception e){
-						logger.Error (e);
-					}
+				try {
+					comparer.CompareAndAddToResult (
+						new CompareData () { 
+							ProducedFile = producedFile,
+							CorrectFile = expectedResultFile,
+							SampleFile = sampleFile,
+							Command = te.Command,
+							RunTime = rd.Runtime,
+							ExitCode = rd.ExitCode
+						});
+				} catch (Exception e) {
+					logger.Error (e);
 				}
+
 				progressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", current,rd.ExitCode));
 				eventX.Set ();
 			}

@@ -17,6 +17,12 @@ namespace CCExtractorTester
 		/// </summary>
 		/// <param name="pathToFolder">Path to folder to save the report in</param>
 		/// <param name="data">The extra result data that should be in the report.</param>
-		void SaveReport (string pathToFolder, ResultData data);
+		/// <returns>The report name</returns>
+		String SaveReport (string pathToFolder, ResultData data);
+		/// <summary>
+		/// Gets the success number.
+		/// </summary>
+		/// <returns>The success number.</returns>
+		int GetSuccessNumber();
 	}
 }
