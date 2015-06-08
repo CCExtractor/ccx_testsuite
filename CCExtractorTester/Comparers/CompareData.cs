@@ -32,5 +32,10 @@ namespace CCExtractorTester
 		/// </summary>
 		/// <value>The run time.</value>
 		public TimeSpan RunTime { get; set; }
+		/// <summary>
+		/// Gets or sets the exit code.
+		/// </summary>
+		/// <value>The exit code.</value>
+		public int ExitCode { get; set; }
 	}
 }

@@ -41,6 +41,11 @@ namespace CCExtractorTester
 		/// </summary>
 		/// <value><c>true</c> if reduce; otherwise, <c>false</c>.</value>
 		private bool Reduce { get; set; }
+		/// <summary>
+		/// Gets or sets the successes.
+		/// </summary>
+		/// <value>The successes.</value>
+		private int Successes { get; set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CCExtractorTester.DiffToolComparer"/> class.
@@ -53,18 +58,21 @@ namespace CCExtractorTester
 			BuilderDiff = new StreamWriter(TempFileName, false);
 			Differ = new SideBySideBuilder (new DifferTool ());
 			Count = 0;
+			Successes = 0;
 			Reduce = reduce;
 		}
 
-		#region IFileComparable implementation
 		/// <summary>
 		/// Gets the name of the report file.
 		/// </summary>
 		/// <returns>The report file name.</returns>
-		public string GetReportFileName ()
+		/// <param name="data">Data.</param>
+		public string GetReportFileName (ResultData data)
 		{
-			return "Report_" + DateTime.Now.ToFileTime () + ".html";
+			return "Report_" + data.FileName + "_" + data.StartTime.ToString("yyyy-MM-dd_HHmmss") + ".html";
 		}
+
+		#region IFileComparable implementation
 		/// <summary>
 		/// Compares the files provided in the data and add to an internal result.
 		/// </summary>
@@ -74,56 +82,68 @@ namespace CCExtractorTester
 			string onclick = "";
 			string clss = "green";
 			int changes = 0;
-			SideBySideModel sbsm = null;
-			if (!Hasher.filesAreEqual (data.CorrectFile, data.ProducedFile)) {
-				string oldText = string.Empty;
-				string newText = string.Empty;
-				if (data.ProducedFile.EndsWith (".bin")) {					
-					using (FileStream fs = new FileStream (data.CorrectFile, FileMode.Open)) {
-						StringBuilder sb = new StringBuilder ();
-						int hexIn, counter = 1;
-						while ((hexIn = fs.ReadByte ()) != -1) {
-							sb.AppendFormat ("{0:X2} ", hexIn);
-							if (counter % 17 == 0) {
-								sb.AppendLine ();
-								counter = 0;
-							}
-							counter++;
-						}
-						oldText = sb.ToString ();
-					}
-					using (FileStream fs = new FileStream (data.ProducedFile, FileMode.Open)) {
-						StringBuilder sb = new StringBuilder ();
-						int hexIn, counter = 1;
-						while ((hexIn = fs.ReadByte ()) != -1) {
-							sb.AppendFormat ("{0:X2} ", hexIn);
-							if (counter % 17 == 0) {
-								sb.AppendLine ();
-								counter = 0;
-							}
-							counter++;
-						}
-						newText = sb.ToString ();
-					}
-				} else {
-					using (StreamReader streamReader = new StreamReader (data.CorrectFile, Encoding.UTF8)) {            
-						oldText = streamReader.ReadToEnd ();
-					}
-					using (StreamReader streamReader = new StreamReader (data.ProducedFile, Encoding.UTF8)) {            
-						newText = streamReader.ReadToEnd ();
-					}
-				}
-
-				sbsm = Differ.BuildDiffModel (oldText, newText);
-				changes = sbsm.GetNumberOfChanges ();
-			}
-			if (changes > 0) {
+			if (data.ExitCode != 0) {
+				changes = -1;
+				clss = "red";
 				lock (this) {
-					BuilderDiff.WriteLine (sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count), Reduce));
+					BuilderDiff.WriteLine (String.Format (@"<div style=""display:none;"" id=""{0}"">CCExtractor quit with exit code {1}</div>", "entry_" + Count,data.ExitCode));
 					BuilderDiff.Flush ();
 				}
 				onclick = String.Format (@"onclick=""toggle('{0}'); mark(this);""", "entry_" + Count);
-				clss = "red";				
+			} else {
+				SideBySideModel sbsm = null;
+				if (!Hasher.filesAreEqual (data.CorrectFile, data.ProducedFile)) {
+					string oldText = string.Empty;
+					string newText = string.Empty;
+					if (data.ProducedFile.EndsWith (".bin")) {					
+						using (FileStream fs = new FileStream (data.CorrectFile, FileMode.Open)) {
+							StringBuilder sb = new StringBuilder ();
+							int hexIn, counter = 1;
+							while ((hexIn = fs.ReadByte ()) != -1) {
+								sb.AppendFormat ("{0:X2} ", hexIn);
+								if (counter % 17 == 0) {
+									sb.AppendLine ();
+									counter = 0;
+								}
+								counter++;
+							}
+							oldText = sb.ToString ();
+						}
+						using (FileStream fs = new FileStream (data.ProducedFile, FileMode.Open)) {
+							StringBuilder sb = new StringBuilder ();
+							int hexIn, counter = 1;
+							while ((hexIn = fs.ReadByte ()) != -1) {
+								sb.AppendFormat ("{0:X2} ", hexIn);
+								if (counter % 17 == 0) {
+									sb.AppendLine ();
+									counter = 0;
+								}
+								counter++;
+							}
+							newText = sb.ToString ();
+						}
+					} else {
+						using (StreamReader streamReader = new StreamReader (data.CorrectFile, Encoding.UTF8)) {            
+							oldText = streamReader.ReadToEnd ();
+						}
+						using (StreamReader streamReader = new StreamReader (data.ProducedFile, Encoding.UTF8)) {            
+							newText = streamReader.ReadToEnd ();
+						}
+					}
+
+					sbsm = Differ.BuildDiffModel (oldText, newText);
+					changes = sbsm.GetNumberOfChanges ();
+				}
+				if (changes > 0) {
+					lock (this) {
+						BuilderDiff.WriteLine (sbsm.GetDiffHTML (String.Format (@"style=""display:none;"" id=""{0}""", "entry_" + Count), Reduce));
+						BuilderDiff.Flush ();
+					}
+					onclick = String.Format (@"onclick=""toggle('{0}'); mark(this);""", "entry_" + Count);
+					clss = "red";				
+				} else {
+					Successes++;
+				}
 			}
 			Builder.AppendFormat (
 				@"<tr><td>{0}</td><td>{1}</td><td>{2}</td><td class=""{3}"" {4}>{5}</td></tr>",
@@ -140,7 +160,7 @@ namespace CCExtractorTester
 		/// </summary>
 		/// <param name="pathToFolder">Path to folder to save the report in</param>
 		/// <param name="data">The extra result data that should be in the report.</param>
-		public void SaveReport (string pathToFolder, ResultData data)
+		public String SaveReport (string pathToFolder, ResultData data)
 		{
 			string additionalHeader = @"
 				<script type=""text/javascript"">
@@ -180,12 +200,14 @@ namespace CCExtractorTester
 						background-color: #0000ff;
 					}
 				</style>";
-			string table = String.Format(@"<table><tr><th>Sample</th><th>Command</th><th>Runtime</th><th>Changes (click to show)</th></tr>{0}</table>",Builder.ToString());
-			string first = String.Format(@"<p>Report generated for CCExtractor version {0}</p>",data.CCExtractorVersion);
+			String table = String.Format(@"<table><tr><th>Sample</th><th>Command</th><th>Runtime</th><th>Changes (click to show)</th></tr>{0}</table>",Builder.ToString());
+			String first = String.Format(@"<p>Report generated for CCExtractor version {0}</p>",data.CCExtractorVersion);
 
 			BuilderDiff.Close ();
 
-			using (StreamWriter sw = new StreamWriter(Path.Combine(pathToFolder,GetReportFileName()))) {
+			String reportName = GetReportFileName (data);
+
+			using (StreamWriter sw = new StreamWriter(Path.Combine(pathToFolder,reportName))) {
 				sw.WriteLine (String.Format (@"
 				<html>
 					<head>
@@ -204,7 +226,18 @@ namespace CCExtractorTester
 				// Delete temporary html.
 				File.Delete(TempFileName);
 			}
+			return reportName;
 		}
+
+		/// <summary>
+		/// Gets the success number.
+		/// </summary>
+		/// <returns>The success number.</returns>
+		public int GetSuccessNumber ()
+		{
+			return Successes;
+		}
+
 		#endregion
 	}
 }
