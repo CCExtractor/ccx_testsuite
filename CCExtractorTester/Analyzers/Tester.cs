@@ -154,7 +154,7 @@ namespace CCExtractorTester
 			if (File.Exists (xmlFileName)) {
 				ValidateXML (xmlFileName);
 				XmlDocument doc = new XmlDocument ();
-				using(FileStream fs = new FileStream(xmlFileName,FileMode.Open)){
+				using(FileStream fs = new FileStream(xmlFileName,FileMode.Open, FileAccess.Read)){
 					doc.Load (fs);
 					XmlNodeList testNodes = doc.SelectNodes ("//test");
 					FileInfo fi = new FileInfo (xmlFileName);
@@ -208,7 +208,7 @@ namespace CCExtractorTester
 				XmlReaderSettings settings = new XmlReaderSettings ();
 				settings.Schemas.Add (null, r);
 				settings.ValidationType = ValidationType.Schema;
-				using (FileStream fs = new FileStream (xmlFileName, FileMode.Open)) {
+				using (FileStream fs = new FileStream (xmlFileName, FileMode.Open, FileAccess.Read)) {
 					var reader = XmlReader.Create (fs, settings);
 					while (reader.Read ()) {
 						// Nothing in here, just need to read out the entire file in a loop.
