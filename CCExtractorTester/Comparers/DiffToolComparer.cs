@@ -96,7 +96,7 @@ namespace CCExtractorTester
 					string oldText = string.Empty;
 					string newText = string.Empty;
 					if (data.ProducedFile.EndsWith (".bin")) {					
-						using (FileStream fs = new FileStream (data.CorrectFile, FileMode.Open)) {
+						using (FileStream fs = new FileStream (data.CorrectFile, FileMode.Open, FileAccess.Read)) {
 							StringBuilder sb = new StringBuilder ();
 							int hexIn, counter = 1;
 							while ((hexIn = fs.ReadByte ()) != -1) {
@@ -109,7 +109,7 @@ namespace CCExtractorTester
 							}
 							oldText = sb.ToString ();
 						}
-						using (FileStream fs = new FileStream (data.ProducedFile, FileMode.Open)) {
+						using (FileStream fs = new FileStream (data.ProducedFile, FileMode.Open, FileAccess.Read)) {
 							StringBuilder sb = new StringBuilder ();
 							int hexIn, counter = 1;
 							while ((hexIn = fs.ReadByte ()) != -1) {
@@ -123,11 +123,15 @@ namespace CCExtractorTester
 							newText = sb.ToString ();
 						}
 					} else {
-						using (StreamReader streamReader = new StreamReader (data.CorrectFile, Encoding.UTF8)) {            
-							oldText = streamReader.ReadToEnd ();
+						using (FileStream fs = new FileStream (data.CorrectFile, FileMode.Open, FileAccess.Read)) {
+							using (StreamReader streamReader = new StreamReader (fs, Encoding.UTF8)) {            
+								oldText = streamReader.ReadToEnd ();
+							}
 						}
-						using (StreamReader streamReader = new StreamReader (data.ProducedFile, Encoding.UTF8)) {            
-							newText = streamReader.ReadToEnd ();
+						using (FileStream fs = new FileStream (data.ProducedFile, FileMode.Open, FileAccess.Read)) {
+							using (StreamReader streamReader = new StreamReader (fs, Encoding.UTF8)) {            
+								newText = streamReader.ReadToEnd ();
+							}
 						}
 					}
 
