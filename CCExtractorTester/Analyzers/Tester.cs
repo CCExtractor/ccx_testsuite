@@ -273,18 +273,7 @@ namespace CCExtractorTester
 				Logger.Info ("Multitest, overriding report folder to: " + subFolder);
 				Config.SetAppSetting ("ReportFolder", subFolder);
 				// Run through test files
-				StringBuilder sb = new StringBuilder(@"
-				<html>
-					<head>
-						<title>Test suite result index</title>
-						<style>.green { background-color: green; } .red { background-color: red; }</style>
-					</head>
-					<body>
-						<table>
-							<tr>
-								<th>Report name</th>
-								<th>Tests passed</th>
-							</tr>");
+				StringBuilder sb = new StringBuilder();
 				foreach (string s in MultiTest) {
 					Entries.Clear();
 					loadAndParseXML (s);
@@ -296,16 +285,46 @@ namespace CCExtractorTester
 						(singleTest.Item1 == nrTests)?"green":"red",
 						singleTest.Item1,nrTests
 					);
-				}
-				sb.Append ("</table></body></html>");
-				using (StreamWriter sw = new StreamWriter (Path.Combine (subFolder, "index.html"))) {
-					sw.WriteLine (sb.ToString ());
+					SaveMultiIndexFile (sb.ToString (), subFolder);
 				}
 			} else {
 				RunSingleFileTests (useThreading, cce, location, sourceFolder);
 			}
 		}
 
+		/// <summary>
+		/// Saves the index file for the multi-test, given the current entries that have been completed so far.
+		/// </summary>
+		/// <param name="currentEntries">The HTML for the current entries that have been completed already.</param>
+		/// <param name="subFolder">The location of the folder where the index should be written to.</param>
+		private void SaveMultiIndexFile(string currentEntries, string subFolder){
+			StringBuilder sb = new StringBuilder(@"
+				<html>
+					<head>
+						<title>Test suite result index</title>
+						<style>.green { background-color: green; } .red { background-color: red; }</style>
+					</head>
+					<body>
+						<table>
+							<tr>
+								<th>Report name</th>
+								<th>Tests passed</th>
+							</tr>");
+			sb.Append (currentEntries);
+			sb.Append ("</table></body></html>");
+			using (StreamWriter sw = new StreamWriter (Path.Combine (subFolder, "index.html"))) {
+				sw.WriteLine (sb.ToString ());
+			}
+		}
+
+		/// <summary>
+		/// Runs the tests for a single test file, which can contain multiple test entries.
+		/// </summary>
+		/// <returns>A tuple with the number of successful tests and the location of the resulting file.</returns>
+		/// <param name="useThreading">If set to <c>true</c> use threading.</param>
+		/// <param name="cce">The CCExctractor location.</param>
+		/// <param name="location">The location of the executable.</param>
+		/// <param name="sourceFolder">The source folder with the samples.</param>
 		Tuple<int,string> RunSingleFileTests(bool useThreading, String cce, String location, String sourceFolder){
 			LoadComparer ();
 
