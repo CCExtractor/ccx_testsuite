@@ -286,6 +286,10 @@ namespace CCExtractorTester
 						singleTest.Item1,nrTests
 					);
 					SaveMultiIndexFile (sb.ToString (), subFolder);
+					if (singleTest.Item1 != nrTests && Config.GetAppSetting("BreakOnErrors") == "true") {
+						Logger.Info ("Aborting next files because of error in current test file");
+						break;
+					}
 				}
 			} else {
 				RunSingleFileTests (useThreading, cce, location, sourceFolder);

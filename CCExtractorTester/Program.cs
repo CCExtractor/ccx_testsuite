@@ -24,6 +24,8 @@ namespace CCExtractorTester
 		public bool IsProgram { get; set; }
 		[Option('i',"tempfolder",HelpText="Uses the provided location as a temp folder to store the results in")]
 		public string TempFolder { get; set; }
+		[Option('b',"breakonerror",DefaultValue=false,Required=false,HelpText="Will not continue to run more tests once a single error is encountered")]
+		public bool HaltAfterError { get; set; }
 		// Options that will override the config settings
 		[Option('e',"executable",HelpText="The CCExtractor executable path (overrides the config file)")]
 		public string CCExtractorExecutable { get; set; }
@@ -126,6 +128,9 @@ namespace CCExtractorTester
 					if (!String.IsNullOrEmpty (options.SampleFolder)) {
 						config.SetAppSetting ("SampleFolder", options.SampleFolder);
 						Logger.Info ("Overriding SampleFolder with: " + options.SampleFolder);
+					}
+					if (options.HaltAfterError) {
+						config.SetAppSetting ("BreakOnErrors", "true");
 					}
 					// Continue with parameter parsing
 					if (!String.IsNullOrEmpty(options.Matrix)) {
