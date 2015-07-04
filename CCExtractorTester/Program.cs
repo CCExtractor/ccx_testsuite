@@ -122,7 +122,7 @@ namespace CCExtractorTester
 						Logger.Info ("Overriding ReportFolder with: " + options.ReportFolder);
 					}
 					if (!String.IsNullOrEmpty (options.ResultFolder)) {
-						config.SetAppSetting ("ResultFolder", options.ResultFolder);
+						config.SetAppSetting ("CorrectResultFolder", options.ResultFolder);
 						Logger.Info ("Overriding ResultFolder with: " + options.ResultFolder);
 					}
 					if (!String.IsNullOrEmpty (options.SampleFolder)) {
