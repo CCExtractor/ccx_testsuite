@@ -37,6 +37,8 @@ namespace CCExtractorTester
 		public string ResultFolder { get; set; }
 		[Option('h',"comparer",HelpText="The type of comparer to use  (overrides the config file)")]
 		public string Comparer { get; set; }
+		[Option('o',"timeout",DefaultValue=180,HelpText="The timeout value (in seconds). A test will be aborted if CCExtractor is still running after this point. Must be bigger than 60.")]
+		public int TimeOut { get; set; }
 
 		[ParserState]
 		public IParserState LastParserState { get; set; }
@@ -112,6 +114,9 @@ namespace CCExtractorTester
 							Logger.Error ("Given CCExtractor executable path does not exist. Exiting application");
 							return;
 						}
+					}
+					if (options.TimeOut > 60) {
+						config.SetAppSetting ("timeout", options.TimeOut.ToString());
 					}
 					if (!String.IsNullOrEmpty (options.Comparer)) {
 						config.SetAppSetting ("Comparer", options.Comparer);
