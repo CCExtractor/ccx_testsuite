@@ -437,7 +437,13 @@ namespace CCExtractorTester
 
 				string command = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
 
-				RunData rd = runner.Run (command,processError,processOutput);
+				int timeout = 180;
+				try {
+					timeout = int.Parse (config.GetAppSetting ("timeout"));
+				} catch(FormatException){
+				}
+
+				RunData rd = runner.Run (command,processError,processOutput,timeout);
 
 				try {
 					comparer.CompareAndAddToResult (
