@@ -468,7 +468,13 @@ namespace CCExtractorTester
 				if (!Directory.Exists (storeDirectory)) {
 					Directory.CreateDirectory (storeDirectory);
 				}
-				File.Move(producedFile,Path.Combine(storeDirectory,producedFileName));
+				string storeFile = Path.Combine (storeDirectory, producedFileName);
+				if (File.Exists (storeFile)) {
+					File.Delete (storeFile);
+				}
+				if(File.Exists(producedFile)){
+					File.Move(producedFile,storeFile);
+				}
 
 				// Report back that we finished an entry
 				progressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", current,rd.ExitCode));

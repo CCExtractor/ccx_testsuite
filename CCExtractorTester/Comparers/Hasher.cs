@@ -7,13 +7,14 @@ namespace CCExtractorTester
 	public static class Hasher
 	{
 		public static String getFileMD5Hash(String fileLocation){
-			using (var md5 = MD5.Create())
-			{
-				using (var stream = File.OpenRead(fileLocation))
-				{
-					return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-","").ToLower();
+			if (File.Exists (fileLocation)) {
+				using (var md5 = MD5.Create ()) {
+					using (var stream = File.OpenRead (fileLocation)) {
+						return BitConverter.ToString (md5.ComputeHash (stream)).Replace ("-", "").ToLower ();
+					}
 				}
 			}
+			return "";
 		}
 
 		public static bool filesAreEqual(String file1, String file2){
