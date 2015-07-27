@@ -333,7 +333,7 @@ namespace CCExtractorTester
 			LoadComparer ();
 
 			int i = 1;
-			SetUpTestEntryProcessing (cce, location,sourceFolder,Entries.Count);
+			SetUpTestEntryProcessing (cce, location,sourceFolder,Entries.Count,LoadedFileName);
 			ManualResetEvent[] mres = new ManualResetEvent[Entries.Count];
 			DateTime start = DateTime.Now;
 
@@ -375,7 +375,8 @@ namespace CCExtractorTester
 		/// <param name="location">The folder from where this program is executed.</param>
 		/// <param name="sourceFolder">The folder with the samples in.</param>
 		/// <param name="total">The number of test entries to process.</param>
-		void SetUpTestEntryProcessing (string cce, string location,string sourceFolder, int total)
+		/// <param name="testName">The name of the test file we're running.</param>
+		void SetUpTestEntryProcessing (string cce, string location,string sourceFolder, int total,string testName)
 		{
 			TestEntryProcessing.location = location;
 			TestEntryProcessing.sourceFolder = sourceFolder;
@@ -384,6 +385,7 @@ namespace CCExtractorTester
 			TestEntryProcessing.config = Config;
 			TestEntryProcessing.logger = Logger;
 			TestEntryProcessing.progressReporter = ProgressReporter;
+			TestEntryProcessing.testName = testName;
 			TestEntryProcessing.runner = new Runner (cce, Logger, PerformanceLogger);
 		}
 
@@ -408,6 +410,7 @@ namespace CCExtractorTester
 			public static IFileComparable comparer;
 			public static IProgressReportable progressReporter;
 			public static ConfigurationSettings config;
+			public static string testName;
 
 			private TestEntry te;
 			private int current;
@@ -432,7 +435,8 @@ namespace CCExtractorTester
 				progressReporter.showProgressMessage (String.Format ("Starting with entry {0} of {1}", current, total));
 
 				string sampleFile = Path.Combine (sourceFolder, te.TestFile);
-				string producedFile = Path.Combine (config.GetAppSetting ("temporaryFolder"), te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1));
+				string producedFileName = te.ResultFile.Substring (te.ResultFile.LastIndexOf (Path.DirectorySeparatorChar) + 1);
+				string producedFile = Path.Combine (config.GetAppSetting ("temporaryFolder"), producedFileName);
 				string expectedResultFile = Path.Combine (config.GetAppSetting ("CorrectResultFolder"), te.ResultFile);
 
 				string command = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ",producedFile,sampleFile);
@@ -459,6 +463,14 @@ namespace CCExtractorTester
 					logger.Error (e);
 				}
 
+				// Move produced file to another location (so it still can be inspected later, but won't affect next runs
+				string storeDirectory = Path.Combine (config.GetAppSetting ("temporaryFolder"),testName);
+				if (!Directory.Exists (storeDirectory)) {
+					Directory.CreateDirectory (storeDirectory);
+				}
+				File.Move(producedFile,Path.Combine(storeDirectory,producedFileName));
+
+				// Report back that we finished an entry
 				progressReporter.showProgressMessage (String.Format ("Finished entry {0} with exit code: {1}", current,rd.ExitCode));
 				eventX.Set ();
 			}
