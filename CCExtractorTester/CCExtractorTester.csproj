@@ -63,16 +63,12 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="gtk-gui\gui.stetic">
-      <LogicalName>gui.stetic</LogicalName>
-    </EmbeddedResource>
     <EmbeddedResource Include="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.Designer.cs">
@@ -80,7 +76,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="gtk-gui\CCExtractorTester.AddEntryDialog.cs" />
     <Compile Include="ICalleable.cs" />
     <Compile Include="IProgressReportable.cs" />
     <Compile Include="ConfigurationSettings.cs" />
@@ -93,7 +88,6 @@
     <Compile Include="DiffTool\SideBySideModel.cs" />
     <Compile Include="DiffTool\SingleSideModel.cs" />
     <Compile Include="DiffTool\DifferTool.cs" />
-    <Compile Include="GUI.cs" />
     <Compile Include="Comparers\ResultData.cs" />
     <Compile Include="Comparers\CompareData.cs" />
     <Compile Include="Comparers\IFileComparable.cs" />
@@ -106,17 +100,12 @@
     <Compile Include="PerformanceLoggers\WindowsPerformanceCounters.cs" />
     <Compile Include="Analyzers\TestEntry.cs" />
     <Compile Include="Analyzers\Tester.cs" />
-    <Compile Include="Windows\AddEntryDialog.cs" />
-    <Compile Include="Windows\ConfigWindow.cs" />
-    <Compile Include="Windows\MainWindow.cs" />
     <Compile Include="Analyzers\Runner.cs" />
     <Compile Include="Analyzers\Reporter.cs" />
     <Compile Include="Analyzers\RunData.cs" />
     <Compile Include="PerformanceLoggers\NullPerformanceLogger.cs" />
     <Compile Include="NullProgressReporter.cs" />
     <Compile Include="Comparers\Hasher.cs" />
-    <Compile Include="gtk-gui\CCExtractorTester.ConfigWindow.cs" />
-    <Compile Include="gtk-gui\CCExtractorTester.MainWindow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
