@@ -10,8 +10,6 @@ namespace CCExtractorTester
 	/// The Options that are available for use in the command line interface.
 	/// </summary>
 	class Options {
-		[Option('g',"gui",DefaultValue=false,Required=false,HelpText="Use the GUI instead of the CLI")]
-		public bool IsGUI { get; set; }
 		[Option('t',"test",HelpText="The file that contains a list of the samples to test in xml-format")]
 		public string SampleFile { get; set; }
 		[Option('c',"config",HelpText="The file that contains the configuration in xml-format")]
@@ -70,92 +68,86 @@ namespace CCExtractorTester
 			location = location.Remove (location.LastIndexOf (Path.DirectorySeparatorChar));
 			Logger = new ConsoleFileLogger (Path.Combine (location, "logs"));
 			var options = new Options ();
-			if (CommandLine.Parser.Default.ParseArguments (args, options)) {
+			if (Parser.Default.ParseArguments (args, options)) {
 				Logger.Info ("Starting program - If you encounter any issues using this program, get in touch, and keep this log close to you. (enable CCExtractor output by using -d flag)");
 				if (options.Debug) {
 					Logger.ActivateDebug ();
 					Logger.Debug ("Debug activated");
 				}
-				if (options.IsGUI) {
-					Logger.Debug ("Using GUI - Switching logger to file only");
-					Logger = ((ConsoleFileLogger)Logger).FileLogger;
-					GUI.Run (Logger);
-				} else {
-					Logger.Debug ("Using console/command line");
-					Logger.Info ("");
-					Logger.Info ("If you want to see the usage, run this with --help. Press ctrl-c to abort if necessary");
-					Logger.Info ("");
-					// Loading configuration
-					ConfigurationSettings config = new ConfigurationSettings ();
-					if (!String.IsNullOrEmpty (options.ConfigFile) && options.ConfigFile.EndsWith (".xml") && File.Exists (options.ConfigFile)) {
-						Logger.Info ("Loading provided configuration ("+options.ConfigFile+")");
-						XmlDocument doc = new XmlDocument ();
-						doc.Load (options.ConfigFile);
-						config = new ConfigurationSettings (doc, options.ConfigFile);
-					} else if(!String.IsNullOrEmpty (options.ConfigFile)) {
-						Logger.Warn ("Provided config file, but is no xml or does not exist - using default config");
-					}
-					if (!config.IsAppConfigOK ()) {
-						Logger.Error ("Fatal error - config not valid. Please check. Exiting application");
+				Logger.Debug ("Using console/command line");
+				Logger.Info ("");
+				Logger.Info ("If you want to see the usage, run this with --help. Press ctrl-c to abort if necessary");
+				Logger.Info ("");
+				// Loading configuration
+				ConfigurationSettings config = new ConfigurationSettings ();
+				if (!String.IsNullOrEmpty (options.ConfigFile) && options.ConfigFile.EndsWith (".xml") && File.Exists (options.ConfigFile)) {
+					Logger.Info ("Loading provided configuration ("+options.ConfigFile+")");
+					XmlDocument doc = new XmlDocument ();
+					doc.Load (options.ConfigFile);
+					config = new ConfigurationSettings (doc, options.ConfigFile);
+				} else if(!String.IsNullOrEmpty (options.ConfigFile)) {
+					Logger.Warn ("Provided config file, but is no xml or does not exist - using default config");
+				}
+				if (!config.IsAppConfigOK ()) {
+					Logger.Error ("Fatal error - config not valid. Please check. Exiting application");
+					return;
+				}
+				String temporaryFolder = Path.Combine (location, "tmpFiles");
+				if (!String.IsNullOrEmpty (options.TempFolder) && IsValidDirectory (options.TempFolder)) {
+					temporaryFolder = options.TempFolder;
+				}
+				config.SetAppSetting ("temporaryFolder", temporaryFolder);
+				Logger.Info ("Generated result files will be stored in " + temporaryFolder + "(when running multiple tests after another, files might be overwritten)");
+				// See what overrides are specified
+				if (!String.IsNullOrEmpty (options.CCExtractorExecutable)) {
+					if (File.Exists (options.CCExtractorExecutable)) {
+						config.SetAppSetting ("CCExtractorLocation", options.CCExtractorExecutable);
+						Logger.Info ("Overriding CCExtractorLocation with given version (located at: " + options.CCExtractorExecutable + ")");
+					} else {
+						Logger.Error ("Given CCExtractor executable path does not exist. Exiting application");
 						return;
 					}
-					String temporaryFolder = Path.Combine (location, "tmpFiles");
-					if (!String.IsNullOrEmpty (options.TempFolder) && IsValidDirectory (options.TempFolder)) {
-						temporaryFolder = options.TempFolder;
-					}
-					config.SetAppSetting ("temporaryFolder", temporaryFolder);
-					Logger.Info ("Generated result files will be stored in " + temporaryFolder + "(when running multiple tests after another, files might be overwritten)");
-					// See what overrides are specified
-					if (!String.IsNullOrEmpty (options.CCExtractorExecutable)) {
-						if (File.Exists (options.CCExtractorExecutable)) {
-							config.SetAppSetting ("CCExtractorLocation", options.CCExtractorExecutable);
-							Logger.Info ("Overriding CCExtractorLocation with given version (located at: " + options.CCExtractorExecutable + ")");
-						} else {
-							Logger.Error ("Given CCExtractor executable path does not exist. Exiting application");
-							return;
-						}
-					}
-					if (options.TimeOut > 60) {
-						config.SetAppSetting ("timeout", options.TimeOut.ToString());
-					}
-					if (!String.IsNullOrEmpty (options.Comparer)) {
-						config.SetAppSetting ("Comparer", options.Comparer);
-						Logger.Info ("Overriding Comparer with: " + options.Comparer);
-					}
-					if (!String.IsNullOrEmpty (options.ReportFolder)) {
-						config.SetAppSetting ("ReportFolder", options.ReportFolder);
-						Logger.Info ("Overriding ReportFolder with: " + options.ReportFolder);
-					}
-					if (!String.IsNullOrEmpty (options.ResultFolder)) {
-						config.SetAppSetting ("CorrectResultFolder", options.ResultFolder);
-						Logger.Info ("Overriding ResultFolder with: " + options.ResultFolder);
-					}
-					if (!String.IsNullOrEmpty (options.SampleFolder)) {
-						config.SetAppSetting ("SampleFolder", options.SampleFolder);
-						Logger.Info ("Overriding SampleFolder with: " + options.SampleFolder);
-					}
-					if (options.HaltAfterError) {
-						config.SetAppSetting ("BreakOnErrors", "true");
-					}
-					// Continue with parameter parsing
-					if (!String.IsNullOrEmpty(options.Matrix)) {
-						Logger.Info ("Running in report mode, generating matrix");
-						if (IsValidDirectory (options.Matrix)) {
-							StartMatrixGenerator (options.Matrix, config, Logger);
-						} else {
-							Logger.Error ("Invalid directory provided for matrix generation!");
-						}
-					} else if (IsValidPotentialSampleFile (options.SampleFile)) {
-						Logger.Info ("Running provided file");
-						StartTester (options.SampleFile, config,Logger);					
+				}
+				if (options.TimeOut > 60) {
+					config.SetAppSetting ("timeout", options.TimeOut.ToString());
+				}
+				if (!String.IsNullOrEmpty (options.Comparer)) {
+					config.SetAppSetting ("Comparer", options.Comparer);
+					Logger.Info ("Overriding Comparer with: " + options.Comparer);
+				}
+				if (!String.IsNullOrEmpty (options.ReportFolder)) {
+					config.SetAppSetting ("ReportFolder", options.ReportFolder);
+					Logger.Info ("Overriding ReportFolder with: " + options.ReportFolder);
+				}
+				if (!String.IsNullOrEmpty (options.ResultFolder)) {
+					config.SetAppSetting ("CorrectResultFolder", options.ResultFolder);
+					Logger.Info ("Overriding ResultFolder with: " + options.ResultFolder);
+				}
+				if (!String.IsNullOrEmpty (options.SampleFolder)) {
+					config.SetAppSetting ("SampleFolder", options.SampleFolder);
+					Logger.Info ("Overriding SampleFolder with: " + options.SampleFolder);
+				}
+				if (options.HaltAfterError) {
+					config.SetAppSetting ("BreakOnErrors", "true");
+				}
+				// Continue with parameter parsing
+				if (!String.IsNullOrEmpty(options.Matrix)) {
+					Logger.Info ("Running in report mode, generating matrix");
+					if (IsValidDirectory (options.Matrix)) {
+						StartMatrixGenerator (options.Matrix, config, Logger);
 					} else {
-						string sampleFile = config.GetAppSetting ("DefaultTestFile");
-						if (IsValidPotentialSampleFile (sampleFile)) {
-							Logger.Info ("Running config default file");
-							StartTester (sampleFile, config,Logger);
-						} else {
-							Logger.Error ("No file (or invalid file) provided and default can't be loaded either!");
-						}
+						Logger.Error ("Invalid directory provided for matrix generation!");
+					}
+				} else if (IsValidPotentialSampleFile (options.SampleFile)) {
+					Logger.Info ("Running provided file");
+					StartTester (options.SampleFile, config,Logger);					
+				} else {
+					string sampleFile = config.GetAppSetting ("DefaultTestFile");
+					if (IsValidPotentialSampleFile (sampleFile)) {
+						Logger.Info ("Running config default file");
+						StartTester (sampleFile, config,Logger);
+					} else {
+						Logger.Error ("No file (or invalid file) provided and default can't be loaded either!");
 					}
 				}
 			}
