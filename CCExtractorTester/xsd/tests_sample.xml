@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests>
+  <test>
+    <sample>relative_folder/sample.mpg</sample>
+    <cmd>-autoprogram -out=ttxt -latin1 -ucla</cmd>
+    <result>relative_folder/sample.txt</result>
+  </test>
+</tests>
