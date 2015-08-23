@@ -1,0 +1,66 @@
+<testsuite>
+	<settings>
+		<reportType>server</reportType>
+		<reportURL>http://canihavesome.coffee/blah</reportURL>
+		<compareFolder>/repository/hash/</compareFolder>
+		<tcpPort>5099</tcpPort>
+		<udpPort>5099</udpPort>
+	</settings>
+	<tests>
+		<entry>
+			<command>-autoprogram -out=srt</command>
+			<input type="file">Testfile.mpg</input>
+			<output>file</output>
+			<compare>
+				<out id="0">Testfile.srt</out>
+			</compare>
+		</entry>
+		<entry>
+			<command>-autoprogram -12 -out=srt</command>
+			<input type="file">Testfile.mpg</input>
+			<output>file</output>
+			<compare>
+				<out id="0">Testfile_0.srt</out>
+				<out id="1">Testfile_1.srt</out>
+			</compare>
+		</entry>
+		<entry>
+			<command>-autoprogram -out=srt</command>
+			<input type="stdin">Testfile.mpg</input>
+			<output>file</output>
+			<compare>
+				<out id="0">Testfile.srt</out>
+			</compare>
+		</entry>
+		<entry>
+			<command>-autoprogram -out=report</command>
+			<input type="file">Testfile.mpg</input>
+			<output>file</output>
+			<compare>
+				<out id="0">Report.txt</out>
+			</compare>
+		</entry>
+		<entry>
+			<command>-autoprogram -out=null</command>
+			<input type="file">Testfile.mpg</input>
+			<output>null</output>
+			<compare />
+		</entry>
+		<entry>
+			<command>-autoprogram</command>
+			<input type="file">Testfile.mpg</input>
+			<output>tcp</output>
+			<compare>
+				<out id="0">Testfile.srt</out>
+			</compare>
+		</entry>
+		<entry>
+			<command>-autoprogram -out=srt</command>
+			<input type="udp">Testfile.mpg</input>
+			<output>file</output>
+			<compare>
+				<out id="0">Testfile.srt</out>
+			</compare>
+		</entry>
+	</tests>
+</testsuite>
