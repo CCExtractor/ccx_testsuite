@@ -21,6 +21,7 @@ It's written in C# and runs under Mono. It is (starting from 0.8) command-line o
 
 ## Common
 
+* CommandLineParser NuGet package ([GitHub](https://github.com/gsscoder/commandline), [nuget](https://www.nuget.org/packages/CommandLineParser))
 * CCExtractor in some compiled form
 * A set of sample files, together with correct outputs
 
