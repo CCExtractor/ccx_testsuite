@@ -56,6 +56,19 @@ namespace CCExtractorTester
         private IPerformanceLogger PerformanceLogger { get; set; }
 
         /// <summary>
+        /// Indicates a first generation file (tests).
+        /// </summary>
+        const string XML_FIRST_GENERATION = "first_gen";
+        /// <summary>
+        /// Indicates a second generation file (multitests).
+        /// </summary>
+        const string XML_SECOND_GENERATION = "second_gen";
+        /// <summary>
+        /// Indicates a third generation file (testsuite).
+        /// </summary>
+        const string XML_THIRD_GENERATION = "third_gen";
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CCExtractorTester.Tester"/> class.
         /// </summary>
         /// <param name="cfg">The configuration that will be used.</param>
@@ -131,8 +144,9 @@ namespace CCExtractorTester
         {
             if (File.Exists(xmlFileName))
             {
-                ValidateXML(xmlFileName);
+                string generation = ValidateXML(xmlFileName);
                 XmlDocument doc = new XmlDocument();
+                // TODO: depending on generation, process
                 using (FileStream fs = new FileStream(xmlFileName, FileMode.Open, FileAccess.Read))
                 {
                     doc.Load(fs);
@@ -169,17 +183,20 @@ namespace CCExtractorTester
         /// Validates the given XML at the location against our scheme.
         /// </summary>
         /// <param name="xmlFileName">The location of the XML file to validate.</param>
-        void ValidateXML(string xmlFileName)
+        /// <returns>A string that indicates the generation of the XML file.</returns>
+        string ValidateXML(string xmlFileName)
         {
-            string[] schemes = new string[] { Resources.testsuite, Resources.multitest, Resources.tests};
-            bool validated = false;
-            foreach (string scheme in schemes)
+            Dictionary<string,string> schemes = new Dictionary<string,string>() {
+                { XML_THIRD_GENERATION, Resources.testsuite },
+                { XML_SECOND_GENERATION, Resources.multitest },
+                { XML_FIRST_GENERATION, Resources.tests }
+            };
+            foreach (KeyValuePair<string,string> kvp in schemes)
             {
                 try
                 {
-                    ValidateAgainstSchema(xmlFileName, scheme);
-                    validated = true;
-                    break;
+                    ValidateAgainstSchema(xmlFileName, kvp.Value);
+                    return kvp.Key;
                 }
                 catch (XmlSchemaValidationException)
                 {
@@ -187,10 +204,7 @@ namespace CCExtractorTester
                 }
             }
 
-            if(!validated)
-            {
-                throw new InvalidDataException("Given XML is not a valid file for the possible formats.");
-            }
+            throw new InvalidDataException("Given XML is not a valid file for the possible formats.");
         }
 
         /// <summary>
