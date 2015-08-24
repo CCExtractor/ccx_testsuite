@@ -146,10 +146,24 @@ namespace CCExtractorTester
             {
                 string generation = ValidateXML(xmlFileName);
                 XmlDocument doc = new XmlDocument();
-                // TODO: depending on generation, process
                 using (FileStream fs = new FileStream(xmlFileName, FileMode.Open, FileAccess.Read))
                 {
                     doc.Load(fs);
+                    // TODO: depending on generation, process
+                    switch (generation)
+                    {
+                        case XML_FIRST_GENERATION:
+                            // TODO: finish
+                            break;
+                        case XML_SECOND_GENERATION:
+                            // TODO: finish
+                            break;
+                        case XML_THIRD_GENERATION:
+                            // TODO: finish
+                            break;
+                        default:
+                            break;
+                    }
                     XmlNodeList testNodes = doc.SelectNodes("//test");
                     FileInfo fi = new FileInfo(xmlFileName);
                     if (testNodes.Count > 0)
