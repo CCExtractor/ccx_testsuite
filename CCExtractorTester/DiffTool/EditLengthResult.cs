@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace CCExtractorTester.DiffTool
 {
 	public enum Edit

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using System.Web;
-using System.Globalization;
 
 namespace CCExtractorTester.DiffTool
 {
