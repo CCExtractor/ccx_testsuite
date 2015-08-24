@@ -66,6 +66,7 @@
     <EmbeddedResource Include="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -111,15 +112,20 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="tests.xsd">
+    <None Include="xsd\tests.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="multitest.xsd">
+    <None Include="xsd\multitest.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="xsd\testsuite.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="tests.xml" />
+    <Content Include="xsd\multitest_sample.xml" />
+    <Content Include="xsd\tests_sample.xml" />
+    <Content Include="xsd\testsuite_sample.xml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup />
