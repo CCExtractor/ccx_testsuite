@@ -149,48 +149,52 @@ namespace CCExtractorTester
                 using (FileStream fs = new FileStream(xmlFileName, FileMode.Open, FileAccess.Read))
                 {
                     doc.Load(fs);
-                    // TODO: depending on generation, process
+                    FileInfo fi = new FileInfo(xmlFileName);
                     switch (generation)
                     {
                         case XML_FIRST_GENERATION:
-                            // TODO: finish
+                            // Dealing with the first typee, test(s) only
+                            XmlNodeList testNodes = doc.SelectNodes("//test");
+                            LoadedFileName = fi.Name.Replace(".xml", "");
+                            foreach (XmlNode node in testNodes)
+                            {
+                                XmlNode sampleFile = node.SelectSingleNode("sample");
+                                XmlNode command = node.SelectSingleNode("cmd");
+                                XmlNode resultFile = node.SelectSingleNode("result");
+                                Entries.Add(new TestEntry(ConvertFolderDelimiters(sampleFile.InnerText), command.InnerText, ConvertFolderDelimiters(resultFile.InnerText)));
+                            }
                             break;
                         case XML_SECOND_GENERATION:
-                            // TODO: finish
+                            // Dealing with multi file
+                            foreach (XmlNode node in doc.SelectNodes("//testfile"))
+                            {
+                                String testFileLocation = ConvertFolderDelimiters(node.SelectSingleNode("location").InnerText);
+                                testFileLocation = Path.Combine(fi.DirectoryName, testFileLocation);
+                                MultiTest.Add(testFileLocation);
+                            }
                             break;
                         case XML_THIRD_GENERATION:
-                            // TODO: finish
+                            // Dealing with the newest version, config + tests
+                            XmlNode settings = doc.SelectSingleNode("//settings");
+                            parseSettings(settings);
+                            XmlNode tests = doc.SelectSingleNode("//tests");
+                            foreach(XmlNode node in tests.SelectNodes("entry"))
+                            {
+                                // TODO: finish
+                            }
                             break;
                         default:
                             break;
-                    }
-                    XmlNodeList testNodes = doc.SelectNodes("//test");
-                    FileInfo fi = new FileInfo(xmlFileName);
-                    if (testNodes.Count > 0)
-                    {
-                        LoadedFileName = fi.Name.Replace(".xml", "");
-                        foreach (XmlNode node in testNodes)
-                        {
-                            XmlNode sampleFile = node.SelectSingleNode("sample");
-                            XmlNode command = node.SelectSingleNode("cmd");
-                            XmlNode resultFile = node.SelectSingleNode("result");
-                            Entries.Add(new TestEntry(ConvertFolderDelimiters(sampleFile.InnerText), command.InnerText, ConvertFolderDelimiters(resultFile.InnerText)));
-                        }
-                    }
-                    else
-                    {
-                        // Dealing with multi file
-                        foreach (XmlNode node in doc.SelectNodes("//testfile"))
-                        {
-                            String testFileLocation = ConvertFolderDelimiters(node.SelectSingleNode("location").InnerText);
-                            testFileLocation = Path.Combine(fi.DirectoryName, testFileLocation);
-                            MultiTest.Add(testFileLocation);
-                        }
                     }
                 }
                 return;
             }
             throw new InvalidDataException("File does not exist");
+        }
+
+        private void parseSettings(XmlNode settings)
+        {
+            // TODO: finish
         }
 
         /// <summary>
@@ -205,6 +209,7 @@ namespace CCExtractorTester
                 { XML_SECOND_GENERATION, Resources.multitest },
                 { XML_FIRST_GENERATION, Resources.tests }
             };
+
             foreach (KeyValuePair<string,string> kvp in schemes)
             {
                 try
