@@ -6,13 +6,13 @@
           <xs:complexType>
             <xs:sequence>
               <xs:element name="reportType">
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						  <xs:enumeration value="server"/>
-						  <xs:enumeration value="index"/>
-					</xs:restriction>
-				</xs:simpleType>
-			  </xs:element>
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="server"/>
+                    <xs:enumeration value="index"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
               <xs:element type="xs:anyURI" name="reportURL"/>
               <xs:element type="xs:string" name="compareFolder"/>
               <xs:element type="xs:short" name="tcpPort"/>
@@ -32,27 +32,27 @@
                         <xs:simpleContent>
                           <xs:extension base="xs:string">
                             <xs:attribute name="type" use="required">
-								<xs:simpleType>
-									<xs:restriction base="xs:string">
-										  <xs:enumeration value="file"/>
-										  <xs:enumeration value="stdin"/>
-										  <xs:enumeration value="udp"/>
-									</xs:restriction>
-								</xs:simpleType>
-							</xs:attribute>
+                              <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                  <xs:enumeration value="file"/>
+                                  <xs:enumeration value="stdin"/>
+                                  <xs:enumeration value="udp"/>
+                                </xs:restriction>
+                              </xs:simpleType>
+                            </xs:attribute>
                           </xs:extension>
                         </xs:simpleContent>
                       </xs:complexType>
                     </xs:element>
                     <xs:element name="output">
-						<xs:simpleType>
-							<xs:restriction base="xs:string">
-								  <xs:enumeration value="file"/>
-								  <xs:enumeration value="null"/>
-								  <xs:enumeration value="tcp"/>
-							</xs:restriction>
-						</xs:simpleType>
-					</xs:element>
+                      <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                          <xs:enumeration value="file"/>
+                          <xs:enumeration value="null"/>
+                          <xs:enumeration value="tcp"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:element>
                     <xs:element name="compare">
                       <xs:complexType mixed="true">
                         <xs:sequence>
