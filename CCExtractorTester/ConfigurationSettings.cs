@@ -22,11 +22,6 @@ namespace CCExtractorTester
         private Configuration ConfigManager { get; set; }
 
         /// <summary>
-        /// Gets or sets the config XML location.
-        /// </summary>
-        /// <value>The config XML location.</value>
-        private String ConfigXMLLocation { get; set; }
-        /// <summary>
         /// Gets or sets the config XML.
         /// </summary>
         /// <value>The config XML.</value>
@@ -147,21 +142,6 @@ namespace CCExtractorTester
                     XmlNode appSettings = ConfigXML.SelectSingleNode("configuration/appSettings");
                     appSettings.AppendChild(add);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Saves the configuration to the app.config or the XML (depending on chosen type).
-        /// </summary>
-        public void SaveConfiguration()
-        {
-            if (IsAppConfiguration)
-            {
-                ConfigManager.Save(ConfigurationSaveMode.Minimal);
-            }
-            else
-            {
-                ConfigXML.Save(ConfigXMLLocation);
             }
         }
     }
