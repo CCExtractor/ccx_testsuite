@@ -13,8 +13,7 @@
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element type="xs:anyURI" name="reportURL"/>
-              <xs:element type="xs:string" name="compareFolder"/>
+              <xs:element type="xs:anyURI" name="reportURL" maxOccurs="1" minOccurs="0" />
               <xs:element type="xs:short" name="tcpPort"/>
               <xs:element type="xs:short" name="udpPort"/>
             </xs:sequence>
