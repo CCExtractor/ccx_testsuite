@@ -2,7 +2,6 @@
 	<settings>
 		<reportType>server</reportType>
 		<reportURL>http://canihavesome.coffee/blah</reportURL>
-		<compareFolder>/repository/hash/</compareFolder>
 		<tcpPort>5099</tcpPort>
 		<udpPort>5099</udpPort>
 	</settings>
