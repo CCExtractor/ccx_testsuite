@@ -85,6 +85,7 @@ namespace CCExtractorTester
                 Logger.Info("If you want to see the available flags, run this program with --help. Press ctrl-c to abort if necessary.");
                 Logger.Info("");
                 // Loading configuration
+                ConfigManager cm = null;
                 ConfigurationSettings config = new ConfigurationSettings();
                 if (!String.IsNullOrEmpty(options.ConfigFile) && options.ConfigFile.EndsWith(".xml") && File.Exists(options.ConfigFile))
                 {
@@ -92,10 +93,18 @@ namespace CCExtractorTester
                     XmlDocument doc = new XmlDocument();
                     doc.Load(options.ConfigFile);
                     config = new ConfigurationSettings(doc, options.ConfigFile);
+
+                    cm = ConfigManager.CreateFromXML(Logger, doc);
                 }
                 else
                 {
+                    cm = ConfigManager.CreateFromAppSettings(Logger);
                     Logger.Warn("Provided no config or an invalid one; reverting to default config ("+a.GetName().Name+".exe.config)");
+                }
+                if(cm  == null || !cm.IsValidConfig())
+                {
+                    Logger.Error("Fatal error - config not valid. Please check. Exiting application");
+                    return;
                 }
                 if (!config.IsAppConfigOK())
                 {
