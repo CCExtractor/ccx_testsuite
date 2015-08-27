@@ -3,7 +3,7 @@
     /// <summary>
     /// This enum defines how the test suite will behave during it's lifetime.
     /// </summary>
-    enum RunType
+    public enum RunType
     {
         /// <summary>
         /// Generates reports and stores them on the executing machine.

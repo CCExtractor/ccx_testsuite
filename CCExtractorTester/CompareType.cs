@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the possible comparisons that the program supports.
     /// </summary>
-    enum CompareType
+    public enum CompareType
     {
         /// <summary>
         /// Regular diff (Linux only), using the diff command.
