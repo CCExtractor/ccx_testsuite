@@ -7,47 +7,47 @@ namespace CCExtractorTester
     /// <summary>
     /// Holds all the configuration settings for the test suite.
     /// </summary>
-    class ConfigManager
+    public class ConfigManager
     {
         /// <summary>
         /// Gets or sets the folder where we'll store the report in (when using the old local method)
         /// </summary>
-        public string ReportFolder { get; private set; }
+        public string ReportFolder { get; set; }
 
         /// <summary>
         /// Gets or sets the folder where the samples are stored.
         /// </summary>
-        public string SampleFolder { get; private set; }
+        public string SampleFolder { get; set; }
 
         /// <summary>
         /// Gets or sets the folder that holds the correct results to compare to.
         /// </summary>
-        public string ResultFolder { get; private set; }
+        public string ResultFolder { get; set; }
 
         /// <summary>
         /// Gets or sets the location of the CCExtractor executable.
         /// </summary>
-        public string CCExctractorLocation { get; private set; }
+        public string CCExctractorLocation { get; set; }
 
         /// <summary>
         /// Gets or sets which type of comparison should be used.
         /// </summary>
-        public CompareType Comparer { get; private set; }
+        public CompareType Comparer { get; set; }
 
         /// <summary>
         /// Gets or sets if threading should be used.
         /// </summary>
-        public bool Threading { get; private set; }
+        public bool Threading { get; set; }
 
         /// <summary>
         /// Gets or sets if the suite should break when it encounters an error.
         /// </summary>
-        public bool ErrorBreak { get; private set; }
+        public bool ErrorBreak { get; set; }
         
         /// <summary>
         /// Gets or sets if the suite should process the results and create reports, or pass results to the server.
         /// </summary>
-        public RunType TestType { get; private set; }
+        public RunType TestType { get; set; }
 
         /// <summary>
         /// Gets or sets the url that should be used to send the progress of the test suite to.
@@ -64,6 +64,15 @@ namespace CCExtractorTester
         /// </summary>
         public int UDPPort { get; set; }
 
+        /// <summary>
+        /// Gets or sets the location of the folder to store temporary results in.
+        /// </summary>
+        public string TemporaryFolder { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time out that will be used to abort a running instance of CCExctractor if necessary. (in seconds)
+        /// </summary>
+        public int TimeOut { get; set; }
 
         /// <summary>
         /// Creates a new instance of the ConfigManager.
@@ -84,6 +93,7 @@ namespace CCExtractorTester
             Comparer = compare;
             Threading = useThreading;
             ErrorBreak = breakErrors;
+            TimeOut = 60;
         }
 
         /// <summary>
