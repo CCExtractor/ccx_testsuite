@@ -85,7 +85,7 @@
     <Compile Include="Analyzers\TestEntry.cs" />
     <Compile Include="Analyzers\Tester.cs" />
     <Compile Include="Analyzers\Runner.cs" />
-    <Compile Include="Analyzers\Reporter.cs" />
+    <Compile Include="Analyzers\MatrixGenerator.cs" />
     <Compile Include="Analyzers\RunData.cs" />
     <Compile Include="PerformanceLoggers\NullPerformanceLogger.cs" />
     <Compile Include="NullProgressReporter.cs" />
