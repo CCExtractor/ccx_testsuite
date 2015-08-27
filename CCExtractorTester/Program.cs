@@ -85,28 +85,20 @@ namespace CCExtractorTester
                 Logger.Info("If you want to see the available flags, run this program with --help. Press ctrl-c to abort if necessary.");
                 Logger.Info("");
                 // Loading configuration
-                ConfigManager cm = null;
-                ConfigurationSettings config = new ConfigurationSettings();
+                ConfigManager config = null;
                 if (!String.IsNullOrEmpty(options.ConfigFile) && options.ConfigFile.EndsWith(".xml") && File.Exists(options.ConfigFile))
                 {
                     Logger.Info("Loading provided configuration (" + options.ConfigFile + ")");
                     XmlDocument doc = new XmlDocument();
                     doc.Load(options.ConfigFile);
-                    config = new ConfigurationSettings(doc, options.ConfigFile);
-
-                    cm = ConfigManager.CreateFromXML(Logger, doc);
+                    config = ConfigManager.CreateFromXML(Logger, doc);
                 }
                 else
                 {
-                    cm = ConfigManager.CreateFromAppSettings(Logger);
+                    config = ConfigManager.CreateFromAppSettings(Logger);
                     Logger.Warn("Provided no config or an invalid one; reverting to default config ("+a.GetName().Name+".exe.config)");
                 }
-                if(cm  == null || !cm.IsValidConfig())
-                {
-                    Logger.Error("Fatal error - config not valid. Please check. Exiting application");
-                    return;
-                }
-                if (!config.IsAppConfigOK())
+                if(config  == null || !config.IsValidConfig())
                 {
                     Logger.Error("Fatal error - config not valid. Please check. Exiting application");
                     return;
@@ -116,14 +108,22 @@ namespace CCExtractorTester
                 {
                     temporaryFolder = options.TempFolder;
                 }
-                config.SetAppSetting("temporaryFolder", temporaryFolder);
+                else
+                {
+                    if (!Directory.Exists(temporaryFolder))
+                    {
+                        Logger.Warn(temporaryFolder + " does not exist; trying to create it");
+                        Directory.CreateDirectory(temporaryFolder);
+                    }
+                }
+                config.TemporaryFolder = temporaryFolder;
                 Logger.Info("Generated result files will be stored in " + temporaryFolder + "(when running multiple tests after another, files might be overwritten)");
                 // See what overrides are specified
                 if (!String.IsNullOrEmpty(options.CCExtractorExecutable))
                 {
                     if (File.Exists(options.CCExtractorExecutable))
                     {
-                        config.SetAppSetting("CCExtractorLocation", options.CCExtractorExecutable);
+                        config.CCExctractorLocation = options.CCExtractorExecutable;
                         Logger.Info("Overriding CCExtractorLocation with given version (located at: " + options.CCExtractorExecutable + ")");
                     }
                     else
@@ -134,41 +134,50 @@ namespace CCExtractorTester
                 }
                 if (options.TimeOut > 60)
                 {
-                    config.SetAppSetting("timeout", options.TimeOut.ToString());
+                    config.TimeOut = options.TimeOut;
                     Logger.Info("Overriding timeout with: " + options.TimeOut);
                 }
                 if (!String.IsNullOrEmpty(options.Comparer))
                 {
-                    config.SetAppSetting("Comparer", options.Comparer);
-                    Logger.Info("Overriding Comparer with: " + options.Comparer);
+                    try
+                    {
+                        config.Comparer = (CompareType)Enum.Parse(typeof(CompareType), options.Comparer);
+                        Logger.Info("Overriding Comparer with: " + options.Comparer);
+                    }
+                    catch (ArgumentException)
+                    {
+                        Logger.Warn("Provided value for comparer invalid; ignoring it.");
+                    }
+                    
                 }
                 if (!String.IsNullOrEmpty(options.ReportFolder))
                 {
-                    config.SetAppSetting("ReportFolder", options.ReportFolder);
+                    config.ReportFolder = options.ReportFolder;
                     Logger.Info("Overriding ReportFolder with: " + options.ReportFolder);
                 }
                 if (!String.IsNullOrEmpty(options.ResultFolder))
                 {
-                    config.SetAppSetting("CorrectResultFolder", options.ResultFolder);
+                    config.ResultFolder = options.ResultFolder;
                     Logger.Info("Overriding ResultFolder with: " + options.ResultFolder);
                 }
                 if (!String.IsNullOrEmpty(options.SampleFolder))
                 {
-                    config.SetAppSetting("SampleFolder", options.SampleFolder);
+                    config.SampleFolder = options.SampleFolder;
                     Logger.Info("Overriding SampleFolder with: " + options.SampleFolder);
                 }
                 if (options.HaltAfterError)
                 {
-                    config.SetAppSetting("BreakOnErrors", "true");
+                    config.ErrorBreak = true;
                     Logger.Info("If there's a sample that doesn't match, we will exit instead of running them all.");
                 }
                 // Continue with parameter parsing
                 if (!String.IsNullOrEmpty(options.Matrix))
                 {
+                    config.TestType = RunType.Matrix;
                     Logger.Info("Running in report mode, generating matrix");
                     if (IsValidDirectory(options.Matrix))
                     {
-                        StartMatrixGenerator(options.Matrix, config, Logger);
+                        StartMatrixGenerator(Logger, config, options.Matrix);
                     }
                     else
                     {
@@ -178,7 +187,7 @@ namespace CCExtractorTester
                 else if (IsValidPotentialSampleFile(options.SampleFile))
                 {
                     Logger.Info("Running provided file");
-                    StartTester(options.SampleFile, config, Logger);
+                    //StartTester(options.SampleFile, config, Logger);
                 }
                 else
                 {
@@ -231,18 +240,24 @@ namespace CCExtractorTester
             }
         }
 
-        static void StartMatrixGenerator(string matrix, ConfigurationSettings config, ILogger logger)
+        /// <summary>
+        /// Starts the matrix generation.
+        /// </summary>
+        /// <param name="logger">The logger that will be used by the generator.</param>
+        /// <param name="config">The configuration that will be used by the generator.</param>
+        /// <param name="searchFolder">The folder containing the media samples.</param>
+        static void StartMatrixGenerator(ILogger logger, ConfigManager config, string searchFolder)
         {
-            Reporter r = new Reporter(config, logger, matrix);
-            r.SetProgressReporter(new ConsoleReporter(logger));
+            MatrixGenerator generator = new MatrixGenerator(logger, config, searchFolder);
+            generator.ProgressReporter = new ConsoleReporter(logger);
             try
             {
-                r.GenerateMatrix();
+                generator.GenerateMatrix();
             }
             catch (Exception e)
             {
                 Logger.Error(e);
-            };
+            }
         }
 
         // An internal class for logging progress to the console.
