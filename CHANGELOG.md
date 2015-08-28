@@ -1,7 +1,6 @@
-CCExtractor test suite changelog
-=================
+# CCExtractor test suite changelog
 
-# 0.8
+## 0.8
 
 * Removal of the GUI
 * Parameter changes
@@ -9,10 +8,10 @@ CCExtractor test suite changelog
 * New test format for improved tests
 * Small fixes
 
-# 0.7
+## 0.7
 
 * Several fixes
 
-# pre 0.7
+## pre 0.7
 
 No records kept; initial version.
