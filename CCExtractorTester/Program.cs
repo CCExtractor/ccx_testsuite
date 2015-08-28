@@ -4,6 +4,7 @@ using System.Xml;
 using CommandLine;
 using CommandLine.Text;
 using System.Reflection;
+using CCExtractorTester.Enums;
 
 namespace CCExtractorTester
 {
@@ -132,7 +133,7 @@ namespace CCExtractorTester
                         return;
                     }
                 }
-                if (options.TimeOut > 60)
+                if (options.TimeOut > 60 && options.TimeOut != 180)
                 {
                     config.TimeOut = options.TimeOut;
                     Logger.Info("Overriding timeout with: " + options.TimeOut);
