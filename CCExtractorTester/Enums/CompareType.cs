@@ -1,4 +1,4 @@
-﻿namespace CCExtractorTester
+﻿namespace CCExtractorTester.Enums
 {
     /// <summary>
     /// Represents the possible comparisons that the program supports.
@@ -8,14 +8,14 @@
         /// <summary>
         /// Regular diff (Linux only), using the diff command.
         /// </summary>
-        diff,
+        Diff,
         /// <summary>
         /// Generates HTML viewable diffs for two files (showing the full file).
         /// </summary>
-        diffplex,
+        Diffplex,
         /// <summary>
         /// Generates HTML viewable diffs for two files (showing changes only).
         /// </summary>
-        diffplexreduced
+        Diffplexreduced
     }
 }
