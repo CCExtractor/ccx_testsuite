@@ -184,11 +184,8 @@ namespace CCExtractorTester
                             }
                             break;
                         case XML_THIRD_GENERATION:
-                            // Dealing with the newest version, config + tests
-                            XmlNode settings = doc.SelectSingleNode("//settings");
-                            parseSettings(settings);
-                            XmlNode tests = doc.SelectSingleNode("//tests");
-                            foreach (XmlNode node in tests.SelectNodes("entry"))
+                            // Dealing with the newest version of tests
+                            foreach (XmlNode node in doc.SelectNodes("//entry"))
                             {
                                 // TODO: finish
                             }
@@ -200,11 +197,6 @@ namespace CCExtractorTester
                 return;
             }
             throw new InvalidDataException("File does not exist");
-        }
-
-        private void parseSettings(XmlNode settings)
-        {
-            // TODO: finish
         }
 
         /// <summary>
@@ -285,7 +277,8 @@ namespace CCExtractorTester
         /// <summary>
         /// Runs the tests.
         /// </summary>
-        public void RunTests()
+        /// <param name="location">The folder this executable resides in.</param>
+        public void RunTests(string location)
         {
             String cce = Config.CCExctractorLocation;
             if (!File.Exists(cce))
@@ -296,14 +289,6 @@ namespace CCExtractorTester
             if (!Directory.Exists(sourceFolder))
             {
                 throw new InvalidOperationException("Sample folder does not exist!");
-            }
-
-            String location = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            location = location.Remove(location.LastIndexOf(Path.DirectorySeparatorChar));
-            String temporaryFolder = Config.TemporaryFolder;
-            if (!Directory.Exists(temporaryFolder))
-            {
-                Directory.CreateDirectory(temporaryFolder);
             }
 
             bool useThreading = Config.Threading;
@@ -337,7 +322,7 @@ namespace CCExtractorTester
                         singleTest.Item1, nrTests
                     );
                     SaveMultiIndexFile(sb.ToString(), subFolder);
-                    if (singleTest.Item1 != nrTests && Config.ErrorBreak)
+                    if (singleTest.Item1 != nrTests && Config.BreakOnChanges)
                     {
                         Logger.Info("Aborting next files because of error in current test file");
                         break;

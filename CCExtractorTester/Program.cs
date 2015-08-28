@@ -13,32 +13,36 @@ namespace CCExtractorTester
     /// </summary>
     class Options
     {
-        [Option('t', "test", HelpText = "The file that contains a list of the samples to test in xml-format")]
-        public string SampleFile { get; set; }
-        [Option('c', "config", HelpText = "The file that contains the configuration in xml-format")]
+        [Option('m', "method", DefaultValue = RunType.Report , HelpText = "How should the testsuite behave for reporting?")]
+        public RunType RunMethod { get; set; }
+        [Option('u', "url", HelpText = "If the method is Server, this should point to the url where the suite should send requests to")]
+        public string ReportURL { get; set; }
+        [Option('e', "entries", HelpText = "A XML file containing the test entries")]
+        public string EntryFile { get; set; }
+        [Option('c', "config", HelpText = "A XML file that contains the configuration")]
         public string ConfigFile { get; set; }
-        [Option('d', "debug", DefaultValue = false, Required = false, HelpText = "Use debugging")]
+        [Option('d',"debug", DefaultValue = false, Required = false, HelpText = "Enable debugging (extra output)")]
         public bool Debug { get; set; }
-        [Option('m', "matrix", Required = false, HelpText = "Generate a matrix report (features) for all files in this folder")]
-        public string Matrix { get; set; }
-        [Option('p', "program", DefaultValue = false, Required = false, HelpText = "Will the output be parsed by an external program?")]
-        public bool IsProgram { get; set; }
-        [Option('i', "tempfolder", HelpText = "Uses the provided location as a temp folder to store the results in")]
+        [Option('t', "tempfolder", HelpText = "Uses the provided location as a temp folder to store the results in")]
         public string TempFolder { get; set; }
-        [Option('b', "breakonerror", DefaultValue = false, Required = false, HelpText = "Will not continue to run more tests once a single error is encountered")]
-        public bool HaltAfterError { get; set; }
+        [Option('b',"breakonchanges", DefaultValue = false, Required = false, HelpText = "Break if a change in output (between generated output and correct output) is detected")]
+        public bool BreakOnChanges { get; set; }
+        [Option("tcp", DefaultValue = 5099, HelpText = "Sets the TCP port that will be used in case of entries that need TCP")]
+        public int TCPPort { get; set; }
+        [Option("udp", DefaultValue = 5099, HelpText = "Sets the UDP port that will be used in case of entries that need UDP")]
+        public int UDPPort { get; set; }
         // Options that will override the config settings
-        [Option('e', "executable", HelpText = "The CCExtractor executable path (overrides the config file)")]
+        [Option("executable", HelpText = "Overrrides the CCExtractor executable path")]
         public string CCExtractorExecutable { get; set; }
-        [Option('r', "reportfolder", HelpText = "The path to the folder where the reports will be stored (overrides the config file)")]
+        [Option("reportfolder", HelpText = "Overrides the folder location where reports will be stored")]
         public string ReportFolder { get; set; }
-        [Option('s', "samplefolder", HelpText = "The path to the folder that contains the samples (overrides the config file)")]
+        [Option("samplefolder", HelpText = "Overrides the folder location that contains the samples")]
         public string SampleFolder { get; set; }
-        [Option('f', "resultfolder", HelpText = "The path to the folder that contains the results (overrides the config file)")]
+        [Option("resultfolder", HelpText = "Overrides the folder location that contains the correct results")]
         public string ResultFolder { get; set; }
-        [Option('h', "comparer", HelpText = "The type of comparer to use  (overrides the config file)")]
+        [Option("comparer", HelpText = "Overrides the type of comparer that will be used")]
         public string Comparer { get; set; }
-        [Option('o', "timeout", DefaultValue = 180, HelpText = "The timeout value (in seconds). A test will be aborted if CCExtractor is still running after this point. Must be bigger than 60.")]
+        [Option("timeout", DefaultValue = 180, HelpText = "Overrides the timeout value (default 180 seconds). This indicates how long a single test entry may take to complete. Minimum duration is 60 seconds.")]
         public int TimeOut { get; set; }
 
         [ParserState]
@@ -75,7 +79,7 @@ namespace CCExtractorTester
             var options = new Options();
             if (Parser.Default.ParseArguments(args, options))
             {
-                Logger.Info("Starting test suite for CCExtractor - If you encounter any issues using this program, don't hesitate to ask questions or report problems on GitHub. Please don't forget to attach logs (enable extensive logging using the -d flag).");
+                Logger.Info("Starting test suite for CCExtractor - If you encounter any issues using this program, don't hesitate to ask questions or report problems on GitHub. Please don't forget to attach logs (enable extensive logging using the -debug flag).");
                 Logger.Info("Test suite version: " + a.GetName().Version.ToString());
                 if (options.Debug)
                 {
@@ -96,8 +100,8 @@ namespace CCExtractorTester
                 }
                 else
                 {
+                    Logger.Warn("Provided no config or an invalid one; reverting to default config (" + a.GetName().Name + ".exe.config)");
                     config = ConfigManager.CreateFromAppSettings(Logger);
-                    Logger.Warn("Provided no config or an invalid one; reverting to default config ("+a.GetName().Name+".exe.config)");
                 }
                 if(config  == null || !config.IsValidConfig())
                 {
@@ -114,7 +118,12 @@ namespace CCExtractorTester
                     if (!Directory.Exists(temporaryFolder))
                     {
                         Logger.Warn(temporaryFolder + " does not exist; trying to create it");
-                        Directory.CreateDirectory(temporaryFolder);
+                        DirectoryInfo di = Directory.CreateDirectory(temporaryFolder);
+                        if (!di.Exists)
+                        {
+                            Logger.Error("Failed to create the directory! Exiting");
+                            return;
+                        }
                     }
                 }
                 config.TemporaryFolder = temporaryFolder;
@@ -166,38 +175,34 @@ namespace CCExtractorTester
                     config.SampleFolder = options.SampleFolder;
                     Logger.Info("Overriding SampleFolder with: " + options.SampleFolder);
                 }
-                if (options.HaltAfterError)
+                config.BreakOnChanges = options.BreakOnChanges;
+                if (config.BreakOnChanges)
                 {
-                    config.ErrorBreak = true;
                     Logger.Info("If there's a sample that doesn't match, we will exit instead of running them all.");
                 }
+                config.TestType = options.RunMethod;
                 // Continue with parameter parsing
-                if (!String.IsNullOrEmpty(options.Matrix))
+                if (config.TestType == RunType.Matrix)
                 {
-                    config.TestType = RunType.Matrix;
                     Logger.Info("Running in report mode, generating matrix");
-                    if (IsValidDirectory(options.Matrix))
+                    if (IsValidDirectory(options.EntryFile))
                     {
-                        StartMatrixGenerator(Logger, config, options.Matrix);
+                        StartMatrixGenerator(Logger, config, options.EntryFile);
                     }
                     else
                     {
                         Logger.Error("Invalid directory provided for matrix generation!");
                     }
                 }
-                else if (IsValidPotentialSampleFile(options.SampleFile))
+                else if (IsValidPotentialSampleFile(options.EntryFile))
                 {
                     Logger.Info("Running provided file");
-                    StartTester(Logger, config, options.SampleFile);
+                    StartTester(Logger, config, options.EntryFile, location);
                 }
                 else
                 {
                     Logger.Error("No file (or invalid file) provided!");
                 }
-            }
-            else
-            {
-                Logger.Error("Could not parse the arguments... Please try again (maybe use --help to display the available options?");
             }
         }
 
@@ -227,13 +232,14 @@ namespace CCExtractorTester
         /// <param name="logger">The logger that will be used by the tester.</param>
         /// <param name="config">The configuration that will be used by the tester.</param>
         /// <param name="sampleFile">The sample file the tester will be running.</param>
-        static void StartTester(ILogger logger, ConfigManager config, string sampleFile)
+        /// <param name="location">The directory this executable resides in.</param>
+        static void StartTester(ILogger logger, ConfigManager config, string sampleFile, string location)
         {
             Tester t = new Tester(logger, config, sampleFile);
             t.SetProgressReporter(new ConsoleReporter(logger));
             try
             {
-                t.RunTests();
+                t.RunTests(location);
             }
             catch (Exception e)
             {
