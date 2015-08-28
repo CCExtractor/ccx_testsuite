@@ -70,7 +70,7 @@ namespace CCExtractorTester
         public string TemporaryFolder { get; set; }
 
         /// <summary>
-        /// Gets or sets the time out that will be used to abort a running instance of CCExctractor if necessary. (in seconds)
+        /// Gets or sets the time out that will be used to abort a running instance of CCExctractor if necessary. (in seconds). Set by default to 180.
         /// </summary>
         public int TimeOut { get; set; }
 
@@ -93,7 +93,7 @@ namespace CCExtractorTester
             Comparer = compare;
             Threading = useThreading;
             ErrorBreak = breakErrors;
-            TimeOut = 60;
+            TimeOut = 180;
         }
 
         /// <summary>
