@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CCExtractorTester.Enums;
+using System;
 using System.Configuration;
 using System.Xml;
 
@@ -105,7 +106,7 @@ namespace CCExtractorTester
         {
             Configuration c = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             string reportFolder = "", sampleFolder = "", resultFolder = "", ccextractorLocation = "";
-            CompareType compare = CompareType.diffplex;
+            CompareType compare = CompareType.Diffplex;
             bool useThreading = false, breakErrors = false;
             foreach (KeyValueConfigurationElement kce in c.AppSettings.Settings)
             {
@@ -156,7 +157,7 @@ namespace CCExtractorTester
         public static ConfigManager CreateFromXML(ILogger logger, XmlDocument xml)
         {
             string reportFolder = "", sampleFolder = "", resultFolder = "", ccextractorLocation = "";
-            CompareType compare = CompareType.diffplex;
+            CompareType compare = CompareType.Diffplex;
             bool useThreading = false, breakErrors = false;
             foreach (XmlNode n in xml.SelectNodes("configuration/appSettings/add"))
             {

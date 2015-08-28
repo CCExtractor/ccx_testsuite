@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CCExtractorTester.Enums;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -18,30 +19,42 @@ namespace CCExtractorTester
         /// The name of the loaded file.
         /// </summary>
         public String LoadedFileName { get; private set; }
+
         /// <summary>
         /// A list of the TestEntry instances that will be processed.
         /// </summary>
         public List<TestEntry> Entries { get; private set; }
+
         /// <summary>
         /// Contains the multi test list.
         /// </summary>
         public List<string> MultiTest { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the generation of the tests that will be ran.
+        /// </summary>
+        public string TestGeneration { get; private set; }
+
         /// <summary>
         /// Gets or sets the progress reporter that will be used.
         /// </summary>
         private IProgressReportable ProgressReporter { get; set; }
+
         /// <summary>
         /// Gets or sets the comparer that will be used by the tester.
         /// </summary>
         private IFileComparable Comparer { get; set; }
+
         /// <summary>
         /// Gets or sets the configuration instance that will be used.
         /// </summary>
         private ConfigManager Config { get; set; }
+
         /// <summary>
         /// Gets or sets the logger.
         /// </summary>
         private ILogger Logger { get; set; }
+
         /// <summary>
         /// Gets or sets the performance logger.
         /// </summary>
@@ -96,13 +109,13 @@ namespace CCExtractorTester
         {
             switch (Config.Comparer)
             {
-                case CompareType.diff:
+                case CompareType.Diff:
                     Comparer = new DiffLinuxComparer();
                     break;
-                case CompareType.diffplex:
+                case CompareType.Diffplex:
                     Comparer = new DiffToolComparer(false);
                     break;
-                case CompareType.diffplexreduced:
+                case CompareType.Diffplexreduced:
                     Comparer = new DiffToolComparer(true);
                     break;
                 default:
@@ -135,13 +148,13 @@ namespace CCExtractorTester
         {
             if (File.Exists(xmlFileName))
             {
-                string generation = ValidateXML(xmlFileName);
+                TestGeneration = ValidateXML(xmlFileName);
                 XmlDocument doc = new XmlDocument();
                 using (FileStream fs = new FileStream(xmlFileName, FileMode.Open, FileAccess.Read))
                 {
                     doc.Load(fs);
                     FileInfo fi = new FileInfo(xmlFileName);
-                    switch (generation)
+                    switch (TestGeneration)
                     {
                         case XML_FIRST_GENERATION:
                             // Dealing with the first typee, test(s) only
@@ -152,7 +165,13 @@ namespace CCExtractorTester
                                 XmlNode sampleFile = node.SelectSingleNode("sample");
                                 XmlNode command = node.SelectSingleNode("cmd");
                                 XmlNode resultFile = node.SelectSingleNode("result");
-                                Entries.Add(new TestEntry(ConvertFolderDelimiters(sampleFile.InnerText), command.InnerText, ConvertFolderDelimiters(resultFile.InnerText)));
+                                Entries.Add(
+                                    new TestEntry(
+                                        ConvertFolderDelimiters(sampleFile.InnerText), 
+                                        command.InnerText, 
+                                        ConvertFolderDelimiters(resultFile.InnerText)
+                                    )
+                                );
                             }
                             break;
                         case XML_SECOND_GENERATION:
@@ -481,10 +500,10 @@ namespace CCExtractorTester
             {
                 progressReporter.showProgressMessage(String.Format("Starting with entry {0} of {1}", current, total));
 
-                string sampleFile = Path.Combine(sourceFolder, te.TestFile);
-                string producedFileName = te.ResultFile.Substring(te.ResultFile.LastIndexOf(Path.DirectorySeparatorChar) + 1);
+                string sampleFile = Path.Combine(sourceFolder, te.InputFile);
+                string producedFileName = te.CompareFiles[0].Substring(te.CompareFiles[0].LastIndexOf(Path.DirectorySeparatorChar) + 1);
                 string producedFile = Path.Combine(config.TemporaryFolder, producedFileName);
-                string expectedResultFile = Path.Combine(config.ResultFolder, te.ResultFile);
+                string expectedResultFile = Path.Combine(config.ResultFolder, te.CompareFiles[0]);
 
                 string command = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ", producedFile, sampleFile);
 
