@@ -24,4 +24,4 @@ using CommandLine;
 [assembly:AssemblyLicense(
 	"This is free software. You may redistribute copies of it under the terms of",
 	"the MIT License <http://www.opensource.org/licenses/mit-license.php>.")]
-[assembly:AssemblyUsage("Usage:","GUI: CCExtractorTester -g [-d]","Console: CCExtractorTester [-t test.xml] [-c config.xml] [-d]","Help: CCExtractortester --help")]
+[assembly:AssemblyUsage("Usage:","Console: CCExtractorTester -e testEntries.xml [-m Report] [-c config.xml] [-d]","Help: CCExtractortester --help")]
