@@ -17,42 +17,34 @@ namespace CCExtractorTester
         /// <summary>
         /// The name of the loaded file.
         /// </summary>
-        /// <value>The name of the loaded file.</value>
         public String LoadedFileName { get; private set; }
         /// <summary>
         /// A list of the TestEntry instances that will be processed.
         /// </summary>
-        /// <value>The entries.</value>
         public List<TestEntry> Entries { get; private set; }
         /// <summary>
         /// Contains the multi test list.
         /// </summary>
-        /// <value>The multi test.</value>
         public List<string> MultiTest { get; private set; }
         /// <summary>
         /// Gets or sets the progress reporter that will be used.
         /// </summary>
-        /// <value>The progress reporter.</value>
         private IProgressReportable ProgressReporter { get; set; }
         /// <summary>
         /// Gets or sets the comparer that will be used by the tester.
         /// </summary>
-        /// <value>The comparer.</value>
         private IFileComparable Comparer { get; set; }
         /// <summary>
         /// Gets or sets the configuration instance that will be used.
         /// </summary>
-        /// <value>The config.</value>
-        private ConfigurationSettings Config { get; set; }
+        private ConfigManager Config { get; set; }
         /// <summary>
         /// Gets or sets the logger.
         /// </summary>
-        /// <value>The logger.</value>
         private ILogger Logger { get; set; }
         /// <summary>
         /// Gets or sets the performance logger.
         /// </summary>
-        /// <value>The performance logger.</value>
         private IPerformanceLogger PerformanceLogger { get; set; }
 
         /// <summary>
@@ -69,16 +61,16 @@ namespace CCExtractorTester
         const string XML_THIRD_GENERATION = "third_gen";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CCExtractorTester.Tester"/> class.
+        /// Initializes a new instance of the Tester class.
         /// </summary>
-        /// <param name="cfg">The configuration that will be used.</param>
         /// <param name="logger">The logger that will be used.</param>
-        public Tester(ConfigurationSettings cfg, ILogger logger)
+        /// <param name="config">The configuration that will be used.</param>
+        public Tester(ILogger logger, ConfigManager config)
         {
             Entries = new List<TestEntry>();
             MultiTest = new List<String>();
             ProgressReporter = NullProgressReporter.Instance;
-            Config = cfg;
+            Config = config;
             Logger = logger;
             LoadPerformanceLogger();
         }
@@ -86,10 +78,10 @@ namespace CCExtractorTester
         /// <summary>
         /// Initializes a new instance of the <see cref="CCExtractorTester.Tester"/> class.
         /// </summary>
-        /// <param name="cfg">The configuration that will be used.</param>
         /// <param name="logger">The logger that will be used.</param>
+        /// <param name="config">The configuration that will be used.</param>
         /// <param name="xmlFile">The XML file containing all test entries.</param>
-        public Tester(ConfigurationSettings cfg, ILogger logger, string xmlFile) : this(cfg, logger)
+        public Tester(ILogger logger, ConfigManager config, string xmlFile) : this(logger, config)
         {
             if (!String.IsNullOrEmpty(xmlFile))
             {
@@ -102,21 +94,20 @@ namespace CCExtractorTester
         /// </summary>
         void LoadComparer()
         {
-            switch (Config.GetAppSetting("Comparer"))
+            switch (Config.Comparer)
             {
-                case "diff":
+                case CompareType.diff:
                     Comparer = new DiffLinuxComparer();
                     break;
-                case "diffplexreduced":
-                    Comparer = new DiffToolComparer(true);
-                    break;
-                case "diffplex":
-                // Fall-through to default.
-                default:
+                case CompareType.diffplex:
                     Comparer = new DiffToolComparer(false);
                     break;
+                case CompareType.diffplexreduced:
+                    Comparer = new DiffToolComparer(true);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("comparer", "The comparer has an illegal value!");
             }
-
         }
 
         /// <summary>
@@ -178,7 +169,7 @@ namespace CCExtractorTester
                             XmlNode settings = doc.SelectSingleNode("//settings");
                             parseSettings(settings);
                             XmlNode tests = doc.SelectSingleNode("//tests");
-                            foreach(XmlNode node in tests.SelectNodes("entry"))
+                            foreach (XmlNode node in tests.SelectNodes("entry"))
                             {
                                 // TODO: finish
                             }
@@ -204,13 +195,13 @@ namespace CCExtractorTester
         /// <returns>A string that indicates the generation of the XML file.</returns>
         string ValidateXML(string xmlFileName)
         {
-            Dictionary<string,string> schemes = new Dictionary<string,string>() {
+            Dictionary<string, string> schemes = new Dictionary<string, string>() {
                 { XML_THIRD_GENERATION, Resources.testsuite },
                 { XML_SECOND_GENERATION, Resources.multitest },
                 { XML_FIRST_GENERATION, Resources.tests }
             };
 
-            foreach (KeyValuePair<string,string> kvp in schemes)
+            foreach (KeyValuePair<string, string> kvp in schemes)
             {
                 try
                 {
@@ -277,12 +268,12 @@ namespace CCExtractorTester
         /// </summary>
         public void RunTests()
         {
-            String cce = Config.GetAppSetting("CCExtractorLocation");
+            String cce = Config.CCExctractorLocation;
             if (!File.Exists(cce))
             {
                 throw new InvalidOperationException("CCExtractor location (" + cce + ") is not a valid file/executable");
             }
-            String sourceFolder = Config.GetAppSetting("SampleFolder");
+            String sourceFolder = Config.SampleFolder;
             if (!Directory.Exists(sourceFolder))
             {
                 throw new InvalidOperationException("Sample folder does not exist!");
@@ -290,29 +281,28 @@ namespace CCExtractorTester
 
             String location = System.Reflection.Assembly.GetExecutingAssembly().Location;
             location = location.Remove(location.LastIndexOf(Path.DirectorySeparatorChar));
-            String temporaryFolder = Config.GetAppSetting("temporaryFolder");
+            String temporaryFolder = Config.TemporaryFolder;
             if (!Directory.Exists(temporaryFolder))
             {
                 Directory.CreateDirectory(temporaryFolder);
             }
 
-            bool useThreading = false;
-            if (!String.IsNullOrEmpty(Config.GetAppSetting("UseThreading")) && Config.GetAppSetting("UseThreading") == "true")
+            bool useThreading = Config.Threading;
+            if (useThreading)
             {
-                useThreading = true;
                 Logger.Info("Using threading");
             }
 
             if (MultiTest.Count > 0)
             {
                 // Override ReportFolder and create subdirectory for it if necessary
-                String subFolder = Path.Combine(Config.GetAppSetting("ReportFolder"), "Testsuite_Report_" + DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
+                String subFolder = Path.Combine(Config.ReportFolder, "Testsuite_Report_" + DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
                 if (!Directory.Exists(subFolder))
                 {
                     Directory.CreateDirectory(subFolder);
                 }
                 Logger.Info("Multitest, overriding report folder to: " + subFolder);
-                Config.SetAppSetting("ReportFolder", subFolder);
+                Config.ReportFolder = subFolder;
                 // Run through test files
                 StringBuilder sb = new StringBuilder();
                 foreach (string s in MultiTest)
@@ -328,7 +318,7 @@ namespace CCExtractorTester
                         singleTest.Item1, nrTests
                     );
                     SaveMultiIndexFile(sb.ToString(), subFolder);
-                    if (singleTest.Item1 != nrTests && Config.GetAppSetting("BreakOnErrors") == "true")
+                    if (singleTest.Item1 != nrTests && Config.ErrorBreak)
                     {
                         Logger.Info("Aborting next files because of error in current test file");
                         break;
@@ -409,7 +399,7 @@ namespace CCExtractorTester
             DateTime end = DateTime.Now;
             Logger.Info("Runtime: " + (end.Subtract(start)).ToString());
             String reportName = Comparer.SaveReport(
-                Config.GetAppSetting("ReportFolder"),
+                Config.ReportFolder,
                 new ResultData()
                 {
                     FileName = LoadedFileName,
@@ -464,7 +454,7 @@ namespace CCExtractorTester
             public static ILogger logger;
             public static IFileComparable comparer;
             public static IProgressReportable progressReporter;
-            public static ConfigurationSettings config;
+            public static ConfigManager config;
             public static string testName;
 
             private TestEntry te;
@@ -493,21 +483,12 @@ namespace CCExtractorTester
 
                 string sampleFile = Path.Combine(sourceFolder, te.TestFile);
                 string producedFileName = te.ResultFile.Substring(te.ResultFile.LastIndexOf(Path.DirectorySeparatorChar) + 1);
-                string producedFile = Path.Combine(config.GetAppSetting("temporaryFolder"), producedFileName);
-                string expectedResultFile = Path.Combine(config.GetAppSetting("CorrectResultFolder"), te.ResultFile);
+                string producedFile = Path.Combine(config.TemporaryFolder, producedFileName);
+                string expectedResultFile = Path.Combine(config.ResultFolder, te.ResultFile);
 
                 string command = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ", producedFile, sampleFile);
 
-                int timeout = 180;
-                try
-                {
-                    timeout = int.Parse(config.GetAppSetting("timeout"));
-                }
-                catch (FormatException)
-                {
-                }
-
-                RunData rd = runner.Run(command, processError, processOutput, timeout);
+                RunData rd = runner.Run(command, processError, processOutput, config.TimeOut);
 
                 try
                 {
@@ -528,7 +509,7 @@ namespace CCExtractorTester
                 }
 
                 // Move produced file to another location (so it still can be inspected later, but won't affect next runs
-                string storeDirectory = Path.Combine(config.GetAppSetting("temporaryFolder"), testName);
+                string storeDirectory = Path.Combine(config.TemporaryFolder, testName);
                 if (!Directory.Exists(storeDirectory))
                 {
                     Directory.CreateDirectory(storeDirectory);
