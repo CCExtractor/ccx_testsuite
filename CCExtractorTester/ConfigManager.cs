@@ -43,7 +43,7 @@ namespace CCExtractorTester
         /// <summary>
         /// Gets or sets if the suite should break when it encounters an error.
         /// </summary>
-        public bool ErrorBreak { get; set; }
+        public bool BreakOnChanges { get; set; }
         
         /// <summary>
         /// Gets or sets if the suite should process the results and create reports, or pass results to the server.
@@ -93,7 +93,7 @@ namespace CCExtractorTester
             CCExctractorLocation = ccextractorLocation;
             Comparer = compare;
             Threading = useThreading;
-            ErrorBreak = breakErrors;
+            BreakOnChanges = breakErrors;
             TimeOut = 180;
         }
 
