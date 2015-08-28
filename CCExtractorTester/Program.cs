@@ -187,7 +187,7 @@ namespace CCExtractorTester
                 else if (IsValidPotentialSampleFile(options.SampleFile))
                 {
                     Logger.Info("Running provided file");
-                    //StartTester(options.SampleFile, config, Logger);
+                    StartTester(Logger, config, options.SampleFile);
                 }
                 else
                 {
@@ -223,12 +223,12 @@ namespace CCExtractorTester
         /// <summary>
         /// Starts the tester.
         /// </summary>
-        /// <param name="sampleFile">The sample file the tester will be running.</param>
-        /// <param name="config">The configuration that will be used by the tester.</param>
         /// <param name="logger">The logger that will be used by the tester.</param>
-        static void StartTester(string sampleFile, ConfigurationSettings config, ILogger logger)
+        /// <param name="config">The configuration that will be used by the tester.</param>
+        /// <param name="sampleFile">The sample file the tester will be running.</param>
+        static void StartTester(ILogger logger, ConfigManager config, string sampleFile)
         {
-            Tester t = new Tester(config, logger, sampleFile);
+            Tester t = new Tester(logger, config, sampleFile);
             t.SetProgressReporter(new ConsoleReporter(logger));
             try
             {
