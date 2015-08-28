@@ -51,7 +51,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompareType.cs" />
+    <Compile Include="Enums\CompareType.cs" />
     <Compile Include="ConfigManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,7 +89,7 @@
     <Compile Include="PerformanceLoggers\NullPerformanceLogger.cs" />
     <Compile Include="NullProgressReporter.cs" />
     <Compile Include="Comparers\Hasher.cs" />
-    <Compile Include="RunType.cs" />
+    <Compile Include="Enums\RunType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
