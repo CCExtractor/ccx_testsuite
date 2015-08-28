@@ -1,94 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite>
-	<settings>
-    <!-- Should be either server, report or matrix -->
-		<reportType>server</reportType>
-		<reportURL>http://canihavesome.coffee/blah</reportURL>
-		<tcpPort>5099</tcpPort>
-		<udpPort>5099</udpPort>
-	</settings>
-	<tests>
-    <!-- regular testfile-->
-		<entry>
-			<command>-autoprogram -out=srt</command>
-			<input type="file">Testfile.mpg</input>
-			<output>file</output>
-			<compare>
-				<out id="0">Testfile.srt</out>
-			</compare>
-		</entry>
-    <!-- multiple output files -->
-		<entry>
-			<command>-autoprogram -12 -out=srt</command>
-			<input type="file">Testfile.mpg</input>
-			<output>file</output>
-			<compare>
-				<out id="0">Testfile_0.srt</out>
-				<out id="1">Testfile_1.srt</out>
-			</compare>
-		</entry>
-    <!-- file fed through stdin -->
-		<entry>
-			<command>-autoprogram -out=srt</command>
-			<input type="stdin">Testfile.mpg</input>
-			<output>file</output>
-			<compare>
-				<out id="0">Testfile.srt</out>
-			</compare>
-		</entry>
-    <!-- file output as report -->
-		<entry>
-			<command>-autoprogram -out=report</command>
-			<input type="file">Testfile.mpg</input>
-			<output>file</output>
-			<compare>
-				<out id="0">Report.txt</out>
-			</compare>
-		</entry>
-    <!-- null output -->
-		<entry>
-			<command>-autoprogram -out=null</command>
-			<input type="file">Testfile.mpg</input>
-			<output>null</output>
-			<compare />
-		</entry>
-    <!-- output to tcp (other ccx instance) -->
-		<entry>
-			<command>-autoprogram</command>
-			<input type="file">Testfile.mpg</input>
-			<output>tcp</output>
-			<compare>
-				<out id="0">Testfile.srt</out>
-			</compare>
-		</entry>
-    <!-- input from udp -->
-		<entry>
-			<command>-autoprogram -out=srt</command>
-			<input type="udp">Testfile.mpg</input>
-			<output>file</output>
-			<compare>
-				<out id="0">Testfile.srt</out>
-			</compare>
-		</entry>
-    <!-- cea 708 -->
-    <entry>
-      <command>-svc 1 -out=txt</command>
-      <input type="file">cea708.mpg</input>
-      <output>cea708</output>
-      <compare>
-        <out id="0">608.txt</out>
-        <out id="1">708.txt</out>
-      </compare>
-    </entry>
-    <!-- multiprogram -->
-    <entry>
-      <command>-multiprogram</command>
-      <input type="file">multi.mpg</input>
-      <output>multiprogram</output>
-      <compare>
-        <out id="0">multi_0.srt</out>
-        <out id="1">multi_356.srt</out>
-      </compare>
-    </entry>
-	</tests>
-</testsuite>
+<tests>
+  <!-- regular testfile-->
+	<entry>
+		<command>-autoprogram -out=srt</command>
+		<input type="file">Testfile.mpg</input>
+		<output>file</output>
+		<compare>
+			<out id="0">Testfile.srt</out>
+		</compare>
+	</entry>
+  <!-- multiple output files -->
+	<entry>
+		<command>-autoprogram -12 -out=srt</command>
+		<input type="file">Testfile.mpg</input>
+		<output>file</output>
+		<compare>
+			<out id="0">Testfile_0.srt</out>
+			<out id="1">Testfile_1.srt</out>
+		</compare>
+	</entry>
+  <!-- file fed through stdin -->
+	<entry>
+		<command>-autoprogram -out=srt</command>
+		<input type="stdin">Testfile.mpg</input>
+		<output>file</output>
+		<compare>
+			<out id="0">Testfile.srt</out>
+		</compare>
+	</entry>
+  <!-- file output as report -->
+	<entry>
+		<command>-autoprogram -out=report</command>
+		<input type="file">Testfile.mpg</input>
+		<output>file</output>
+		<compare>
+			<out id="0">Report.txt</out>
+		</compare>
+	</entry>
+  <!-- null output -->
+	<entry>
+		<command>-autoprogram -out=null</command>
+		<input type="file">Testfile.mpg</input>
+		<output>null</output>
+		<compare />
+	</entry>
+  <!-- output to tcp (other ccx instance) -->
+	<entry>
+		<command>-autoprogram</command>
+		<input type="file">Testfile.mpg</input>
+		<output>tcp</output>
+		<compare>
+			<out id="0">Testfile.srt</out>
+		</compare>
+	</entry>
+  <!-- input from udp -->
+	<entry>
+		<command>-autoprogram -out=srt</command>
+		<input type="udp">Testfile.mpg</input>
+		<output>file</output>
+		<compare>
+			<out id="0">Testfile.srt</out>
+		</compare>
+	</entry>
+  <!-- cea 708 -->
+  <entry>
+    <command>-svc 1 -out=txt</command>
+    <input type="file">cea708.mpg</input>
+    <output>cea708</output>
+    <compare>
+      <out id="0">608.txt</out>
+      <out id="1">708.txt</out>
+    </compare>
+  </entry>
+  <!-- multiprogram -->
+  <entry>
+    <command>-multiprogram</command>
+    <input type="file">multi.mpg</input>
+    <output>multiprogram</output>
+    <compare>
+      <out id="0">multi_0.srt</out>
+      <out id="1">multi_356.srt</out>
+    </compare>
+  </entry>
+</tests>
