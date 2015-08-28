@@ -62,7 +62,6 @@
     </Compile>
     <Compile Include="ICalleable.cs" />
     <Compile Include="IProgressReportable.cs" />
-    <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="DiffTool\Block.cs" />
     <Compile Include="DiffTool\EditLengthResult.cs" />
     <Compile Include="DiffTool\LineModel.cs" />
