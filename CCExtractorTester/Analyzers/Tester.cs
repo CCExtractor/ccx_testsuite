@@ -187,6 +187,7 @@ namespace CCExtractorTester
                             // Dealing with the newest version of tests
                             foreach (XmlNode node in doc.SelectNodes("//entry"))
                             {
+
                                 // TODO: finish
                             }
                             break;
