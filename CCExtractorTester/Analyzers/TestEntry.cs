@@ -1,4 +1,4 @@
-﻿using CCExtractorTester.Enums;
+using CCExtractorTester.Enums;
 using System;
 using System.Collections.Generic;
 

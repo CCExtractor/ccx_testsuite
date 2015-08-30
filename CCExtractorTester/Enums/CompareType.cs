@@ -1,4 +1,4 @@
-﻿namespace CCExtractorTester.Enums
+namespace CCExtractorTester.Enums
 {
     /// <summary>
     /// Represents the possible comparisons that the program supports.

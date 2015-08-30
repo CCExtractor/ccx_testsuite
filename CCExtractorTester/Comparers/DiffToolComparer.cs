@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using CCExtractorTester.DiffTool;
 using System.IO;

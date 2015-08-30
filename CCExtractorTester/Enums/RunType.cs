@@ -1,4 +1,4 @@
-﻿namespace CCExtractorTester.Enums
+namespace CCExtractorTester.Enums
 {
     /// <summary>
     /// This enum defines how the test suite will behave during it's lifetime.
