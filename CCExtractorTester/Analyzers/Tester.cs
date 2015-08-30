@@ -1,4 +1,3 @@
-using CCExtractorTester.Enums;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,6 +9,8 @@ using System.Xml.Schema;
 
 namespace CCExtractorTester
 {
+    using Enums;
+
     /// <summary>
     /// The class that does the heavy lifting in this application.
     /// </summary>
@@ -187,8 +188,23 @@ namespace CCExtractorTester
                             // Dealing with the newest version of tests
                             foreach (XmlNode node in doc.SelectNodes("//entry"))
                             {
-
-                                // TODO: finish
+                                // Get nodes for entry
+                                XmlNode command = node.SelectSingleNode("command");
+                                XmlNode input = node.SelectSingleNode("input");
+                                XmlNode output = node.SelectSingleNode("output");
+                                XmlNodeList compareTo = node.SelectSingleNode("compare").SelectNodes("out");
+                                // Convert to appropriate values
+                                string ccx_command = command.InnerText;
+                                string inputFile = input.InnerText;
+                                InputType inputType = InputTypeParser.parseString(input.Attributes["type"].Value);
+                                OutputType outputType = OutputTypeParser.parseString(output.InnerText);
+                                List<string> compareFiles = new List<string>();
+                                foreach(XmlNode n in compareTo)
+                                {
+                                    compareFiles.Add(n.InnerText);
+                                }
+                                // Add entry
+                                Entries.Add(new TestEntry(inputFile, inputType, ccx_command, outputType, compareFiles));
                             }
                             break;
                         default:
