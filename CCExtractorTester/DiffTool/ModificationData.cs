@@ -1,4 +1,4 @@
-﻿
+
 namespace CCExtractorTester.DiffTool
 {
 	/// <summary>

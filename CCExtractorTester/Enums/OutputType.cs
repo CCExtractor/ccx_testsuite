@@ -1,4 +1,4 @@
-﻿namespace CCExtractorTester.Enums
+namespace CCExtractorTester.Enums
 {
     /// <summary>
     /// Represents the type of output we expect from CCExtractor

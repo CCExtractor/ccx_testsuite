@@ -1,4 +1,4 @@
-﻿namespace CCExtractorTester.Enums
+namespace CCExtractorTester.Enums
 {
     /// <summary>
     /// Represents possible input types for a test entry.
