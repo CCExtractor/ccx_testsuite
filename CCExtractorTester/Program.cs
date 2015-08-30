@@ -151,10 +151,10 @@ namespace CCExtractorTester
                 {
                     try
                     {
-                        config.Comparer = (CompareType)Enum.Parse(typeof(CompareType), options.Comparer);
+                        config.Comparer = CompareTypeParser.parseString(options.Comparer);
                         Logger.Info("Overriding Comparer with: " + options.Comparer);
                     }
-                    catch (ArgumentException)
+                    catch (ArgumentOutOfRangeException)
                     {
                         Logger.Warn("Provided value for comparer invalid; ignoring it.");
                     }

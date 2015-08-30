@@ -127,9 +127,9 @@ namespace CCExtractorTester
                     case "Comparer":
                         try
                         {
-                            compare = (CompareType) Enum.Parse(typeof(CompareType), kce.Value);
+                            compare = CompareTypeParser.parseString(kce.Value);
                         }
-                        catch (ArgumentException)
+                        catch (ArgumentOutOfRangeException)
                         {
                             logger.Warn("Could not parse the Comparer value from the config. Will be using the default setting");
                         }
@@ -180,9 +180,9 @@ namespace CCExtractorTester
                     case "Comparer":
                         try
                         {
-                            compare = (CompareType)Enum.Parse(typeof(CompareType), value);
+                            compare = CompareTypeParser.parseString(kce.Value);
                         }
-                        catch (ArgumentException)
+                        catch (ArgumentOutOfRangeException)
                         {
                             logger.Warn("Could not parse the Comparer value from the xml. Will be using the default setting");
                         }
