@@ -314,41 +314,47 @@ namespace CCExtractorTester
                 Logger.Info("Using threading");
             }
 
-            if (MultiTest.Count > 0)
+            switch (TestGeneration)
             {
-                // Override ReportFolder and create subdirectory for it if necessary
-                String subFolder = Path.Combine(Config.ReportFolder, "Testsuite_Report_" + DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
-                if (!Directory.Exists(subFolder))
-                {
-                    Directory.CreateDirectory(subFolder);
-                }
-                Logger.Info("Multitest, overriding report folder to: " + subFolder);
-                Config.ReportFolder = subFolder;
-                // Run through test files
-                StringBuilder sb = new StringBuilder();
-                foreach (string s in MultiTest)
-                {
-                    Entries.Clear();
-                    loadAndParseXML(s);
-                    int nrTests = Entries.Count;
-                    Tuple<int, string> singleTest = RunSingleFileTests(useThreading, cce, location, sourceFolder);
-                    sb.AppendFormat(
-                        @"<tr><td><a href=""{0}"">{1}</a></td><td class=""{2}"">{3}/{4}</td></tr>",
-                        singleTest.Item2, LoadedFileName,
-                        (singleTest.Item1 == nrTests) ? "green" : "red",
-                        singleTest.Item1, nrTests
-                    );
-                    SaveMultiIndexFile(sb.ToString(), subFolder);
-                    if (singleTest.Item1 != nrTests && Config.BreakOnChanges)
+                case XML_FIRST_GENERATION:
+                    // Fall through, same structure
+                case XML_THIRD_GENERATION:
+                    RunSingleFileTests(useThreading, cce, location, sourceFolder);
+                    break;
+                case XML_SECOND_GENERATION:
+                    // TODO: check this for compliance with server reporting.
+                    // Override ReportFolder and create subdirectory for it if necessary
+                    String subFolder = Path.Combine(Config.ReportFolder, "Testsuite_Report_" + DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
+                    if (!Directory.Exists(subFolder))
                     {
-                        Logger.Info("Aborting next files because of error in current test file");
-                        break;
+                        Directory.CreateDirectory(subFolder);
                     }
-                }
-            }
-            else
-            {
-                RunSingleFileTests(useThreading, cce, location, sourceFolder);
+                    Logger.Info("Multitest, overriding report folder to: " + subFolder);
+                    Config.ReportFolder = subFolder;
+                    // Run through test files
+                    StringBuilder sb = new StringBuilder();
+                    foreach (string s in MultiTest)
+                    {
+                        Entries.Clear();
+                        loadAndParseXML(s);
+                        int nrTests = Entries.Count;
+                        Tuple<int, string> singleTest = RunSingleFileTests(useThreading, cce, location, sourceFolder);
+                        sb.AppendFormat(
+                            @"<tr><td><a href=""{0}"">{1}</a></td><td class=""{2}"">{3}/{4}</td></tr>",
+                            singleTest.Item2, LoadedFileName,
+                            (singleTest.Item1 == nrTests) ? "green" : "red",
+                            singleTest.Item1, nrTests
+                        );
+                        SaveMultiIndexFile(sb.ToString(), subFolder);
+                        if (singleTest.Item1 != nrTests && Config.BreakOnChanges)
+                        {
+                            Logger.Info("Aborting next files because of error in current test file");
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
