@@ -16,9 +16,19 @@ namespace CCExtractorTester.Comparers
 
         public void CompareAndAddToResult(CompareData data)
         {
-            // Check for equality by hash, if not equal, upload the result, if equal, just pass the message to the server.
+            // Check for equality by hash
+            if (!Hasher.filesAreEqual(data.CorrectFile, data.ProducedFile))
+            {
+                // Upload result
 
-            
+                // TODO: finish
+            }
+            else
+            {
+                // Post equality status
+
+                // TODO: finish
+            }
         }
 
         public int GetSuccessNumber()
