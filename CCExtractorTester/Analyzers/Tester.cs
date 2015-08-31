@@ -9,6 +9,7 @@ using System.Xml.Schema;
 
 namespace CCExtractorTester
 {
+    using Comparers;
     using Enums;
 
     /// <summary>
@@ -119,8 +120,16 @@ namespace CCExtractorTester
                 case CompareType.Diffplexreduced:
                     Comparer = new DiffToolComparer(true);
                     break;
+                case CompareType.Server:
+                    Comparer = new ServerComparer(Config.ReportUrl);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException("comparer", "The comparer has an illegal value!");
+            }
+            // Override any set comparer if we need to report to the server.
+            if(Config.TestType == RunType.Server)
+            {
+                Comparer = new ServerComparer(Config.ReportUrl);
             }
         }
 

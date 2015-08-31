@@ -2,7 +2,7 @@ using System;
 using System.Security.Cryptography;
 using System.IO;
 
-namespace CCExtractorTester
+namespace CCExtractorTester.Comparers
 {
 	public static class Hasher
 	{
