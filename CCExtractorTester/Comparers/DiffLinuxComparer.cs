@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.IO;
 
-namespace CCExtractorTester
+namespace CCExtractorTester.Comparers
 {
 	/// <summary>
 	/// Differences comparer using the built-in linux diff command.

@@ -3,7 +3,7 @@ using System.Text;
 using CCExtractorTester.DiffTool;
 using System.IO;
 
-namespace CCExtractorTester
+namespace CCExtractorTester.Comparers
 {
 	/// <summary>
 	/// Difference comparer using the built-in tool. Generates HTML.

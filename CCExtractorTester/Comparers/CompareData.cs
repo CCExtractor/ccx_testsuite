@@ -1,6 +1,6 @@
 using System;
 
-namespace CCExtractorTester
+namespace CCExtractorTester.Comparers
 {
 	/// <summary>
 	/// A class holding all the info that should be passed from the tester to the report generator.

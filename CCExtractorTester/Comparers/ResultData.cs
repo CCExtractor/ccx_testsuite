@@ -1,6 +1,6 @@
 using System;
 
-namespace CCExtractorTester
+namespace CCExtractorTester.Comparers
 {
 	/// <summary>
 	/// A class for holding some data that should be in the report.

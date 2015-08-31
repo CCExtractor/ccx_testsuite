@@ -1,6 +1,6 @@
 using System;
 
-namespace CCExtractorTester
+namespace CCExtractorTester.Comparers
 {
 	/// <summary>
 	/// Interface for comparing files.
