@@ -180,7 +180,7 @@ namespace CCExtractorTester
                     case "Comparer":
                         try
                         {
-                            compare = CompareTypeParser.parseString(kce.Value);
+                            compare = CompareTypeParser.parseString(value);
                         }
                         catch (ArgumentOutOfRangeException)
                         {
