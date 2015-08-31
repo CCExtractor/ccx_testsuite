@@ -126,14 +126,17 @@ namespace CCExtractorTester
                     }
                 }
             };
-            runner.Run(String.Format("-out=report --no_progress_bar \"{0}\"", fileLocation), processError, processOutput);
+            runner.Run(String.Format("-out=report --no_progress_bar \"{0}\"", fileLocation), processError, processOutput, Config.TimeOut);
             FileInfo f = new FileInfo(fileLocation);
             return rd.CreateRow(f.Name);
         }
 
         class ReportData
         {
-            public enum Bool
+            /// <summary>
+            /// See Wikipedia for the name: https://en.wikipedia.org/wiki/Three-valued_logic
+            /// </summary>
+            public enum Trilean
             {
                 Undefined, Yes, No
             }
@@ -141,12 +144,12 @@ namespace CCExtractorTester
             private ILogger Logger { get; set; }
 
             public string StreamMode { get; private set; }
-            public Bool Has608 { get; private set; }
-            public Bool Has708 { get; private set; }
-            public Bool HasDVB { get; private set; }
-            public Bool HasTeletext { get; private set; }
-            public Bool HasMPEG4TimedText { get; private set; }
-            public Bool HasXDS { get; private set; }
+            public Trilean Has608 { get; private set; }
+            public Trilean Has708 { get; private set; }
+            public Trilean HasDVB { get; private set; }
+            public Trilean HasTeletext { get; private set; }
+            public Trilean HasMPEG4TimedText { get; private set; }
+            public Trilean HasXDS { get; private set; }
 
             public ReportData(ILogger logger)
             {
@@ -201,18 +204,18 @@ namespace CCExtractorTester
                     , path, StreamMode, Has608, Has708, HasTeletext, HasDVB, HasMPEG4TimedText, HasXDS);
             }
 
-            public Bool GetBoolFromString(string value)
+            public Trilean GetBoolFromString(string value)
             {
                 value = value.Trim();
                 switch (value)
                 {
                     case "Yes":
-                        return Bool.Yes;
+                        return Trilean.Yes;
                     case "No":
-                        return Bool.No;
+                        return Trilean.No;
                     default:
                         Logger.Debug(value + " cannot be converted to a Bool value");
-                        return Bool.Undefined;
+                        return Trilean.Undefined;
                 }
             }
         }
