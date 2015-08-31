@@ -544,6 +544,8 @@ namespace CCExtractorTester
                     logger.Error(e);
                 }
 
+                // TODO: check this; multiple files!!
+
                 // Move produced file to another location (so it still can be inspected later, but won't affect next runs
                 string storeDirectory = Path.Combine(config.TemporaryFolder, testName);
                 if (!Directory.Exists(storeDirectory))
@@ -572,6 +574,8 @@ namespace CCExtractorTester
             /// <param name="e">E.</param>
             void processOutput(object sender, DataReceivedEventArgs e)
             {
+                // TODO: if entry goes to out, capture it to file.
+
                 logger.Debug(e.Data);
             }
 
