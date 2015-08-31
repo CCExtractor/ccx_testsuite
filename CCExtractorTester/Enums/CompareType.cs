@@ -18,7 +18,11 @@ namespace CCExtractorTester.Enums
         /// <summary>
         /// Generates HTML viewable diffs for two files (showing changes only).
         /// </summary>
-        Diffplexreduced
+        Diffplexreduced,
+        /// <summary>
+        /// Uploads the results to the server, where they will be generated dynamically.
+        /// </summary>
+        Server
     }
 
     public static class CompareTypeParser
@@ -34,6 +38,8 @@ namespace CCExtractorTester.Enums
                     return CompareType.Diffplex;
                 case "diffplexreduced":
                     return CompareType.Diffplexreduced;
+                case "server":
+                    return CompareType.Server;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
