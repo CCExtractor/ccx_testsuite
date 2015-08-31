@@ -17,7 +17,7 @@ namespace CCExtractorTester
 			PerformanceLogger = performanceLogger;
 		}
 
-		public RunData Run(string command,DataReceivedEventHandler processError,DataReceivedEventHandler processOutput,int timeOut=180){
+		public RunData Run(string command, DataReceivedEventHandler processError, DataReceivedEventHandler processOutput, int timeOut){
 			ProcessStartInfo psi = new ProcessStartInfo(CCExtractorLocation);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardError = true;
