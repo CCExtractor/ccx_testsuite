@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace CCExtractorTester.Comparers
@@ -20,13 +22,23 @@ namespace CCExtractorTester.Comparers
             if (!Hasher.filesAreEqual(data.CorrectFile, data.ProducedFile))
             {
                 // Upload result
-
+                using (var wb = new WebClient())
+                {
+                    var response = wb.UploadFile(reportUrl, data.ProducedFile);
+                }
                 // TODO: finish
             }
             else
             {
                 // Post equality status
+                using (var wb = new WebClient())
+                {
+                    var d = new NameValueCollection();
+                    d["username"] = "myUser";
+                    d["password"] = "myPassword";
 
+                    var response = wb.UploadValues(reportUrl, "POST", d);
+                }
                 // TODO: finish
             }
         }
