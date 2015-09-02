@@ -32,6 +32,7 @@
                     <xs:enumeration value="tcp" />
                     <xs:enumeration value="cea708" />
                     <xs:enumeration value="multiprogram" />
+                    <xs:enumeration value="stdout" />
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>

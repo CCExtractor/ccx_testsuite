@@ -11,7 +11,8 @@ namespace CCExtractorTester.Enums
         Null,
         Tcp,
         Cea708,
-        Multiprogram
+        Multiprogram,
+        Stdout
     }
 
     public static class OutputTypeParser
@@ -31,6 +32,8 @@ namespace CCExtractorTester.Enums
                     return OutputType.Cea708;
                 case "multiprogram":
                     return OutputType.Multiprogram;
+                case "stdout":
+                    return OutputType.Stdout;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
