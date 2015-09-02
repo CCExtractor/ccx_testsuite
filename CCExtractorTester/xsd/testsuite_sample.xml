@@ -44,6 +44,15 @@
 		<output>null</output>
 		<compare />
 	</entry>
+  <!-- stdout output -->
+  <entry>
+    <command>-autoprogram -stdout</command>
+    <input type="file">Testfile.mpg</input>
+    <output>stdout</output>
+    <compare>
+      <out id="0">Report.txt</out>
+    </compare>
+  </entry>
   <!-- output to tcp (other ccx instance) -->
 	<entry>
 		<command>-autoprogram</command>
