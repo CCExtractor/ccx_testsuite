@@ -576,9 +576,18 @@ namespace CCExtractorTester
             /// <param name="e">E.</param>
             void processOutput(object sender, DataReceivedEventArgs e)
             {
-                // TODO: if entry goes to out, capture it to file.
-
-                logger.Debug(e.Data);
+                if (te.OutputFormat == OutputType.Stdout)
+                {
+                    // Capture output and save in a file.
+                    using(StreamWriter sw = new StreamWriter(File.Open(Path.Combine(config.TemporaryFolder,"stdout.file"), FileMode.OpenOrCreate)))
+                    {
+                        sw.WriteLine(e.Data);
+                    }
+                }
+                else
+                {
+                    logger.Debug(e.Data);
+                }
             }
 
             /// <summary>
