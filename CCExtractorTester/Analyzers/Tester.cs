@@ -524,7 +524,14 @@ namespace CCExtractorTester
                 string producedFile = Path.Combine(config.TemporaryFolder, producedFileName);
                 string expectedResultFile = Path.Combine(config.ResultFolder, te.CompareFiles[0]);
 
+                if(te.InputFormat == InputType.Stdin)
+                {
+
+                }
+
                 string command = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ", producedFile, sampleFile);
+
+
 
                 RunData rd = runner.Run(command, processError, processOutput, config.TimeOut);
 
