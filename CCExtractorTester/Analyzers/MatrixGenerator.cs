@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Diagnostics;
 
-namespace CCExtractorTester
+namespace CCExtractorTester.Analyzers
 {
     /// <summary>
     /// This class handles the generation of a functionality matrix for a given folder.

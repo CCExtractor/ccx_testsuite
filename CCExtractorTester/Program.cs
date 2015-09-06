@@ -5,6 +5,7 @@ using CommandLine;
 using CommandLine.Text;
 using System.Reflection;
 using CCExtractorTester.Enums;
+using CCExtractorTester.Analyzers;
 
 namespace CCExtractorTester
 {

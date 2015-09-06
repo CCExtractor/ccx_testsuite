@@ -7,7 +7,7 @@ using System.Threading;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace CCExtractorTester
+namespace CCExtractorTester.Analyzers
 {
     using Comparers;
     using Enums;
