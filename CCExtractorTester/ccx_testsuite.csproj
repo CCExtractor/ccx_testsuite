@@ -66,6 +66,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analyzers\Processor.cs" />
     <Compile Include="Comparers\ServerComparer.cs" />
     <Compile Include="Enums\CompareType.cs" />
     <Compile Include="ConfigManager.cs" />
