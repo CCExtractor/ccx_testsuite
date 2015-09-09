@@ -30,15 +30,64 @@ namespace CCExtractorTester.Analyzers
         {
             Test = test;
 
-            // TODO: finish & revamp
+            string commandToPass = String.Format("{0} --no_progress_bar",test.Command);
+            string inputFile = Path.Combine(Config.SampleFolder, test.InputFile);
+
+            switch (test.OutputFormat)
+            {
+                case OutputType.File:
+                    // Append file as -o
+                    // TODO: finish
+                    break;
+                case OutputType.Null:
+                    // No output file necessary
+                    break;
+                case OutputType.Tcp:
+                    // We'll need to set up another instance to receive the captions
+                    // TODO: finish
+                    break;
+                case OutputType.Cea708:
+                    // use -o for base filename determination
+                    // TODO: finish
+                    break;
+                case OutputType.Multiprogram:
+                    // use -o for base filename determination
+                    // TODO: finish
+                    break;
+                case OutputType.Stdout:
+                    // No output file necessary
+                    break;
+                default:
+                    break;
+            }
+
             ProcessStartInfo psi = new ProcessStartInfo(Config.CCExctractorLocation);
             psi.UseShellExecute = false;
             psi.RedirectStandardError = true;
             psi.RedirectStandardOutput = true;
-            psi.RedirectStandardInput = (test.InputFormat == InputType.Stdin);
             psi.CreateNoWindow = true;
-            psi.Arguments = test.Command; // TODO: add the suppress output & more
 
+            switch (test.InputFormat)
+            {
+                case InputType.File:
+                    // Append input file regularly
+                    commandToPass += " " + test.InputFile; 
+                    break;
+                case InputType.Stdin:
+                    // No input file to append, but we'll have to add a handler
+                    psi.RedirectStandardInput = true;
+                    break;
+                case InputType.Udp:
+                    // Set up something to pass udp to ccextractor
+                    // TODO: finish
+                    break;
+                default:
+                    break;
+            }
+
+            psi.Arguments = commandToPass;
+
+            // TODO: finish & revamp
             Logger.Debug("Passed arguments: " + psi.Arguments);
 
             Process p = new Process();
