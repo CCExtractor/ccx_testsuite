@@ -37,6 +37,7 @@ namespace CCExtractorTester.Analyzers
             {
                 case OutputType.File:
                     // Append file as -o
+                    commandToPass += " " + test.CompareFiles[0];
                     // TODO: finish
                     break;
                 case OutputType.Null:
