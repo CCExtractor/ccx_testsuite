@@ -32,28 +32,28 @@ namespace CCExtractorTester.Analyzers
 
             string commandToPass = String.Format("{0} --no_progress_bar",test.Command);
             string inputFile = Path.Combine(Config.SampleFolder, test.InputFile);
+            string firstOutputFile = Path.Combine(Config.TemporaryFolder, test.CompareFiles[0]);
 
             switch (test.OutputFormat)
             {
                 case OutputType.File:
-                    // Append file as -o
-                    commandToPass += " " + test.CompareFiles[0];
-                    // TODO: finish
+                    // Append the first file as -o
+                    commandToPass += String.Format(@" -o ""{0}""", firstOutputFile);
                     break;
                 case OutputType.Null:
                     // No output file necessary
                     break;
                 case OutputType.Tcp:
-                    // We'll need to set up another instance to receive the captions
-                    // TODO: finish
+                    // We'll need to set up another instance to receive the captions, but we'll do this later
+                    commandToPass = String.Format("-sendto 127.0.0.1:{0} --no_progress_bar", Config.TCPPort);
                     break;
                 case OutputType.Cea708:
-                    // use -o for base filename determination
-                    // TODO: finish
+                    // use -o for base determination & 608 contents
+                    commandToPass += String.Format(@" -o ""{0}""", firstOutputFile);
                     break;
                 case OutputType.Multiprogram:
                     // use -o for base filename determination
-                    // TODO: finish
+                    commandToPass += String.Format(@" -o ""{0}""", firstOutputFile);
                     break;
                 case OutputType.Stdout:
                     // No output file necessary
@@ -72,15 +72,15 @@ namespace CCExtractorTester.Analyzers
             {
                 case InputType.File:
                     // Append input file regularly
-                    commandToPass += " " + test.InputFile; 
+                    commandToPass += String.Format(@" ""{0}""", inputFile);
                     break;
                 case InputType.Stdin:
                     // No input file to append, but we'll have to add a handler
                     psi.RedirectStandardInput = true;
                     break;
                 case InputType.Udp:
-                    // Set up something to pass udp to ccextractor
-                    // TODO: finish
+                    // Set up ffmpeg to pass udp to ccextractor later, add -udp to CCExtractor
+                    commandToPass += String.Format(" -udp {0}", Config.UDPPort);
                     break;
                 default:
                     break;
@@ -88,7 +88,6 @@ namespace CCExtractorTester.Analyzers
 
             psi.Arguments = commandToPass;
 
-            // TODO: finish & revamp
             Logger.Debug("Passed arguments: " + psi.Arguments);
 
             Process p = new Process();
@@ -98,13 +97,44 @@ namespace CCExtractorTester.Analyzers
 
             p.Start();
 
+            // Determine if we need to setup a sender process
+            Process input = new Process();
+            if (test.InputFormat == InputType.Udp)
+            {
+                // Set up ffmpeg to stream a file to CCExtractor
+                input.StartInfo = new ProcessStartInfo(Config.FFMpegLocation)
+                {
+                    Arguments = String.Format(@"-re -i ""{0}"" -loglevel quiet -codec copy -f mpegts udp://127.0.0.1:{1}", inputFile, Config.UDPPort),
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                };
+                input.Start();
+            }
+            // Determine if we need to setup a receiver process
+            Process output = new Process();
+            if (test.OutputFormat == OutputType.Tcp)
+            {
+                // Set up another CCExtractor instance to receive raw caption data
+                output.StartInfo = new ProcessStartInfo(Config.CCExctractorLocation)
+                {
+                    Arguments = String.Format(@"{0} -tcp {1} -o ""{2}""", test.Command, Config.TCPPort, firstOutputFile),
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                };
+                output.Start();
+            }
+            // Set up performance logger
             PerformanceLogger.SetUp(Logger, p);
-
+            // Start reading output of the main CCExtractor instance
             p.BeginOutputReadLine();
             p.BeginErrorReadLine();
 
+            // Create timer and start loop
             bool canRun = true;
-
             System.Timers.Timer t = new System.Timers.Timer(Config.TimeOut * 1000);
             t.AutoReset = false;
             t.Elapsed += delegate (object sender, System.Timers.ElapsedEventArgs e)
@@ -132,12 +162,22 @@ namespace CCExtractorTester.Analyzers
             }
             else
             {
-                while (!p.HasExited && canRun)
+                bool extra = true;
+                while (!p.HasExited && canRun && extra)
                 {
+                    if(test.InputFormat == InputType.Udp)
+                    {
+                        extra = !input.HasExited;
+                    }
+                    if(test.OutputFormat == OutputType.Tcp)
+                    {
+                        extra = !output.HasExited;
+                    }
                     PerformanceLogger.DebugValue();
                     Thread.Sleep(100);
                 }
             }
+            // Process results
             RunData rd = new RunData()
             {
                 ExitCode = -1,
@@ -159,6 +199,11 @@ namespace CCExtractorTester.Analyzers
                 rd.Runtime = p.ExitTime - p.StartTime;
                 
             }
+            // Preventively kill off any possible other processes
+            input.Kill();
+            output.Kill();
+            // TODO: add generated output file(s) to the result
+            // Return the results
             return rd;
         }
 
