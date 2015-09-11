@@ -22,6 +22,7 @@ It's written in C# and runs under Mono. It is (starting from 0.8) command-line o
 | | --tcp | Sets the TCP port that will be used in case of entries that need TCP | No |
 | | --udp | Sets the UDP port that will be used in case of entries that need UDP| No |
 | | --executable | Overrrides the CCExtractor executable path | No |
+| | --ffmpeg | Overrrides the FFMpeg executable path | No |
 | | --reportfolder | Overrides the folder location where reports will be stored | No |
 | | --samplefolder | Overrides the folder location that contains the samples | No |
 | | --resultfolder | Overrides the folder location that contains the correct results | No |
