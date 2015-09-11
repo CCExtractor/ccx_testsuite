@@ -76,6 +76,11 @@ namespace CCExtractorTester
         public int TimeOut { get; set; }
 
         /// <summary>
+        /// Gets or sets the location of the FFMpeg executable that will be used for UDP input tests.
+        /// </summary>
+        public string FFMpegLocation { get; set; }
+
+        /// <summary>
         /// Creates a new instance of the ConfigManager.
         /// </summary>
         /// <param name="reportFolder">The folder to store reports in.</param>
@@ -85,7 +90,7 @@ namespace CCExtractorTester
         /// <param name="compare">The comparer to use for reports.</param>
         /// <param name="useThreading">Use threading?</param>
         /// <param name="breakErrors">Break when the suite encounters a broken file?</param>
-        private ConfigManager(string reportFolder, string sampleFolder, string resultFolder, string ccextractorLocation, CompareType compare, bool useThreading, bool breakErrors)
+        private ConfigManager(string reportFolder, string sampleFolder, string resultFolder, string ccextractorLocation, CompareType compare, bool useThreading, bool breakErrors, string ffmpegLocation)
         {
             ReportFolder = reportFolder;
             SampleFolder = sampleFolder;
@@ -94,6 +99,7 @@ namespace CCExtractorTester
             Comparer = compare;
             Threading = useThreading;
             BreakOnChanges = breakErrors;
+            FFMpegLocation = ffmpegLocation;
             TimeOut = 180;
         }
 
@@ -105,7 +111,7 @@ namespace CCExtractorTester
         public static ConfigManager CreateFromAppSettings(ILogger logger)
         {
             Configuration c = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            string reportFolder = "", sampleFolder = "", resultFolder = "", ccextractorLocation = "";
+            string reportFolder = "", sampleFolder = "", resultFolder = "", ccextractorLocation = "", ffmpeg = "";
             CompareType compare = CompareType.Diffplex;
             bool useThreading = false, breakErrors = false;
             foreach (KeyValueConfigurationElement kce in c.AppSettings.Settings)
@@ -123,6 +129,9 @@ namespace CCExtractorTester
                         break;
                     case "CCExtractorLocation":
                         ccextractorLocation = kce.Value;
+                        break;
+                    case "FFMpegLocation":
+                        ffmpeg = kce.Value;
                         break;
                     case "Comparer":
                         try
@@ -145,7 +154,7 @@ namespace CCExtractorTester
                         break;
                 }
             }
-            return new ConfigManager(reportFolder,sampleFolder,resultFolder,ccextractorLocation,compare,useThreading,breakErrors);
+            return new ConfigManager(reportFolder,sampleFolder,resultFolder,ccextractorLocation,compare,useThreading,breakErrors, ffmpeg);
         }
 
         /// <summary>
@@ -156,7 +165,7 @@ namespace CCExtractorTester
         /// <returns>An instance of teh ConfigManager.</returns>
         public static ConfigManager CreateFromXML(ILogger logger, XmlDocument xml)
         {
-            string reportFolder = "", sampleFolder = "", resultFolder = "", ccextractorLocation = "";
+            string reportFolder = "", sampleFolder = "", resultFolder = "", ccextractorLocation = "", ffmpeg = "";
             CompareType compare = CompareType.Diffplex;
             bool useThreading = false, breakErrors = false;
             foreach (XmlNode n in xml.SelectNodes("configuration/appSettings/add"))
@@ -176,6 +185,9 @@ namespace CCExtractorTester
                         break;
                     case "CCExtractorLocation":
                         ccextractorLocation = value;
+                        break;
+                    case "FFMpegLocation":
+                        ffmpeg = value;
                         break;
                     case "Comparer":
                         try
@@ -198,7 +210,7 @@ namespace CCExtractorTester
                         break;
                 }
             }
-            return new ConfigManager(reportFolder, sampleFolder, resultFolder, ccextractorLocation, compare, useThreading, breakErrors);
+            return new ConfigManager(reportFolder, sampleFolder, resultFolder, ccextractorLocation, compare, useThreading, breakErrors, ffmpeg);
         }
 
         /// <summary>
@@ -229,6 +241,7 @@ namespace CCExtractorTester
                     break;
                 case RunType.Matrix:
                     // We need a report folder
+                    pass = pass && !String.IsNullOrEmpty(ReportFolder);
                     break;
                 default:
                     // Invalid type

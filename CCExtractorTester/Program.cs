@@ -35,6 +35,8 @@ namespace CCExtractorTester
         // Options that will override the config settings
         [Option("executable", HelpText = "Overrrides the CCExtractor executable path")]
         public string CCExtractorExecutable { get; set; }
+        [Option("ffmpeg", HelpText = "Overrides the set FFMpeg executable path")]
+        public string FFMpegExecutable { get; set; }
         [Option("reportfolder", HelpText = "Overrides the folder location where reports will be stored")]
         public string ReportFolder { get; set; }
         [Option("samplefolder", HelpText = "Overrides the folder location that contains the samples")]
@@ -180,6 +182,19 @@ namespace CCExtractorTester
                 if (config.BreakOnChanges)
                 {
                     Logger.Info("If there's a sample that doesn't match, we will exit instead of running them all.");
+                }
+                if (!String.IsNullOrEmpty(options.FFMpegExecutable))
+                {
+                    if (File.Exists(options.FFMpegExecutable))
+                    {
+                        config.FFMpegLocation = options.FFMpegExecutable;
+                        Logger.Info("Overriding FFMpeg executable with given version (located at: " + options.FFMpegExecutable + ")");
+                    }
+                    else
+                    {
+                        Logger.Error("Given CCExtractor executable path does not exist. Exiting application");
+                        return;
+                    }
                 }
                 config.TestType = options.RunMethod;
                 // Continue with parameter parsing
