@@ -55,7 +55,8 @@
   </entry>
   <!-- output to tcp (other ccx instance) -->
 	<entry>
-		<command>-autoprogram</command>
+    <!-- Warning! The command in this case will be passed to the instance that receives the tcp output! -tcp & -o will be added by the program -->
+		<command>-out=srt</command>
 		<input type="file">Testfile.mpg</input>
 		<output>tcp</output>
 		<compare>
@@ -64,7 +65,9 @@
 	</entry>
   <!-- input from udp -->
 	<entry>
+    <!-- Warning! The command in this case will be passed to the instance that receives the udp input! -udp & -o will be added by the program -->
 		<command>-autoprogram -out=srt</command>
+    <!-- Please take into account that this should be a mpg file containing a ts stream, as we use -f mpegts for ffmpeg -->
 		<input type="udp">Testfile.mpg</input>
 		<output>file</output>
 		<compare>
