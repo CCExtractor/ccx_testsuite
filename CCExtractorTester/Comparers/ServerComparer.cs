@@ -26,7 +26,6 @@ namespace CCExtractorTester.Comparers
                 {
                     var response = wb.UploadFile(reportUrl, data.ProducedFile);
                 }
-                // TODO: finish
             }
             else
             {
@@ -34,12 +33,10 @@ namespace CCExtractorTester.Comparers
                 using (var wb = new WebClient())
                 {
                     var d = new NameValueCollection();
-                    d["username"] = "myUser";
-                    d["password"] = "myPassword";
+                    d["equal"] = data.ProducedFile;
 
                     var response = wb.UploadValues(reportUrl, "POST", d);
                 }
-                // TODO: finish
             }
         }
 
