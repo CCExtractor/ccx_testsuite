@@ -1,5 +1,6 @@
 ﻿using CCExtractorTester.Enums;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -26,7 +27,7 @@ namespace CCExtractorTester.Analyzers
             Config = cm;
         }
 
-        public RunData CallCCExtractor(TestEntry test)
+        public RunData CallCCExtractor(TestEntry test, string storeName)
         {
             Test = test;
 
@@ -202,7 +203,34 @@ namespace CCExtractorTester.Analyzers
             // Preventively kill off any possible other processes
             input.Kill();
             output.Kill();
-            // TODO: add generated output file(s) to the result
+            // Create store folder if necessary
+            string storeDirectory = Path.Combine(Config.TemporaryFolder, storeName);
+            if (!Directory.Exists(storeDirectory))
+            {
+                Directory.CreateDirectory(storeDirectory);
+            }
+            // Add generated output file(s), if any, to the result
+            rd.ResultFiles = new Dictionary<string, string>();
+            // Check for each expected output file if there's a generated one
+            foreach (string expectedFile in test.CompareFiles)
+            {
+                string fileLocation = Path.Combine(Config.TemporaryFolder, expectedFile);
+                string moveLocation = Path.Combine(storeDirectory, expectedFile);
+                if (File.Exists(fileLocation))
+                {
+                    rd.ResultFiles.Add(expectedFile, moveLocation);
+                    // Move file
+                    if (File.Exists(moveLocation))
+                    {
+                        File.Delete(moveLocation);
+                    }
+                    File.Move(fileLocation, moveLocation);
+                }
+                else
+                {
+                    rd.ResultFiles.Add(expectedFile, "");
+                }
+            }
             // Return the results
             return rd;
         }
