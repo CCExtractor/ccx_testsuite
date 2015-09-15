@@ -553,8 +553,6 @@ namespace CCExtractorTester.Analyzers
                     logger.Error(e);
                 }
 
-                // TODO: check this; multiple files!!
-
                 // Move produced file to another location (so it still can be inspected later, but won't affect next runs
                 string storeDirectory = Path.Combine(config.TemporaryFolder, testName);
                 if (!Directory.Exists(storeDirectory))

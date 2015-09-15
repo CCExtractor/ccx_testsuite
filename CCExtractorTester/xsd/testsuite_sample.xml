@@ -50,7 +50,7 @@
     <input type="file">Testfile.mpg</input>
     <output>stdout</output>
     <compare>
-      <out id="0">Report.txt</out>
+      <out id="0">stdout.file</out>
     </compare>
   </entry>
   <!-- output to tcp (other ccx instance) -->
