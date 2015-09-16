@@ -409,14 +409,14 @@ namespace CCExtractorTester.Analyzers
             LoadComparer();
 
             int i = 1;
-            SetUpTestEntryProcessing(cce, location, sourceFolder, Entries.Count, LoadedFileName);
+            SetUpTestEntryProcessing(LoadedFileName);
             ManualResetEvent[] mres = new ManualResetEvent[Entries.Count];
             DateTime start = DateTime.Now;
 
             foreach (TestEntry te in Entries)
             {
                 mres[i - 1] = new ManualResetEvent(false);
-                TestEntryProcessing tep = new TestEntryProcessing(te, i);
+                TestEntryProcessing tep = new TestEntryProcessing(te, i, Entries.Count);
                 tep.eventX = mres[i - 1];
 
                 if (useThreading)
@@ -453,22 +453,13 @@ namespace CCExtractorTester.Analyzers
         /// <summary>
         /// Sets up test entry processing.
         /// </summary>
-        /// <param name="cce">The CCExtractor executable location.</param>
-        /// <param name="location">The folder from where this program is executed.</param>
-        /// <param name="sourceFolder">The folder with the samples in.</param>
-        /// <param name="total">The number of test entries to process.</param>
         /// <param name="testName">The name of the test file we're running.</param>
-        void SetUpTestEntryProcessing(string cce, string location, string sourceFolder, int total, string testName)
+        void SetUpTestEntryProcessing(string testName)
         {
-            TestEntryProcessing.location = location;
-            TestEntryProcessing.sourceFolder = sourceFolder;
-            TestEntryProcessing.total = total;
             TestEntryProcessing.comparer = Comparer;
-            TestEntryProcessing.config = Config;
-            TestEntryProcessing.logger = Logger;
             TestEntryProcessing.progressReporter = ProgressReporter;
             TestEntryProcessing.testName = testName;
-            TestEntryProcessing.runner = new Runner(cce, Logger, PerformanceLogger);
+            TestEntryProcessing.processor = new Processor(Logger, PerformanceLogger, Config);
         }
 
         /// <summary>
@@ -485,30 +476,28 @@ namespace CCExtractorTester.Analyzers
         /// </summary>
         class TestEntryProcessing
         {
-            public static Runner runner;
-            public static string sourceFolder;
-            public static string location;
-            public static int total;
-            public static ILogger logger;
+            public static Processor processor;
             public static IFileComparable comparer;
             public static IProgressReportable progressReporter;
-            public static ConfigManager config;
             public static string testName;
 
-            private TestEntry te;
+            private TestEntry testEntry;
             private int current;
+            private int total;
 
             public ManualResetEvent eventX;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="CCExtractorTester.Tester+TestEntryProcessing"/> class.
             /// </summary>
-            /// <param name="testingEntry">Testing entry.</param>
-            /// <param name="curr">Curr.</param>
-            public TestEntryProcessing(TestEntry testingEntry, int curr)
+            /// <param name="current_entry">Testing entry.</param>
+            /// <param name="current_nr">The current entry number.</param>
+            /// <param name="test_nr">The amount of tests for the test file.</param>
+            public TestEntryProcessing(TestEntry current_entry, int current_nr, int test_nr)
             {
-                te = testingEntry;
-                current = curr;
+                testEntry = current_entry;
+                current = current_nr;
+                total = test_nr;
             }
 
             /// <summary>
@@ -519,93 +508,37 @@ namespace CCExtractorTester.Analyzers
             {
                 progressReporter.showProgressMessage(String.Format("Starting with entry {0} of {1}", current, total));
 
-                string sampleFile = Path.Combine(sourceFolder, te.InputFile);
-                string producedFileName = te.CompareFiles[0].Substring(te.CompareFiles[0].LastIndexOf(Path.DirectorySeparatorChar) + 1);
-                string producedFile = Path.Combine(config.TemporaryFolder, producedFileName);
-                string expectedResultFile = Path.Combine(config.ResultFolder, te.CompareFiles[0]);
+                RunData rd = processor.CallCCExtractor(testEntry, testName + "_" + current);
 
-                if(te.InputFormat == InputType.Stdin)
+                // Process each result file
+                foreach (KeyValuePair<string,string> kvp in rd.ResultFiles)
                 {
-
-                }
-
-                string command = te.Command + String.Format(@" --no_progress_bar -o ""{0}"" ""{1}""  ", producedFile, sampleFile);
-
-
-
-                RunData rd = runner.Run(command, processError, processOutput, config.TimeOut);
-
-                try
-                {
-                    comparer.CompareAndAddToResult(
-                        new CompareData()
+                    try
+                    {
+                        comparer.CompareAndAddToResult(new CompareData()
                         {
-                            ProducedFile = producedFile,
-                            CorrectFile = expectedResultFile,
-                            SampleFile = sampleFile,
-                            Command = te.Command,
+                            ProducedFile = kvp.Value,
+                            CorrectFile = kvp.Key,
+                            Command = testEntry.Command,
                             RunTime = rd.Runtime,
-                            ExitCode = rd.ExitCode
+                            ExitCode = rd.ExitCode,
+                            SampleFile = testEntry.InputFile
                         });
+                    }
+                    catch (Exception e)
+                    {
+                        processor.Logger.Error(e);
+                    }
                 }
-                catch (Exception e)
+                // If server processing, send runtime & status code too; compare and add to result won't work
+                if(processor.Config.Comparer == CompareType.Server)
                 {
-                    logger.Error(e);
-                }
-
-                // Move produced file to another location (so it still can be inspected later, but won't affect next runs
-                string storeDirectory = Path.Combine(config.TemporaryFolder, testName);
-                if (!Directory.Exists(storeDirectory))
-                {
-                    Directory.CreateDirectory(storeDirectory);
-                }
-                string storeFile = Path.Combine(storeDirectory, producedFileName);
-                if (File.Exists(storeFile))
-                {
-                    File.Delete(storeFile);
-                }
-                if (File.Exists(producedFile))
-                {
-                    File.Move(producedFile, storeFile);
+                    ((ServerComparer)comparer).SendExitCodeAndRuntime(rd, testEntry.InputFile);
                 }
 
                 // Report back that we finished an entry
                 progressReporter.showProgressMessage(String.Format("Finished entry {0} with exit code: {1}", current, rd.ExitCode));
                 eventX.Set();
-            }
-
-            /// <summary>
-            /// Processes the output received from CCExtractor.
-            /// </summary>
-            /// <param name="sender">Sender.</param>
-            /// <param name="e">E.</param>
-            void processOutput(object sender, DataReceivedEventArgs e)
-            {
-                if (te.OutputFormat == OutputType.Stdout)
-                {
-                    // Capture output and save in a file.
-                    using(StreamWriter sw = new StreamWriter(File.Open(Path.Combine(config.TemporaryFolder,"stdout.file"), FileMode.OpenOrCreate)))
-                    {
-                        sw.WriteLine(e.Data);
-                    }
-                }
-                else
-                {
-                    logger.Debug(e.Data);
-                }
-            }
-
-            /// <summary>
-            /// Processes the errors received from CCExtractor.
-            /// </summary>
-            /// <param name="sender">Sender.</param>
-            /// <param name="e">E.</param>
-            void processError(object sender, DataReceivedEventArgs e)
-            {
-                if (!String.IsNullOrEmpty(e.Data))
-                {
-                    logger.Error(e.Data);
-                }
             }
         }
     }
