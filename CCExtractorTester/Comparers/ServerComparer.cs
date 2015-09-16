@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Text;
+using CCExtractorTester.Analyzers;
 
 namespace CCExtractorTester.Comparers
 {
@@ -24,6 +25,7 @@ namespace CCExtractorTester.Comparers
                 // Upload result
                 using (var wb = new WebClient())
                 {
+                    // TODO: check if this works
                     var response = wb.UploadFile(reportUrl, data.ProducedFile);
                 }
             }
@@ -34,6 +36,7 @@ namespace CCExtractorTester.Comparers
                 {
                     var d = new NameValueCollection();
                     d["equal"] = data.ProducedFile;
+                    d["sample"] = data.SampleFile;
 
                     var response = wb.UploadValues(reportUrl, "POST", d);
                 }
@@ -49,6 +52,20 @@ namespace CCExtractorTester.Comparers
         {
             // Do nothing
             return "";
+        }
+
+        public void SendExitCodeAndRuntime(RunData rd, string sample)
+        {
+            // Post equality status
+            using (var wb = new WebClient())
+            {
+                var d = new NameValueCollection();
+                d["exitCode"] = rd.ExitCode+"";
+                d["runTime"] = rd.Runtime+"";
+                d["sample"] = sample;
+
+                var response = wb.UploadValues(reportUrl, "POST", d);
+            }
         }
     }
 }
