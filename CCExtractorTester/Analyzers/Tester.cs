@@ -518,7 +518,7 @@ namespace CCExtractorTester.Analyzers
                         comparer.CompareAndAddToResult(new CompareData()
                         {
                             ProducedFile = kvp.Value,
-                            CorrectFile = kvp.Key,
+                            CorrectFile = Path.Combine(processor.Config.ResultFolder, kvp.Key),
                             Command = testEntry.Command,
                             RunTime = rd.Runtime,
                             ExitCode = rd.ExitCode,
