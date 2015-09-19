@@ -35,6 +35,13 @@ namespace CCExtractorTester.Analyzers
             string inputFile = Path.Combine(Config.SampleFolder, test.InputFile);
             string firstOutputFile = Path.Combine(Config.TemporaryFolder, test.CompareFiles[0]);
 
+            FileInfo firstOutputFileFI = new FileInfo(firstOutputFile);
+
+            if (!firstOutputFileFI.Directory.Exists)
+            {
+                firstOutputFileFI.Directory.Create();
+            }
+
             switch (test.OutputFormat)
             {
                 case OutputType.File:
@@ -100,6 +107,7 @@ namespace CCExtractorTester.Analyzers
 
             // Determine if we need to setup a sender process
             Process input = new Process();
+            bool input_started = false;
             if (test.InputFormat == InputType.Udp)
             {
                 // Set up ffmpeg to stream a file to CCExtractor
@@ -111,10 +119,11 @@ namespace CCExtractorTester.Analyzers
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 };
-                input.Start();
+                input_started = input.Start();
             }
             // Determine if we need to setup a receiver process
             Process output = new Process();
+            bool output_started = false;
             if (test.OutputFormat == OutputType.Tcp)
             {
                 // Set up another CCExtractor instance to receive raw caption data
@@ -126,7 +135,7 @@ namespace CCExtractorTester.Analyzers
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 };
-                output.Start();
+                output_started = output.Start();
             }
             // Set up performance logger
             PerformanceLogger.SetUp(Logger, p);
@@ -201,8 +210,15 @@ namespace CCExtractorTester.Analyzers
                 
             }
             // Preventively kill off any possible other processes
-            input.Kill();
-            output.Kill();
+            if (input_started && !input.HasExited)
+            {
+                input.Kill();
+            }
+            if (output_started && !output.HasExited)
+            {
+                output.Kill();
+            }
+
             // Create store folder if necessary
             string storeDirectory = Path.Combine(Config.TemporaryFolder, storeName);
             if (!Directory.Exists(storeDirectory))
@@ -214,9 +230,9 @@ namespace CCExtractorTester.Analyzers
             // Check for each expected output file if there's a generated one
             foreach (string expectedFile in test.CompareFiles)
             {
-                string fileLocation = Path.Combine(Config.TemporaryFolder, expectedFile);
-                string moveLocation = Path.Combine(storeDirectory, expectedFile);
-                if (File.Exists(fileLocation))
+                FileInfo fileLocation = new FileInfo(Path.Combine(Config.TemporaryFolder, expectedFile));
+                string moveLocation = Path.Combine(storeDirectory, fileLocation.Name);
+                if (fileLocation.Exists)
                 {
                     rd.ResultFiles.Add(expectedFile, moveLocation);
                     // Move file
@@ -224,7 +240,7 @@ namespace CCExtractorTester.Analyzers
                     {
                         File.Delete(moveLocation);
                     }
-                    File.Move(fileLocation, moveLocation);
+                    fileLocation.MoveTo(moveLocation);
                 }
                 else
                 {
