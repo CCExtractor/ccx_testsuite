@@ -39,13 +39,13 @@
               <xs:element name="compare">
                 <xs:complexType mixed="true">
                   <xs:sequence>
-                    <xs:element name="out" maxOccurs="unbounded" minOccurs="0">
+                    <xs:element name="file" maxOccurs="unbounded" minOccurs="0">
                       <xs:complexType>
-                        <xs:simpleContent>
-                          <xs:extension base="xs:string">
-                            <xs:attribute type="xs:nonNegativeInteger" name="id" use="required" />
-                          </xs:extension>
-                        </xs:simpleContent>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="correct"/>
+                          <xs:element type="xs:string" name="expected" minOccurs="0"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:boolean" name="ignore" use="required"/>
                       </xs:complexType>
                     </xs:element>
                   </xs:sequence>

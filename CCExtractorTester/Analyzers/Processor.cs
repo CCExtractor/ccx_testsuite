@@ -33,7 +33,7 @@ namespace CCExtractorTester.Analyzers
 
             string commandToPass = String.Format("{0} --no_progress_bar",test.Command);
             string inputFile = Path.Combine(Config.SampleFolder, test.InputFile);
-            string firstOutputFile = Path.Combine(Config.TemporaryFolder, test.CompareFiles[0]);
+            string firstOutputFile = Path.Combine(Config.TemporaryFolder, test.CompareFiles[0].Item1);
 
             FileInfo firstOutputFileFI = new FileInfo(firstOutputFile);
 
@@ -228,13 +228,14 @@ namespace CCExtractorTester.Analyzers
             // Add generated output file(s), if any, to the result
             rd.ResultFiles = new Dictionary<string, string>();
             // Check for each expected output file if there's a generated one
-            foreach (string expectedFile in test.CompareFiles)
+            foreach (Tuple<string,string,bool> expectedFile in test.CompareFiles)
             {
-                FileInfo fileLocation = new FileInfo(Path.Combine(Config.TemporaryFolder, expectedFile));
+                // TODO: fix!
+                FileInfo fileLocation = new FileInfo(Path.Combine(Config.TemporaryFolder, expectedFile.Item1));
                 string moveLocation = Path.Combine(storeDirectory, fileLocation.Name);
                 if (fileLocation.Exists)
                 {
-                    rd.ResultFiles.Add(expectedFile, moveLocation);
+                    rd.ResultFiles.Add(expectedFile.Item1, moveLocation);
                     // Move file
                     if (File.Exists(moveLocation))
                     {
@@ -244,7 +245,7 @@ namespace CCExtractorTester.Analyzers
                 }
                 else
                 {
-                    rd.ResultFiles.Add(expectedFile, "");
+                    rd.ResultFiles.Add(expectedFile.Item1, "");
                 }
             }
             // Return the results

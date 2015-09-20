@@ -195,22 +195,28 @@ namespace CCExtractorTester.Analyzers
                             break;
                         case XML_THIRD_GENERATION:
                             // Dealing with the newest version of tests
+                            LoadedFileName = fi.Name.Replace(".xml", "");
                             foreach (XmlNode node in doc.SelectNodes("//entry"))
                             {
                                 // Get nodes for entry
                                 XmlNode command = node.SelectSingleNode("command");
                                 XmlNode input = node.SelectSingleNode("input");
                                 XmlNode output = node.SelectSingleNode("output");
-                                XmlNodeList compareTo = node.SelectSingleNode("compare").SelectNodes("out");
+                                XmlNodeList compareTo = node.SelectSingleNode("compare").SelectNodes("file");
                                 // Convert to appropriate values
                                 string ccx_command = command.InnerText;
                                 string inputFile = input.InnerText;
                                 InputType inputType = InputTypeParser.parseString(input.Attributes["type"].Value);
                                 OutputType outputType = OutputTypeParser.parseString(output.InnerText);
-                                List<string> compareFiles = new List<string>();
-                                foreach(XmlNode n in compareTo)
+                                List<Tuple<string,string,bool>> compareFiles = new List<Tuple<string,string,bool>>();
+
+                                foreach(XmlNode compareEntry in compareTo)
                                 {
-                                    compareFiles.Add(n.InnerText);
+                                    bool ignore = bool.Parse(compareEntry.Attributes["ignore"].Value);
+                                    string correct = compareEntry.SelectSingleNode("correct").InnerText;
+                                    XmlNode expectedNode = compareEntry.SelectSingleNode("expected");
+                                    string expected = (expectedNode != null) ? expectedNode.InnerText : correct;
+                                    compareFiles.Add(Tuple.Create(correct,expected,ignore));
                                 }
                                 // Add entry
                                 Entries.Add(new TestEntry(inputFile, inputType, ccx_command, outputType, compareFiles));
