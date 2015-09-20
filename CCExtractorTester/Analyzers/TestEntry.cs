@@ -32,7 +32,7 @@ namespace CCExtractorTester.Analyzers
         /// <summary>
         /// Gets or sets a list of files to compare
         /// </summary>
-        public List<string> CompareFiles { get; set; }
+        public List<Tuple<string, string, bool>> CompareFiles { get; set; }
 
 		/// <summary>
 		/// Initializes a new instance of this class.
@@ -46,8 +46,8 @@ namespace CCExtractorTester.Analyzers
             InputFormat = InputType.File;
 			Command = command;
             OutputFormat = OutputType.File;
-            CompareFiles = new List<string>();
-            CompareFiles.Add(compareFile);
+            CompareFiles = new List<Tuple<string, string, bool>>();
+            CompareFiles.Add(Tuple.Create(compareFile,compareFile,false));
 		}
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace CCExtractorTester.Analyzers
         /// <param name="command">The command string to pass to CCExtractor.</param>
         /// <param name="outputFormat">The output type for CCExtractor</param>
         /// <param name="compareFiles">The relative locations (relative to CorrectResultFolder configuration setting) of the result files</param>
-        public TestEntry(string inputFile, InputType inputFormat, string command, OutputType outputFormat, List<string> compareFiles)
+        public TestEntry(string inputFile, InputType inputFormat, string command, OutputType outputFormat, List<Tuple<string,string,bool>> compareFiles)
         {
             InputFile = inputFile;
             InputFormat = inputFormat;

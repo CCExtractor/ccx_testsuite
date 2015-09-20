@@ -6,7 +6,10 @@
 		<input type="file">Testfile.mpg</input>
 		<output>file</output>
 		<compare>
-			<out id="0">Testfile.srt</out>
+			<file ignore="false">
+        <correct>Testfile.srt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
 		</compare>
 	</entry>
   <!-- multiple output files -->
@@ -15,8 +18,14 @@
 		<input type="file">Testfile.mpg</input>
 		<output>file</output>
 		<compare>
-			<out id="0">Testfile_0.srt</out>
-			<out id="1">Testfile_1.srt</out>
+      <file ignore="false">
+        <correct>Testfile_0.srt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
+      <file ignore="false">
+        <correct>Testfile_1.srt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
 		</compare>
 	</entry>
   <!-- file fed through stdin -->
@@ -25,7 +34,10 @@
 		<input type="stdin">Testfile.mpg</input>
 		<output>file</output>
 		<compare>
-			<out id="0">Testfile.srt</out>
+      <file ignore="false">
+        <correct>Testfile.srt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
 		</compare>
 	</entry>
   <!-- file output as report -->
@@ -34,7 +46,10 @@
 		<input type="file">Testfile.mpg</input>
 		<output>file</output>
 		<compare>
-			<out id="0">Report.txt</out>
+      <file ignore="false">
+        <correct>report.txt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
 		</compare>
 	</entry>
   <!-- null output -->
@@ -50,7 +65,10 @@
     <input type="file">Testfile.mpg</input>
     <output>stdout</output>
     <compare>
-      <out id="0">stdout.file</out>
+      <file ignore="false">
+        <correct>result.srt</correct>
+        <expected>stdout.file</expected>
+      </file>
     </compare>
   </entry>
   <!-- output to tcp (other ccx instance) -->
@@ -60,7 +78,10 @@
 		<input type="file">Testfile.mpg</input>
 		<output>tcp</output>
 		<compare>
-			<out id="0">Testfile.srt</out>
+      <file ignore="false">
+        <correct>Testfile.srt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
 		</compare>
 	</entry>
   <!-- input from udp -->
@@ -71,7 +92,10 @@
 		<input type="udp">Testfile.mpg</input>
 		<output>file</output>
 		<compare>
-			<out id="0">Testfile.srt</out>
+      <file ignore="false">
+        <correct>Testfile.srt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
 		</compare>
 	</entry>
   <!-- cea 708 -->
@@ -80,8 +104,15 @@
     <input type="file">cea708.mpg</input>
     <output>cea708</output>
     <compare>
-      <out id="0">608.txt</out>
-      <out id="1">708.txt</out>
+      <!-- We only want to test the 708, so we ignore the 608 generated output -->
+      <file ignore="true">
+        <correct>Testfile.txt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
+      <file ignore="false">
+        <correct>Testfile_708.txt</correct>
+        <expected>Testfile.p0.svc01.txt</expected>
+      </file>
     </compare>
   </entry>
   <!-- multiprogram -->
@@ -90,8 +121,17 @@
     <input type="file">multi.mpg</input>
     <output>multiprogram</output>
     <compare>
-      <out id="0">multi_0.srt</out>
-      <out id="1">multi_356.srt</out>
+      <file ignore="true">
+        <correct>multi.srt</correct>
+      </file>
+      <file ignore="false">
+        <correct>multi_0.srt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
+      <file ignore="false">
+        <correct>multi_365.srt</correct>
+        <!-- Expected file has same name, so extra tag unneccessary-->
+      </file>
     </compare>
   </entry>
 </tests>
