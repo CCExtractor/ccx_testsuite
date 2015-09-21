@@ -208,7 +208,7 @@ namespace CCExtractorTester.Analyzers
                                 string inputFile = input.InnerText;
                                 InputType inputType = InputTypeParser.parseString(input.Attributes["type"].Value);
                                 OutputType outputType = OutputTypeParser.parseString(output.InnerText);
-                                List<Tuple<string,string,bool>> compareFiles = new List<Tuple<string,string,bool>>();
+                                List<CompareFile> compareFiles = new List<CompareFile>();
 
                                 foreach(XmlNode compareEntry in compareTo)
                                 {
@@ -216,7 +216,7 @@ namespace CCExtractorTester.Analyzers
                                     string correct = compareEntry.SelectSingleNode("correct").InnerText;
                                     XmlNode expectedNode = compareEntry.SelectSingleNode("expected");
                                     string expected = (expectedNode != null) ? expectedNode.InnerText : correct;
-                                    compareFiles.Add(Tuple.Create(correct,expected,ignore));
+                                    compareFiles.Add(new CompareFile(correct,expected,ignore));
                                 }
                                 // Add entry
                                 Entries.Add(new TestEntry(inputFile, inputType, ccx_command, outputType, compareFiles));
