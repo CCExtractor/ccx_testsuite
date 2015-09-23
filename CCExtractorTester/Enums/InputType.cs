@@ -12,8 +12,16 @@ namespace CCExtractorTester.Enums
         Udp
     }
 
+    /// <summary>
+    /// A class to parse string values for the InputType enum.
+    /// </summary>
     public static class InputTypeParser
     {
+        /// <summary>
+        /// Parses a given string into a InputType enum option.
+        /// </summary>
+        /// <param name="toParse">The string to parse.</param>
+        /// <returns>An instance of the InputType enum.</returns>
         public static InputType parseString(string toParse)
         {
             toParse = toParse.ToLower();

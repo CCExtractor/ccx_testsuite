@@ -15,8 +15,16 @@ namespace CCExtractorTester.Enums
         Stdout
     }
 
+    /// <summary>
+    /// A class to parse string values for the OutputType enum.
+    /// </summary>
     public static class OutputTypeParser
     {
+        /// <summary>
+        /// Parses a given string into a OutputType enum option.
+        /// </summary>
+        /// <param name="toParse">The string to parse.</param>
+        /// <returns>An instance of the OutputType enum.</returns>
         public static OutputType parseString(string toParse)
         {
             toParse = toParse.ToLower();

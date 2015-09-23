@@ -25,8 +25,16 @@ namespace CCExtractorTester.Enums
         Server
     }
 
+    /// <summary>
+    /// A class to parse string values for the CompareType enum.
+    /// </summary>
     public static class CompareTypeParser
     {
+        /// <summary>
+        /// Parses a given string into a CompareType enum option.
+        /// </summary>
+        /// <param name="toParse">The string to parse.</param>
+        /// <returns>An instance of the CompareType enum.</returns>
         public static CompareType parseString(string toParse)
         {
             toParse = toParse.ToLower();

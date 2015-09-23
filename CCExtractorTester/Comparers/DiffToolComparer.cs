@@ -15,31 +15,37 @@ namespace CCExtractorTester.Comparers
 		/// </summary>
 		/// <value>The name of the temp file.</value>
 		private string TempFileName { get; set; }
+
 		/// <summary>
 		/// Gets or sets the stringbuilder.
 		/// </summary>
 		/// <value>The builder.</value>
 		private StringBuilder Builder { get; set; }
+
 		/// <summary>
 		/// Gets or sets the builder diff. Uses streamwriter for preventing out-of-memory exceptions.
 		/// </summary>
 		/// <value>The builder diff.</value>
 		private StreamWriter BuilderDiff { get; set; }
+
 		/// <summary>
 		/// Gets or sets the instance that actually does the differ.
 		/// </summary>
 		/// <value>The differ.</value>
 		private SideBySideBuilder Differ { get; set; }
+
 		/// <summary>
 		/// Gets or sets the number of entries that have been processed so far.
 		/// </summary>
 		/// <value>The count.</value>
 		private int Count { get; set; }
+
 		/// <summary>
 		/// If <c>true</c>, only the differences will be saved to the report. Otherwise the entire file will be shown in the differ.
 		/// </summary>
 		/// <value><c>true</c> if reduce; otherwise, <c>false</c>.</value>
 		private bool Reduce { get; set; }
+
 		/// <summary>
 		/// Gets or sets the successes.
 		/// </summary>
@@ -166,6 +172,7 @@ namespace CCExtractorTester.Comparers
 				changes);
 			Count++;
 		}
+
 		/// <summary>
 		/// Saves the report to a given file, with some extra data provided.
 		/// </summary>

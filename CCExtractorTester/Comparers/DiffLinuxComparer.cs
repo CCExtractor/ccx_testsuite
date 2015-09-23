@@ -61,6 +61,7 @@ namespace CCExtractorTester.Comparers
 				}
 			}
 		}
+
 		/// <summary>
 		/// Gets the name of the report file.
 		/// </summary>
@@ -70,6 +71,7 @@ namespace CCExtractorTester.Comparers
 		{
 			return "Report_" + data.FileName + "_" + data.StartTime.ToString("yyyy-MM-dd_HHmmss") + ".txt";
 		}
+
 		/// <summary>
 		/// Saves the report to a given file, with some extra data provided.
 		/// </summary>
@@ -94,6 +96,7 @@ namespace CCExtractorTester.Comparers
 			return -1; // Cannot implement this in this comparer.
 		}
 		#endregion
+
 		/// <summary>
 		/// Processes an error received by the diff command
 		/// </summary>
@@ -103,6 +106,7 @@ namespace CCExtractorTester.Comparers
 		{
 			Builder.AppendLine (e.Data);
 		}
+
 		/// <summary>
 		/// Processes the output from the diff command.
 		/// </summary>
