@@ -12,21 +12,51 @@ namespace CCExtractorTester.Analyzers
     /// </summary>
     public class Processor
     {
+        /// <summary>
+        /// The logger instance that is used.
+        /// </summary>
         public ILogger Logger { get; private set; }
 
+        /// <summary>
+        /// The performance logger instance that is used.
+        /// </summary>
         public IPerformanceLogger PerformanceLogger { get; private set; }
 
+        /// <summary>
+        /// The config that is used.
+        /// </summary>
         public ConfigManager Config { get; private set; }
 
+        /// <summary>
+        /// The current test entry that is being processed.
+        /// </summary>
         public TestEntry Test { get; private set; }
 
+        /// <summary>
+        /// The handler that will handle stdout output from the CCExtractor process.
+        /// </summary>
+        public DataReceivedEventHandler OutputHandler { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of the processor class.
+        /// </summary>
+        /// <param name="logger">The logger to use.</param>
+        /// <param name="performanceLogger">The performance logger to use.</param>
+        /// <param name="cm">The config that will be used.</param>
         public Processor(ILogger logger, IPerformanceLogger performanceLogger, ConfigManager cm)
         {
             Logger = logger;
             PerformanceLogger = performanceLogger;
             Config = cm;
+            OutputHandler = null;
         }
 
+        /// <summary>
+        /// Executes CCExtractor, using the given test entry.
+        /// </summary>
+        /// <param name="test">The test entry data.</param>
+        /// <param name="storeName">The name of the report.</param>
+        /// <returns>An instance of RunData containing the test results.</returns>
         public RunData CallCCExtractor(TestEntry test, string storeName)
         {
             Test = test;
@@ -101,7 +131,15 @@ namespace CCExtractorTester.Analyzers
             Process p = new Process();
             p.StartInfo = psi;
             p.ErrorDataReceived += processError;
-            p.OutputDataReceived += processOutput;
+            if(OutputHandler != null)
+            {
+                p.OutputDataReceived += OutputHandler;
+            }
+            else
+            {
+                p.OutputDataReceived += processOutput;
+            }
+            
 
             p.Start();
 
@@ -230,7 +268,6 @@ namespace CCExtractorTester.Analyzers
             // Check for each expected output file if there's a generated one
             foreach (CompareFile compareFile in test.CompareFiles)
             {
-                // TODO: fix!
                 if (!compareFile.IgnoreOutput)
                 {
                     FileInfo fileLocation = new FileInfo(Path.Combine(Config.TemporaryFolder, compareFile.ExpectedFile));

@@ -1,13 +1,12 @@
 using CCExtractorTester.Enums;
-using System;
 using System.Collections.Generic;
 
 namespace CCExtractorTester.Analyzers
 {
-	/// <summary>
-	/// Test entry that holds the name of the file to test, the command that needs to be used and the name of the result file.
-	/// </summary>
-	public class TestEntry
+    /// <summary>
+    /// Test entry that holds the name of the file to test, the command that needs to be used and the name of the result file.
+    /// </summary>
+    public class TestEntry
 	{
         /// <summary>
         /// Gets or sets the input file that will be used.
