@@ -12,11 +12,13 @@ namespace CCExtractorTester.Comparers
 		/// </summary>
 		/// <value>The name of the file.</value>
 		public String FileName { get; set; }
+
 		/// <summary>
 		/// Gets or sets the CC extractor version.
 		/// </summary>
 		/// <value>The CC extractor version.</value>
 		public String CCExtractorVersion { get; set; }
+
 		/// <summary>
 		/// Gets or sets the start time.
 		/// </summary>

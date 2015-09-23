@@ -12,6 +12,7 @@ namespace CCExtractorTester.Comparers
 		/// </summary>
 		/// <param name="data">The data for this entry.</param>
 		void CompareAndAddToResult(CompareData data);
+
 		/// <summary>
 		/// Saves the report to a given file, with some extra data provided.
 		/// </summary>
@@ -19,6 +20,7 @@ namespace CCExtractorTester.Comparers
 		/// <param name="data">The extra result data that should be in the report.</param>
 		/// <returns>The report name</returns>
 		String SaveReport (string pathToFolder, ResultData data);
+
 		/// <summary>
 		/// Gets the success number.
 		/// </summary>
