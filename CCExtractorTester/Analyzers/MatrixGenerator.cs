@@ -52,13 +52,13 @@ namespace CCExtractorTester.Analyzers
             {
                 throw new InvalidOperationException("CCExtractor location (" + Config.CCExctractorLocation + ") is not a valid file/executable");
             }
-            Runner r = new Runner(Config.CCExctractorLocation, Logger, NullPerformanceLogger.Instance);
+            Processor p = new Processor(Logger, NullPerformanceLogger.Instance, Config);
 
             StringBuilder sb = new StringBuilder();
 
             foreach (String path in Directory.GetFiles(SearchFolder, "*.*", SearchOption.AllDirectories))
             {
-                sb.AppendLine(ProcessFile(r, path));
+                sb.AppendLine(ProcessFile(p, path));
             }
 
             using (StreamWriter sw = new StreamWriter(Path.Combine(Config.ReportFolder, "Matrix.html")))
@@ -94,22 +94,15 @@ namespace CCExtractorTester.Analyzers
         /// <summary>
         /// Processes a single file, using given runner and given file location.
         /// </summary>
-        /// <param name="runner">The runner that launches and handles the execution of CCExtractor.</param>
+        /// <param name="processor">The instance that handles the matrix generation.</param>
         /// <param name="fileLocation">The location of the input file.</param>
         /// <returns>An entry for the matrix table.</returns>
-        string ProcessFile(Runner runner, string fileLocation)
+        string ProcessFile(Processor processor, string fileLocation)
         {
             Logger.Info("Processing file " + fileLocation);
             ReportData rd = new ReportData(Logger);
 
-            DataReceivedEventHandler processError = delegate (object sender, DataReceivedEventArgs e)
-            {
-                if (!String.IsNullOrEmpty(e.Data))
-                {
-                    Logger.Error(e.Data);
-                }
-            };
-            DataReceivedEventHandler processOutput = delegate (object sender, DataReceivedEventArgs e)
+            processor.OutputHandler = delegate (object sender, DataReceivedEventArgs e)
             {
                 string data = e.Data;
                 Logger.Debug("Received report line: " + data);
@@ -126,7 +119,9 @@ namespace CCExtractorTester.Analyzers
                     }
                 }
             };
-            runner.Run(String.Format("-out=report --no_progress_bar \"{0}\"", fileLocation), processError, processOutput, Config.TimeOut);
+            // Run matrix generator
+            processor.CallCCExtractor(new TestEntry(fileLocation, "-out=report", ""),"");
+            
             FileInfo f = new FileInfo(fileLocation);
             return rd.CreateRow(f.Name);
         }
