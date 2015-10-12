@@ -14,6 +14,8 @@ namespace CCExtractorTester.Comparers
         /// </summary>
         private string reportUrl;
 
+        private static string userAgent = "CCExctractor Automated Test Suite";
+
         /// <summary>
         /// Generates an new instance of this class.
         /// </summary>
@@ -30,12 +32,15 @@ namespace CCExtractorTester.Comparers
         /// <param name="data">The data for this entry.</param>
         public void CompareAndAddToResult(CompareData data)
         {
+            string hash = Hasher.getFileHash(data.ProducedFile);
+
             // Check for equality by hash
             if (!Hasher.filesAreEqual(data.CorrectFile, data.ProducedFile))
             {
                 // Upload result
                 using (var wb = new WebClient())
                 {
+                    wb.Headers.Add("user-agent", userAgent);
                     // TODO: check if this works
                     var response = wb.UploadFile(reportUrl, data.ProducedFile);
                 }
@@ -45,6 +50,7 @@ namespace CCExtractorTester.Comparers
                 // Post equality status
                 using (var wb = new WebClient())
                 {
+                    wb.Headers.Add("user-agent", userAgent);
                     var d = new NameValueCollection();
                     d["equal"] = data.ProducedFile;
                     d["sample"] = data.SampleFile;
