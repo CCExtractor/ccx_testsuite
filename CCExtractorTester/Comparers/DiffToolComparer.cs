@@ -103,8 +103,8 @@ namespace CCExtractorTester.Comparers
                 SideBySideModel sbsm = null;
                 if (!Hasher.filesAreEqual(data.CorrectFile, data.ProducedFile))
                 {
-                    string oldText = "";
-                    string newText = "";
+                    string oldText = "ERROR - COULD NOT LOAD";
+                    string newText = "ERROR - COULD NOT LOAD";
                     if (data.ProducedFile.EndsWith(".bin"))
                     {
                         if (File.Exists(data.CorrectFile))
@@ -172,8 +172,12 @@ namespace CCExtractorTester.Comparers
 
                     sbsm = Differ.BuildDiffModel(oldText, newText);
                     changes = sbsm.GetNumberOfChanges();
+                    if((oldText == "ERROR - COULD NOT LOAD" || newText == "ERROR - COULD NOT LOAD") && !data.Dummy)
+                    {
+                        changes = -1;
+                    }
                 }
-                if (changes > 0)
+                if (changes != 0)
                 {
                     lock (this)
                     {

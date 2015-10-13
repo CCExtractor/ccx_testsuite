@@ -39,7 +39,7 @@ namespace CCExtractorTester.Comparers
 		public static bool filesAreEqual(String file1, String file2){
 			String first = getFileHash(file1);
 			String second = getFileHash(file2);
-			return first.CompareTo (second) == 0;				
+			return first.CompareTo (second) == 0 && !String.IsNullOrEmpty(first);				
 		}
 	}
 }

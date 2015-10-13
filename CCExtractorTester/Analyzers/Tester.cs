@@ -516,24 +516,42 @@ namespace CCExtractorTester.Analyzers
                 RunData rd = processor.CallCCExtractor(testEntry, testName + "_" + current);
 
                 // Process each result file
-                foreach (KeyValuePair<string,string> kvp in rd.ResultFiles)
+                int expectedResultFiles = testEntry.CompareFiles.FindAll(x => !x.IgnoreOutput).Count;
+                if (expectedResultFiles > 0 || (expectedResultFiles == 0 && rd.ResultFiles.Count > 0))
                 {
-                    try
+                    foreach (KeyValuePair<string, string> kvp in rd.ResultFiles)
                     {
-                        comparer.CompareAndAddToResult(new CompareData()
+                        try
                         {
-                            ProducedFile = kvp.Value,
-                            CorrectFile = Path.Combine(processor.Config.ResultFolder, kvp.Key),
-                            Command = testEntry.Command,
-                            RunTime = rd.Runtime,
-                            ExitCode = rd.ExitCode,
-                            SampleFile = testEntry.InputFile
-                        });
+                            comparer.CompareAndAddToResult(new CompareData()
+                            {
+                                ProducedFile = kvp.Value,
+                                CorrectFile = Path.Combine(processor.Config.ResultFolder, kvp.Key),
+                                Command = testEntry.Command,
+                                RunTime = rd.Runtime,
+                                ExitCode = rd.ExitCode,
+                                SampleFile = testEntry.InputFile
+                            });
+                        }
+                        catch (Exception e)
+                        {
+                            processor.Logger.Error(e);
+                        }
                     }
-                    catch (Exception e)
+                }
+                else
+                {
+                    // No expected result files, and no generated result files. Need to add a dummy entry, or it won't be listed
+                    comparer.CompareAndAddToResult(new CompareData()
                     {
-                        processor.Logger.Error(e);
-                    }
+                        ProducedFile = "None",
+                        CorrectFile = "None",
+                        Command = testEntry.Command,
+                        RunTime = rd.Runtime,
+                        ExitCode = rd.ExitCode,
+                        SampleFile = testEntry.InputFile,
+                        Dummy = true
+                    });
                 }
                 // If server processing, send runtime & status code too; compare and add to result won't work
                 if(processor.Config.Comparer == CompareType.Server)
