@@ -10,7 +10,7 @@ namespace CCExtractorTester.Analyzers
 {
     using Comparers;
     using Enums;
-
+    using testGenerations;
     /// <summary>
     /// The class that does the heavy lifting in this application.
     /// </summary>
@@ -60,19 +60,6 @@ namespace CCExtractorTester.Analyzers
         /// Gets or sets the performance logger.
         /// </summary>
         private IPerformanceLogger PerformanceLogger { get; set; }
-
-        /// <summary>
-        /// Indicates a first generation file (tests).
-        /// </summary>
-        const string XML_FIRST_GENERATION = "first_gen";
-        /// <summary>
-        /// Indicates a second generation file (multitests).
-        /// </summary>
-        const string XML_SECOND_GENERATION = "second_gen";
-        /// <summary>
-        /// Indicates a third generation file (testsuite).
-        /// </summary>
-        const string XML_THIRD_GENERATION = "third_gen";
 
         /// <summary>
         /// Initializes a new instance of the Tester class.
@@ -157,7 +144,7 @@ namespace CCExtractorTester.Analyzers
         {
             if (File.Exists(xmlFileName))
             {
-                TestGeneration = ValidateXML(xmlFileName);
+                TestGeneration = TestGenerations.ValidateXML(xmlFileName);
                 XmlDocument doc = new XmlDocument();
                 using (FileStream fs = new FileStream(xmlFileName, FileMode.Open, FileAccess.Read))
                 {
@@ -165,7 +152,7 @@ namespace CCExtractorTester.Analyzers
                     FileInfo fi = new FileInfo(xmlFileName);
                     switch (TestGeneration)
                     {
-                        case XML_FIRST_GENERATION:
+                        case TestGenerations.XML_FIRST_GENERATION:
                             // Dealing with the first typee, test(s) only
                             XmlNodeList testNodes = doc.SelectNodes("//test");
                             LoadedFileName = fi.Name.Replace(".xml", "");
@@ -183,7 +170,7 @@ namespace CCExtractorTester.Analyzers
                                 );
                             }
                             break;
-                        case XML_SECOND_GENERATION:
+                        case TestGenerations.XML_SECOND_GENERATION:
                             // Dealing with multi file
                             foreach (XmlNode node in doc.SelectNodes("//testfile"))
                             {
@@ -192,7 +179,7 @@ namespace CCExtractorTester.Analyzers
                                 MultiTest.Add(testFileLocation);
                             }
                             break;
-                        case XML_THIRD_GENERATION:
+                        case TestGenerations.XML_THIRD_GENERATION:
                             // Dealing with the newest version of tests
                             LoadedFileName = fi.Name.Replace(".xml", "");
                             foreach (XmlNode node in doc.SelectNodes("//entry"))
@@ -228,59 +215,6 @@ namespace CCExtractorTester.Analyzers
                 return;
             }
             throw new InvalidDataException("File does not exist");
-        }
-
-        /// <summary>
-        /// Validates the given XML at the location against our scheme.
-        /// </summary>
-        /// <param name="xmlFileName">The location of the XML file to validate.</param>
-        /// <returns>A string that indicates the generation of the XML file.</returns>
-        string ValidateXML(string xmlFileName)
-        {
-            Dictionary<string, string> schemes = new Dictionary<string, string>() {
-                { XML_THIRD_GENERATION, Resources.testsuite },
-                { XML_SECOND_GENERATION, Resources.multitest },
-                { XML_FIRST_GENERATION, Resources.tests }
-            };
-
-            foreach (KeyValuePair<string, string> kvp in schemes)
-            {
-                try
-                {
-                    ValidateAgainstSchema(xmlFileName, kvp.Value);
-                    return kvp.Key;
-                }
-                catch (XmlSchemaValidationException)
-                {
-                    continue;
-                }
-            }
-
-            throw new InvalidDataException("Given XML is not a valid file for the possible formats.");
-        }
-
-        /// <summary>
-        /// Validates the XML against a given schema.
-        /// </summary>
-        /// <param name="xmlFileName">Xml file name.</param>
-        /// <param name="xmlSchema">Xml schema.</param>
-        private void ValidateAgainstSchema(string xmlFileName, string xmlSchema)
-        {
-            using (StringReader sr = new StringReader(xmlSchema))
-            {
-                XmlReader r = XmlReader.Create(sr);
-                XmlReaderSettings settings = new XmlReaderSettings();
-                settings.Schemas.Add(null, r);
-                settings.ValidationType = ValidationType.Schema;
-                using (FileStream fs = new FileStream(xmlFileName, FileMode.Open, FileAccess.Read))
-                {
-                    var reader = XmlReader.Create(fs, settings);
-                    while (reader.Read())
-                    {
-                        // Nothing in here, just need to read out the entire file in a loop.
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -330,12 +264,12 @@ namespace CCExtractorTester.Analyzers
 
             switch (TestGeneration)
             {
-                case XML_FIRST_GENERATION:
+                case TestGenerations.XML_FIRST_GENERATION:
                     // Fall through, same structure
-                case XML_THIRD_GENERATION:
+                case TestGenerations.XML_THIRD_GENERATION:
                     RunSingleFileTests(useThreading, cce, location, sourceFolder);
                     break;
-                case XML_SECOND_GENERATION:
+                case TestGenerations.XML_SECOND_GENERATION:
                     // Override ReportFolder and create subdirectory for it if necessary
                     String subFolder = Path.Combine(Config.ReportFolder, "Testsuite_Report_" + DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
                     if (!Directory.Exists(subFolder))

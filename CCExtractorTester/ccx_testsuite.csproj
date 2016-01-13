@@ -59,13 +59,6 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Analyzers\CompareFile.cs" />
     <Compile Include="Analyzers\Processor.cs" />
     <Compile Include="Comparers\ServerComparer.cs" />
@@ -75,11 +68,6 @@
     <Compile Include="Enums\OutputType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources.Designer.cs">
-      <DependentUpon>Resources.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="ICalleable.cs" />
     <Compile Include="IProgressReportable.cs" />
     <Compile Include="DiffTool\Block.cs" />
@@ -114,22 +102,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="xsd\tests.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="xsd\multitest.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="xsd\testsuite.xsd">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="xsd\multitest_sample.xml" />
-    <Content Include="xsd\tests_sample.xml" />
-    <Content Include="xsd\testsuite_sample.xml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -148,5 +120,10 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\testGenerations\testGenerations.csproj">
+      <Project>{3423c9d4-881a-43be-bb55-67b9f1c1b126}</Project>
+      <Name>testGenerations</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
