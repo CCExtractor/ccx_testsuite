@@ -46,12 +46,14 @@
                           <xs:element type="xs:string" name="expected" minOccurs="0"/>
                         </xs:sequence>
                         <xs:attribute type="xs:boolean" name="ignore" use="required"/>
+                        <xs:attribute type="xs:int" name="id" use="required"/>
                       </xs:complexType>
                     </xs:element>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
+            <xs:attribute type="xs:int" name="id" use="required"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>

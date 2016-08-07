@@ -47,7 +47,7 @@ namespace testGenerations
                 }
             }
 
-            throw new InvalidDataException("Given XML is not a valid file for the possible formats.");
+            throw new InvalidDataException(string.Format("Given XML ({0}) is not a valid file for the possible formats.", xmlFileName));
         }
 
         /// <summary>
