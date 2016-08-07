@@ -1,6 +1,11 @@
 ﻿using System.Collections.Specialized;
 using System.Net;
 using CCExtractorTester.Analyzers;
+using System.IO;
+using System.Collections.Generic;
+using System;
+using System.Text;
+using System.Globalization;
 
 namespace CCExtractorTester.Comparers
 {
@@ -9,12 +14,72 @@ namespace CCExtractorTester.Comparers
     /// </summary>
     public class ServerComparer : IFileComparable
     {
+        private class UploadFile
+        {
+            public UploadFile()
+            {
+                ContentType = "application/octet-stream";
+            }
+            public string Name { get; set; }
+            public string Filename { get; set; }
+            public string ContentType { get; set; }
+            public Stream Stream { get; set; }
+        }
+
+        private byte[] UploadFiles(string address, IEnumerable<UploadFile> files, NameValueCollection values)
+        {
+            var request = WebRequest.Create(address);
+            request.Method = "POST";
+            var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x", NumberFormatInfo.InvariantInfo);
+            request.ContentType = "multipart/form-data; boundary=" + boundary;
+            boundary = "--" + boundary;
+
+            using (var requestStream = request.GetRequestStream())
+            {
+                // Write the values
+                foreach (string name in values.Keys)
+                {
+                    var buffer = Encoding.ASCII.GetBytes(boundary + Environment.NewLine);
+                    requestStream.Write(buffer, 0, buffer.Length);
+                    buffer = Encoding.ASCII.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"{1}{1}", name, Environment.NewLine));
+                    requestStream.Write(buffer, 0, buffer.Length);
+                    buffer = Encoding.UTF8.GetBytes(values[name] + Environment.NewLine);
+                    requestStream.Write(buffer, 0, buffer.Length);
+                }
+
+                // Write the files
+                foreach (var file in files)
+                {
+                    var buffer = Encoding.ASCII.GetBytes(boundary + Environment.NewLine);
+                    requestStream.Write(buffer, 0, buffer.Length);
+                    buffer = Encoding.UTF8.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"{2}", file.Name, file.Filename, Environment.NewLine));
+                    requestStream.Write(buffer, 0, buffer.Length);
+                    buffer = Encoding.ASCII.GetBytes(string.Format("Content-Type: {0}{1}{1}", file.ContentType, Environment.NewLine));
+                    requestStream.Write(buffer, 0, buffer.Length);
+                    file.Stream.CopyTo(requestStream);
+                    buffer = Encoding.ASCII.GetBytes(Environment.NewLine);
+                    requestStream.Write(buffer, 0, buffer.Length);
+                }
+
+                var boundaryBuffer = Encoding.ASCII.GetBytes(boundary + "--");
+                requestStream.Write(boundaryBuffer, 0, boundaryBuffer.Length);
+            }
+
+            using (var response = request.GetResponse())
+            using (var responseStream = response.GetResponseStream())
+            using (var stream = new MemoryStream())
+            {
+                responseStream.CopyTo(stream);
+                return stream.ToArray();
+            }
+        }
+
         /// <summary>
         /// The URL where the class will send status updates to.
         /// </summary>
         private string reportUrl;
 
-        private static string userAgent = "CCExctractor Automated Test Suite";
+        private static string userAgent = "CCX/CI_BOT";
 
         /// <summary>
         /// Generates an new instance of this class.
@@ -32,18 +97,36 @@ namespace CCExtractorTester.Comparers
         /// <param name="data">The data for this entry.</param>
         public void CompareAndAddToResult(CompareData data)
         {
-            string hash = Hasher.getFileHash(data.ProducedFile);
-
             // Check for equality by hash
-            if (!Hasher.filesAreEqual(data.CorrectFile, data.ProducedFile))
+            if (!data.Dummy && !Hasher.filesAreEqual(data.CorrectFile, data.ProducedFile))
             {
                 // Upload result
-                using (var wb = new WebClient())
+                using (FileStream stream = File.Open(data.ProducedFile, FileMode.Open))
+                {
+                    UploadFile[] files = new[] {
+                        new UploadFile {
+                            Name = "file", //Path.GetFileNameWithoutExtension(data.ProducedFile),
+                            Filename = Path.GetFileName(data.ProducedFile),
+                            ContentType = "application/octet-stream",
+                            Stream = stream
+                        }
+                    };
+
+                    NameValueCollection nv = new NameValueCollection {
+                        { "type", "upload" },
+                        { "test_id", data.TestID.ToString() },
+                        { "test_file_id", data.TestFileID.ToString() }
+                    };
+
+                    byte[] result = UploadFiles(reportUrl, files, nv);
+                }
+
+                /*using (var wb = new WebClient())
                 {
                     wb.Headers.Add("user-agent", userAgent);
                     // TODO: check if this works
                     var response = wb.UploadFile(reportUrl, data.ProducedFile);
-                }
+                }*/
             }
             else
             {
@@ -52,8 +135,9 @@ namespace CCExtractorTester.Comparers
                 {
                     wb.Headers.Add("user-agent", userAgent);
                     var d = new NameValueCollection();
-                    d["equal"] = data.ProducedFile;
-                    d["sample"] = data.SampleFile;
+                    d["type"] = "equality";
+                    d["test_id"] = data.TestID.ToString();
+                    d["test_file_id"] = data.TestFileID.ToString();
 
                     var response = wb.UploadValues(reportUrl, "POST", d);
                 }
@@ -85,16 +169,17 @@ namespace CCExtractorTester.Comparers
         /// Specific method that sends the runtime to the server for a given sample.
         /// </summary>
         /// <param name="rd">The run data instance which contains the exit code and runtime.</param>
-        /// <param name="sample">The name of the sample that was tested.</param>
-        public void SendExitCodeAndRuntime(RunData rd, string sample)
+        /// <param name="testId">The id of the test</param>
+        public void SendExitCodeAndRuntime(RunData rd, int testId)
         {
             // Post equality status
             using (var wb = new WebClient())
             {
                 var d = new NameValueCollection();
-                d["exitCode"] = rd.ExitCode+"";
-                d["runTime"] = rd.Runtime+"";
-                d["sample"] = sample;
+                d["exitCode"] = rd.ExitCode.ToString();
+                d["runTime"] = Convert.ToInt32(rd.Runtime.TotalMilliseconds).ToString();
+                d["test_id"] = testId.ToString();
+                d["type"] = "finish";
 
                 var response = wb.UploadValues(reportUrl, "POST", d);
             }
