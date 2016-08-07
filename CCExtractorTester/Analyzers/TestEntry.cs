@@ -9,9 +9,14 @@ namespace CCExtractorTester.Analyzers
     public class TestEntry
 	{
         /// <summary>
+        /// 
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
         /// Gets or sets the input file that will be used.
         /// </summary>
-		public string InputFile { get; set; }
+        public string InputFile { get; set; }
 
         /// <summary>
         /// Gets or sets the input type that will be used.
@@ -41,12 +46,13 @@ namespace CCExtractorTester.Analyzers
 		/// <param name="compareFile">The relative location (relative to CorrectResultFolder configuration setting) of the result file</param>
 		public TestEntry (string inputFile, string command, string compareFile)
 		{
+            Id = -1;
 			InputFile = inputFile;
             InputFormat = InputType.File;
 			Command = command;
             OutputFormat = OutputType.File;
             CompareFiles = new List<CompareFile>();
-            CompareFiles.Add(new CompareFile(compareFile,compareFile,false));
+            CompareFiles.Add(new CompareFile(-1, compareFile,compareFile,false));
 		}
 
         /// <summary>
@@ -57,13 +63,14 @@ namespace CCExtractorTester.Analyzers
         /// <param name="command">The command string to pass to CCExtractor.</param>
         /// <param name="outputFormat">The output type for CCExtractor</param>
         /// <param name="compareFiles">The relative locations (relative to CorrectResultFolder configuration setting) of the result files</param>
-        public TestEntry(string inputFile, InputType inputFormat, string command, OutputType outputFormat, List<CompareFile> compareFiles)
+        public TestEntry(int id, string inputFile, InputType inputFormat, string command, OutputType outputFormat, List<CompareFile> compareFiles)
         {
+            Id = id;
             InputFile = inputFile;
             InputFormat = inputFormat;
             Command = command;
             OutputFormat = outputFormat;
             CompareFiles = compareFiles;
         }
-	}
+    }
 }

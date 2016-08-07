@@ -35,5 +35,9 @@ namespace CCExtractorTester.Comparers
         /// Gets or sets the dummy bool.
         /// </summary>
         public bool Dummy { get; set; }
+
+        public int TestID { get; set; }
+
+        public int TestFileID { get; set; }
     }
 }

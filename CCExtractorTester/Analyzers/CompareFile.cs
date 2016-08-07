@@ -26,13 +26,19 @@ namespace CCExtractorTester.Analyzers
         public bool IgnoreOutput { get; private set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public int Id { get; private set; }
+
+        /// <summary>
         /// Creates a new instance for this class.
         /// </summary>
         /// <param name="correctFile">The correct file in the stored folder.</param>
         /// <param name="expectedFile">The filename that CCExtractor will be generating.</param>
         /// <param name="ignoreOutput">Ignore this generated file and do not compare it?</param>
-        public CompareFile(string correctFile, string expectedFile, bool ignoreOutput)
+        public CompareFile(int id, string correctFile, string expectedFile, bool ignoreOutput)
         {
+            Id = id;
             CorrectFile = correctFile;
             ExpectedFile = expectedFile;
             IgnoreOutput = ignoreOutput;

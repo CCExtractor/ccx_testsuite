@@ -10,6 +10,7 @@ namespace CCExtractorTester.Analyzers
 {
     using Comparers;
     using Enums;
+    using System.Linq;
     using testGenerations;
     /// <summary>
     /// The class that does the heavy lifting in this application.
@@ -115,6 +116,7 @@ namespace CCExtractorTester.Analyzers
             // Override any set comparer if we need to report to the server.
             if(Config.TestType == RunType.Server)
             {
+                Config.Comparer = CompareType.Server;
                 Comparer = new ServerComparer(Config.ReportUrl);
             }
         }
@@ -184,6 +186,7 @@ namespace CCExtractorTester.Analyzers
                             LoadedFileName = fi.Name.Replace(".xml", "");
                             foreach (XmlNode node in doc.SelectNodes("//entry"))
                             {
+                                int id = int.Parse(node.Attributes["id"].Value);
                                 // Get nodes for entry
                                 XmlNode command = node.SelectSingleNode("command");
                                 XmlNode input = node.SelectSingleNode("input");
@@ -199,13 +202,14 @@ namespace CCExtractorTester.Analyzers
                                 foreach(XmlNode compareEntry in compareTo)
                                 {
                                     bool ignore = bool.Parse(compareEntry.Attributes["ignore"].Value);
+                                    int compareId = int.Parse(compareEntry.Attributes["id"].Value);
                                     string correct = compareEntry.SelectSingleNode("correct").InnerText;
                                     XmlNode expectedNode = compareEntry.SelectSingleNode("expected");
                                     string expected = (expectedNode != null) ? expectedNode.InnerText : correct;
-                                    compareFiles.Add(new CompareFile(correct,expected,ignore));
+                                    compareFiles.Add(new CompareFile(compareId, correct,expected,ignore));
                                 }
                                 // Add entry
-                                Entries.Add(new TestEntry(inputFile, inputType, ccx_command, outputType, compareFiles));
+                                Entries.Add(new TestEntry(id, inputFile, inputType, ccx_command, outputType, compareFiles));
                             }
                             break;
                         default:
@@ -455,6 +459,15 @@ namespace CCExtractorTester.Analyzers
                 {
                     foreach (KeyValuePair<string, string> kvp in rd.ResultFiles)
                     {
+                        int testFileID = -1;
+                        try
+                        {
+                            testFileID = testEntry.CompareFiles.Where(x => x.CorrectFile == kvp.Key).First().Id;
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            // Skip, it's still at -1 at this point
+                        }
                         try
                         {
                             comparer.CompareAndAddToResult(new CompareData()
@@ -464,7 +477,9 @@ namespace CCExtractorTester.Analyzers
                                 Command = testEntry.Command,
                                 RunTime = rd.Runtime,
                                 ExitCode = rd.ExitCode,
-                                SampleFile = testEntry.InputFile
+                                SampleFile = testEntry.InputFile,
+                                TestID = testEntry.Id,
+                                TestFileID = testFileID
                             });
                         }
                         catch (Exception e)
@@ -484,13 +499,15 @@ namespace CCExtractorTester.Analyzers
                         RunTime = rd.Runtime,
                         ExitCode = rd.ExitCode,
                         SampleFile = testEntry.InputFile,
-                        Dummy = true
+                        Dummy = true,
+                        TestID = testEntry.Id,
+                        TestFileID = -1
                     });
                 }
                 // If server processing, send runtime & status code too; compare and add to result won't work
                 if(processor.Config.Comparer == CompareType.Server)
                 {
-                    ((ServerComparer)comparer).SendExitCodeAndRuntime(rd, testEntry.InputFile);
+                    ((ServerComparer)comparer).SendExitCodeAndRuntime(rd, testEntry.Id);
                 }
 
                 // Report back that we finished an entry
