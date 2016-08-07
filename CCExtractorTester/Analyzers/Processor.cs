@@ -63,7 +63,7 @@ namespace CCExtractorTester.Analyzers
 
             string commandToPass = String.Format("{0} --no_progress_bar",test.Command);
             string inputFile = Path.Combine(Config.SampleFolder, test.InputFile);
-            string firstOutputFile = Path.Combine(Config.TemporaryFolder, test.CompareFiles[0].CorrectFile);
+            string firstOutputFile = Path.Combine(Config.TemporaryFolder, test.CompareFiles[0].ExpectedFile);
 
             FileInfo firstOutputFileFI = new FileInfo(firstOutputFile);
 
@@ -177,6 +177,8 @@ namespace CCExtractorTester.Analyzers
             }
             // Set up performance logger
             PerformanceLogger.SetUp(Logger, p);
+            // Start stopwatch
+            Stopwatch watch = Stopwatch.StartNew();
             // Start reading output of the main CCExtractor instance
             p.BeginOutputReadLine();
             p.BeginErrorReadLine();
@@ -225,6 +227,7 @@ namespace CCExtractorTester.Analyzers
                     Thread.Sleep(100);
                 }
             }
+            watch.Stop();
             // Process results
             RunData rd = new RunData()
             {
@@ -244,7 +247,7 @@ namespace CCExtractorTester.Analyzers
                 Logger.Debug("Process Exited. Exit code: " + p.ExitCode);
                 PerformanceLogger.DebugStats();
                 rd.ExitCode = p.ExitCode;
-                rd.Runtime = p.ExitTime - p.StartTime;
+                rd.Runtime = watch.Elapsed;
                 
             }
             // Preventively kill off any possible other processes
@@ -284,6 +287,7 @@ namespace CCExtractorTester.Analyzers
                     }
                     else
                     {
+                        Logger.Debug("File " + fileLocation.FullName + " does not exist");
                         rd.ResultFiles.Add(compareFile.CorrectFile, "");
                     }
                 }
