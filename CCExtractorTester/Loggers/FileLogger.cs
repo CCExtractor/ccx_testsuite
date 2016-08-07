@@ -75,9 +75,14 @@ namespace CCExtractorTester
         /// <param name="e">E.</param>
         public virtual void Error(Exception e)
         {
-            Error(e.Message);
-            Error("Stacktrace:");
-            Error(e.StackTrace);
+            Error("An error occurred. The error(s) are as follows:");
+            while(e != null)
+            {
+                Error(e.Message);
+                Error("Stacktrace:");
+                Error(e.StackTrace);
+                e = e.InnerException;
+            }
         }
         /// <summary>
         /// Logs a specific message on the Debug level.
