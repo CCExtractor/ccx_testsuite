@@ -198,26 +198,55 @@ namespace CCExtractorTester
                 }
                 config.TestType = options.RunMethod;
                 // Continue with parameter parsing
-                if (config.TestType == RunType.Matrix)
+                switch(config.TestType)
                 {
-                    Logger.Info("Running in report mode, generating matrix");
-                    if (IsValidDirectory(options.EntryFile))
-                    {
-                        StartMatrixGenerator(Logger, config, options.EntryFile);
-                    }
-                    else
-                    {
-                        Logger.Error("Invalid directory provided for matrix generation!");
-                    }
-                }
-                else if (IsValidPotentialSampleFile(options.EntryFile))
-                {
-                    Logger.Info("Running provided file");
-                    StartTester(Logger, config, options.EntryFile, location);
-                }
-                else
-                {
-                    Logger.Error("No file (or invalid file) provided!");
+                    case RunType.Matrix:
+                        Logger.Info("Running in report mode, generating matrix");
+                        if (IsValidDirectory(options.EntryFile))
+                        {
+                            StartMatrixGenerator(Logger, config, options.EntryFile);
+                        }
+                        else
+                        {
+                            Logger.Error("Invalid directory provided for matrix generation!");
+                        }
+                        break;
+                    case RunType.Server:
+                        // Check if the URL was set
+                        if(!String.IsNullOrEmpty(options.ReportURL))
+                        {
+                            Logger.Info("Setting report URL to provided value!");
+                            config.ReportUrl = options.ReportURL;
+                        }
+                        if(String.IsNullOrEmpty(config.ReportUrl))
+                        {
+                            Logger.Error("Server reporting mode selected, but no URL configured! Exiting.");
+                            break;
+                        }
+                        if (IsValidPotentialSampleFile(options.EntryFile))
+                        {
+                            Logger.Info("Running provided file");
+                            StartTester(Logger, config, options.EntryFile, location);
+                        }
+                        else
+                        {
+                            Logger.Error("No file (or invalid file) provided!");
+                        }
+                        break;
+                    case RunType.Report:
+                        if (IsValidPotentialSampleFile(options.EntryFile))
+                        {
+                            Logger.Info("Running provided file");
+                            StartTester(Logger, config, options.EntryFile, location);
+                        }
+                        else
+                        {
+                            Logger.Error("No file (or invalid file) provided!");
+                        }
+                        break;
+                    default:
+                        Logger.Error("Unknown RunType!");
+                        break;
                 }
             }
         }
