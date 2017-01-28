@@ -1,15 +1,15 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="multitest">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="testfile" maxOccurs="unbounded" minOccurs="1">
-          <xs:complexType>
+    <xs:element name="multitest">
+        <xs:complexType>
             <xs:sequence>
-              <xs:element type="xs:string" name="location"/>
+                <xs:element name="testfile" maxOccurs="unbounded" minOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="location"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+        </xs:complexType>
+    </xs:element>
 </xs:schema>

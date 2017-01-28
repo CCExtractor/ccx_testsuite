@@ -1,62 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="tests">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="entry" maxOccurs="unbounded" minOccurs="1">
-          <xs:complexType>
+    <xs:element name="tests">
+        <xs:complexType>
             <xs:sequence>
-              <xs:element type="xs:string" name="command"/>
-              <xs:element name="input">
-                <xs:complexType>
-                  <xs:simpleContent>
-                    <xs:extension base="xs:string">
-                      <xs:attribute name="type" use="required">
-                        <xs:simpleType>
-                          <xs:restriction base="xs:string">
-                            <xs:enumeration value="file" />
-                            <xs:enumeration value="stdin" />
-                            <xs:enumeration value="udp" />
-                          </xs:restriction>
-                        </xs:simpleType>
-                      </xs:attribute>
-                    </xs:extension>
-                  </xs:simpleContent>
-                </xs:complexType>
-              </xs:element>
-              <xs:element name="output">
-                <xs:simpleType>
-                  <xs:restriction base="xs:string">
-                    <xs:enumeration value="file" />
-                    <xs:enumeration value="null" />
-                    <xs:enumeration value="tcp" />
-                    <xs:enumeration value="cea708" />
-                    <xs:enumeration value="multiprogram" />
-                    <xs:enumeration value="stdout" />
-                  </xs:restriction>
-                </xs:simpleType>
-              </xs:element>
-              <xs:element name="compare">
-                <xs:complexType mixed="true">
-                  <xs:sequence>
-                    <xs:element name="file" maxOccurs="unbounded" minOccurs="0">
-                      <xs:complexType>
+                <xs:element name="entry" maxOccurs="unbounded" minOccurs="1">
+                    <xs:complexType>
                         <xs:sequence>
-                          <xs:element type="xs:string" name="correct"/>
-                          <xs:element type="xs:string" name="expected" minOccurs="0"/>
+                            <xs:element type="xs:string" name="command"/>
+                            <xs:element name="input">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:string">
+                                            <xs:attribute name="type" use="required">
+                                                <xs:simpleType>
+                                                    <xs:restriction base="xs:string">
+                                                        <xs:enumeration value="file" />
+                                                        <xs:enumeration value="stdin" />
+                                                        <xs:enumeration value="udp" />
+                                                    </xs:restriction>
+                                                </xs:simpleType>
+                                            </xs:attribute>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="output">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="file" />
+                                        <xs:enumeration value="null" />
+                                        <xs:enumeration value="tcp" />
+                                        <xs:enumeration value="cea708" />
+                                        <xs:enumeration value="multiprogram" />
+                                        <xs:enumeration value="stdout" />
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="compare">
+                                <xs:complexType mixed="true">
+                                    <xs:sequence>
+                                        <xs:element name="file" maxOccurs="unbounded" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element type="xs:string" name="correct"/>
+                                                    <xs:element type="xs:string" name="expected" minOccurs="0"/>
+                                                </xs:sequence>
+                                                <xs:attribute type="xs:boolean" name="ignore" use="required"/>
+                                                <xs:attribute type="xs:int" name="id" use="required"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
-                        <xs:attribute type="xs:boolean" name="ignore" use="required"/>
                         <xs:attribute type="xs:int" name="id" use="required"/>
-                      </xs:complexType>
-                    </xs:element>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
-            <xs:attribute type="xs:int" name="id" use="required"/>
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+        </xs:complexType>
+    </xs:element>
 </xs:schema>

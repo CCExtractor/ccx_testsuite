@@ -1,137 +1,137 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tests>
-  <!-- regular testfile-->
-	<entry>
-		<command>-autoprogram -out=srt</command>
-		<input type="file">Testfile.mpg</input>
-		<output>file</output>
-		<compare>
-			<file ignore="false">
-        <correct>Testfile.srt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-		</compare>
-	</entry>
-  <!-- multiple output files -->
-	<entry>
-		<command>-autoprogram -12 -out=srt</command>
-		<input type="file">Testfile.mpg</input>
-		<output>file</output>
-		<compare>
-      <file ignore="false">
-        <correct>Testfile_0.srt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-      <file ignore="false">
-        <correct>Testfile_1.srt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-		</compare>
-	</entry>
-  <!-- file fed through stdin -->
-	<entry>
-		<command>-autoprogram -out=srt</command>
-		<input type="stdin">Testfile.mpg</input>
-		<output>file</output>
-		<compare>
-      <file ignore="false">
-        <correct>Testfile.srt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-		</compare>
-	</entry>
-  <!-- file output as report -->
-	<entry>
-		<command>-autoprogram -out=report</command>
-		<input type="file">Testfile.mpg</input>
-		<output>file</output>
-		<compare>
-      <file ignore="false">
-        <correct>report.txt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-		</compare>
-	</entry>
-  <!-- null output -->
-	<entry>
-		<command>-autoprogram -out=null</command>
-		<input type="file">Testfile.mpg</input>
-		<output>null</output>
-		<compare />
-	</entry>
-  <!-- stdout output -->
-  <entry>
-    <command>-autoprogram -stdout</command>
-    <input type="file">Testfile.mpg</input>
-    <output>stdout</output>
-    <compare>
-      <file ignore="false">
-        <correct>result.srt</correct>
-        <expected>stdout.file</expected>
-      </file>
-    </compare>
-  </entry>
-  <!-- output to tcp (other ccx instance) -->
-	<entry>
-    <!-- Warning! The command in this case will be passed to the instance that receives the tcp output! -tcp & -o will be added by the program -->
-		<command>-out=srt</command>
-		<input type="file">Testfile.mpg</input>
-		<output>tcp</output>
-		<compare>
-      <file ignore="false">
-        <correct>Testfile.srt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-		</compare>
-	</entry>
-  <!-- input from udp -->
-	<entry>
-    <!-- Warning! The command in this case will be passed to the instance that receives the udp input! -udp & -o will be added by the program -->
-		<command>-autoprogram -out=srt</command>
-    <!-- Please take into account that this should be a mpg file containing a ts stream, as we use -f mpegts for ffmpeg -->
-		<input type="udp">Testfile.mpg</input>
-		<output>file</output>
-		<compare>
-      <file ignore="false">
-        <correct>Testfile.srt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-		</compare>
-	</entry>
-  <!-- cea 708 -->
-  <entry>
-    <command>-svc 1 -out=txt</command>
-    <input type="file">cea708.mpg</input>
-    <output>cea708</output>
-    <compare>
-      <!-- We only want to test the 708, so we ignore the 608 generated output -->
-      <file ignore="true">
-        <correct>Testfile.txt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-      <file ignore="false">
-        <correct>Testfile_708.txt</correct>
-        <expected>Testfile.p0.svc01.txt</expected>
-      </file>
-    </compare>
-  </entry>
-  <!-- multiprogram -->
-  <entry>
-    <command>-multiprogram</command>
-    <input type="file">multi.mpg</input>
-    <output>multiprogram</output>
-    <compare>
-      <file ignore="true">
-        <correct>multi.srt</correct>
-      </file>
-      <file ignore="false">
-        <correct>multi_0.srt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-      <file ignore="false">
-        <correct>multi_365.srt</correct>
-        <!-- Expected file has same name, so extra tag unneccessary-->
-      </file>
-    </compare>
-  </entry>
+    <!-- regular testfile-->
+    <entry>
+        <command>-autoprogram -out=srt</command>
+        <input type="file">Testfile.mpg</input>
+        <output>file</output>
+        <compare>
+            <file ignore="false">
+                <correct>Testfile.srt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+        </compare>
+    </entry>
+    <!-- multiple output files -->
+    <entry>
+        <command>-autoprogram -12 -out=srt</command>
+        <input type="file">Testfile.mpg</input>
+        <output>file</output>
+        <compare>
+            <file ignore="false">
+                <correct>Testfile_0.srt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+            <file ignore="false">
+                <correct>Testfile_1.srt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+        </compare>
+    </entry>
+    <!-- file fed through stdin -->
+    <entry>
+        <command>-autoprogram -out=srt</command>
+        <input type="stdin">Testfile.mpg</input>
+        <output>file</output>
+        <compare>
+            <file ignore="false">
+                <correct>Testfile.srt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+        </compare>
+    </entry>
+    <!-- file output as report -->
+    <entry>
+        <command>-autoprogram -out=report</command>
+        <input type="file">Testfile.mpg</input>
+        <output>file</output>
+        <compare>
+            <file ignore="false">
+                <correct>report.txt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+        </compare>
+    </entry>
+    <!-- null output -->
+    <entry>
+        <command>-autoprogram -out=null</command>
+        <input type="file">Testfile.mpg</input>
+        <output>null</output>
+        <compare />
+    </entry>
+    <!-- stdout output -->
+    <entry>
+        <command>-autoprogram -stdout</command>
+        <input type="file">Testfile.mpg</input>
+        <output>stdout</output>
+        <compare>
+            <file ignore="false">
+                <correct>result.srt</correct>
+                <expected>stdout.file</expected>
+            </file>
+        </compare>
+    </entry>
+    <!-- output to tcp (other ccx instance) -->
+    <entry>
+        <!-- Warning! The command in this case will be passed to the instance that receives the tcp output! -tcp & -o will be added by the program -->
+        <command>-out=srt</command>
+        <input type="file">Testfile.mpg</input>
+        <output>tcp</output>
+        <compare>
+            <file ignore="false">
+                <correct>Testfile.srt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+        </compare>
+    </entry>
+    <!-- input from udp -->
+    <entry>
+        <!-- Warning! The command in this case will be passed to the instance that receives the udp input! -udp & -o will be added by the program -->
+        <command>-autoprogram -out=srt</command>
+        <!-- Please take into account that this should be a mpg file containing a ts stream, as we use -f mpegts for ffmpeg -->
+        <input type="udp">Testfile.mpg</input>
+        <output>file</output>
+        <compare>
+            <file ignore="false">
+                <correct>Testfile.srt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+        </compare>
+    </entry>
+    <!-- cea 708 -->
+    <entry>
+        <command>-svc 1 -out=txt</command>
+        <input type="file">cea708.mpg</input>
+        <output>cea708</output>
+        <compare>
+            <!-- We only want to test the 708, so we ignore the 608 generated output -->
+            <file ignore="true">
+                <correct>Testfile.txt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+            <file ignore="false">
+                <correct>Testfile_708.txt</correct>
+                <expected>Testfile.p0.svc01.txt</expected>
+            </file>
+        </compare>
+    </entry>
+    <!-- multiprogram -->
+    <entry>
+        <command>-multiprogram</command>
+        <input type="file">multi.mpg</input>
+        <output>multiprogram</output>
+        <compare>
+            <file ignore="true">
+                <correct>multi.srt</correct>
+            </file>
+            <file ignore="false">
+                <correct>multi_0.srt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+            <file ignore="false">
+                <correct>multi_365.srt</correct>
+                <!-- Expected file has same name, so extra tag unneccessary-->
+            </file>
+        </compare>
+    </entry>
 </tests>
