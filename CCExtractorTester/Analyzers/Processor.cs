@@ -61,7 +61,8 @@ namespace CCExtractorTester.Analyzers
         {
             Test = test;
 
-            string commandToPass = String.Format("{0} --no_progress_bar",test.Command);
+            string programToRun = Config.CCExctractorLocation;
+            string commandToPass = String.Format("{0} --no_progress_bar", test.Command);
             string inputFile = Path.Combine(Config.SampleFolder, test.InputFile);
             string firstOutputFile = Path.Combine(Config.TemporaryFolder, test.CompareFiles[0].ExpectedFile);
 
@@ -70,6 +71,12 @@ namespace CCExtractorTester.Analyzers
             if (!firstOutputFileFI.Directory.Exists)
             {
                 firstOutputFileFI.Directory.Create();
+            }
+
+            if (Config.UseValgrind)
+            {
+                programToRun = "valgrind";
+                commandToPass = String.Format("{0} {1}", Config.CCExctractorLocation, commandToPass);
             }
 
             switch (test.OutputFormat)
@@ -100,7 +107,7 @@ namespace CCExtractorTester.Analyzers
                     break;
             }
 
-            ProcessStartInfo psi = new ProcessStartInfo(Config.CCExctractorLocation);
+            ProcessStartInfo psi = new ProcessStartInfo(programToRun);
             psi.UseShellExecute = false;
             psi.RedirectStandardError = true;
             psi.RedirectStandardOutput = true;

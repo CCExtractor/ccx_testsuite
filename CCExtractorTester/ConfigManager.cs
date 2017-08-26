@@ -81,6 +81,11 @@ namespace CCExtractorTester
         public string FFMpegLocation { get; set; }
 
         /// <summary>
+        /// Use valgrind while testing.
+        /// </summary>
+        public bool UseValgrind { get; set; }
+
+        /// <summary>
         /// Creates a new instance of the ConfigManager.
         /// </summary>
         /// <param name="reportFolder">The folder to store reports in.</param>
@@ -101,6 +106,7 @@ namespace CCExtractorTester
             BreakOnChanges = breakErrors;
             FFMpegLocation = ffmpegLocation;
             TimeOut = 180;
+            UseValgrind = false;
         }
 
         /// <summary>

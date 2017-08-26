@@ -47,6 +47,8 @@ namespace CCExtractorTester
         public string Comparer { get; set; }
         [Option("timeout", DefaultValue = 180, HelpText = "Overrides the timeout value (default 180 seconds). This indicates how long a single test entry may take to complete. Minimum duration is 60 seconds.")]
         public int TimeOut { get; set; }
+        [Option('v', "valgrind", DefaultValue = false, Required = false, HelpText = "Run valgrind on CCExtractor while testing the sample")]
+        public bool UseValgrind { get; set; }
 
         [ParserState]
         public IParserState LastParserState { get; set; }
@@ -197,6 +199,11 @@ namespace CCExtractorTester
                     }
                 }
                 config.TestType = options.RunMethod;
+                if (options.UseValgrind)
+                {
+                    Logger.Info("Valgrind will be used to run tests with.");
+                    config.UseValgrind = true;
+                }
                 // Continue with parameter parsing
                 switch(config.TestType)
                 {
