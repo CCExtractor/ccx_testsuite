@@ -18,6 +18,8 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Install dependencies
-      run: dotnet restore CCExtractorTester\ccx_testsuite.csproj
+      working-directory: CCExtractorTester
+      run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore CCExtractorTester\ccx_testsuite.csproj
+      working-directory: CCExtractorTester
+      run: dotnet build --configuration Release --no-restore
