@@ -24,7 +24,7 @@ jobs:
       run: nuget restore ccx_testsuite.sln
  
     - name: Build
-      run: msbuild ccx_testsuite.sln /t:ccx_testsuite /p:Configuration=Release
+      run: msbuild ccx_testsuite.sln /t:ccx_testsuite /p:Platform="x86" /p:Configuration=Release
  
     - name: Upload Artifact
       uses: actions/upload-artifact@v1.0.0
