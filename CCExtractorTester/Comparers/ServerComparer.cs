@@ -39,25 +39,25 @@ namespace CCExtractorTester.Comparers
                 // Write the values
                 foreach (string name in values.Keys)
                 {
-                    var buffer = Encoding.ASCII.GetBytes(boundary + Environment.NewLine);
+                    var buffer = Encoding.ASCII.GetBytes(boundary + "\r\n");
                     requestStream.Write(buffer, 0, buffer.Length);
-                    buffer = Encoding.ASCII.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"{1}{1}", name, Environment.NewLine));
+                    buffer = Encoding.ASCII.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"{1}{1}", name, "\r\n"));
                     requestStream.Write(buffer, 0, buffer.Length);
-                    buffer = Encoding.UTF8.GetBytes(values[name] + Environment.NewLine);
+                    buffer = Encoding.UTF8.GetBytes(values[name] + "\r\n");
                     requestStream.Write(buffer, 0, buffer.Length);
                 }
 
                 // Write the files
                 foreach (var file in files)
                 {
-                    var buffer = Encoding.ASCII.GetBytes(boundary + Environment.NewLine);
+                    var buffer = Encoding.ASCII.GetBytes(boundary + "\r\n");
                     requestStream.Write(buffer, 0, buffer.Length);
-                    buffer = Encoding.UTF8.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"{2}", file.Name, file.Filename, Environment.NewLine));
+                    buffer = Encoding.UTF8.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"{2}", file.Name, file.Filename, "\r\n"));
                     requestStream.Write(buffer, 0, buffer.Length);
-                    buffer = Encoding.ASCII.GetBytes(string.Format("Content-Type: {0}{1}{1}", file.ContentType, Environment.NewLine));
+                    buffer = Encoding.ASCII.GetBytes(string.Format("Content-Type: {0}{1}{1}", file.ContentType, "\r\n"));
                     requestStream.Write(buffer, 0, buffer.Length);
                     file.Stream.CopyTo(requestStream);
-                    buffer = Encoding.ASCII.GetBytes(Environment.NewLine);
+                    buffer = Encoding.ASCII.GetBytes("\r\n");
                     requestStream.Write(buffer, 0, buffer.Length);
                 }
 
