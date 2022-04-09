@@ -1,0 +1,46 @@
+name: Upload releases
+
+on:
+  release:
+    types:
+      - created
+
+
+jobs:
+  build_and_upload:
+    runs-on: windows-2019
+    
+    steps:
+      - uses: actions/checkout@v1
+        name: Checkout Code
+
+      - name: Setup MSBuild Path
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-version: '[16.0,17.0)'
+
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v1
+
+      - name: Restore NuGet Packages
+        run: nuget restore ccx_testsuite.sln
+
+      - name: Build
+        run: msbuild ccx_testsuite.sln /t:ccx_testsuite /p:Platform="x86" /p:Configuration=Release
+
+      - name: Prepare artifact upload
+        run: mkdir ./artifact; cp CCExtractorTester.exe ./artifact/CCExtractorTester.exe; cp testGenerations.dll ./artifact/testGenerations.dll; cp CommandLine.dll ./artifact/CommandLine.dll
+        working-directory: CCExtractorTester\bin\Release\
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          directory: 'CCExtractorTester\bin\Release\artifact'
+          filename: 'CCExtractorTestSuite-${{ github.event.release.tag_name }}.zip'
+          
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            CCExtractorTester\bin\Release\artifact\CCExtractorTestSuite-${{ github.event.release.tag_name }}.zip
