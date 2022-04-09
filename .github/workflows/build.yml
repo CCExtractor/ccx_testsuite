@@ -8,18 +8,20 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2019
  
     steps:
     - uses: actions/checkout@v1
       name: Checkout Code
      
     - name: Setup MSBuild Path
-      uses: warrenbuckley/Setup-MSBuild@v1
-       
+      uses: microsoft/setup-msbuild@v1.1
+      with:
+        vs-version: '[16.0,17.0)'
+    
     - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.2
-     
+      uses: nuget/setup-nuget@v1
+  
     - name: Restore NuGet Packages
       run: nuget restore ccx_testsuite.sln
  
@@ -29,6 +31,7 @@ jobs:
     - name: Prepare artifact upload
       run: mkdir ./artifact; cp CCExtractorTester.exe ./artifact/CCExtractorTester.exe; cp testGenerations.dll ./artifact/testGenerations.dll; cp CommandLine.dll ./artifact/CommandLine.dll
       working-directory: CCExtractorTester\bin\Release\
+
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v1.0.0
