@@ -29,7 +29,7 @@ jobs:
         run: msbuild ccx_testsuite.sln /t:ccx_testsuite /p:Platform="x86" /p:Configuration=Release
 
       - name: Prepare artifact upload
-        run: mkdir ./artifact; cp ./CCExtractorTester.exe ./artifact/; cp ./testGenerations.dll ./artifact/; cp ./CommandLine.dll ./artifact/
+        run: mkdir ./artifact; cp CCExtractorTester.exe ./artifact/; cp testGenerations.dll ./artifact/; cp CommandLine.dll ./artifact/; cp CCExtractorTester.exe.config ./artifact/
         working-directory: CCExtractorTester\bin\Release\
 
       - name: Archive Release

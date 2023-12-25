@@ -29,7 +29,7 @@ namespace CCExtractorTester.Comparers
 
         private byte[] UploadFiles(string address, IEnumerable<UploadFile> files, NameValueCollection values)
         {
-	    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var request = WebRequest.Create(address);
             request.Method = "POST";
             var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x", NumberFormatInfo.InvariantInfo);
@@ -133,7 +133,7 @@ namespace CCExtractorTester.Comparers
             else
             {
                 // Post equality status
-		ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 using (var wb = new WebClient())
                 {
                     wb.Headers.Add("user-agent", userAgent);
@@ -176,7 +176,7 @@ namespace CCExtractorTester.Comparers
         public void SendExitCodeAndRuntime(RunData rd, int testId)
         {
             // Post equality status
-	    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             using (var wb = new WebClient())
             {
                 var d = new NameValueCollection();

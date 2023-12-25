@@ -72,6 +72,12 @@ CCExtractortester.exe -m Server -u http://my.server/report.php -e C:\Samples\Tes
 
 * Mono 2.10 or newer (A tutorial can be found [here](http://www.nat.li/linux/how-to-install-mono-2-11-2-on-debian-squeeze))
 
+The following script can be used to run the testsuite on linux, by passing the required arguments to it:
+```
+#!/bin/bash
+exec mono CCExtractorTester.exe "$@"
+```
+
 ### Common
 
 * CommandLineParser NuGet package ([GitHub](https://github.com/gsscoder/commandline), [nuget](https://www.nuget.org/packages/CommandLineParser))
