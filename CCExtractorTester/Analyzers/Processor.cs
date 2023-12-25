@@ -62,7 +62,7 @@ namespace CCExtractorTester.Analyzers
             Test = test;
 
             string programToRun = Config.CCExctractorLocation;
-            string commandToPass = String.Format("{0} --no_progress_bar", test.Command);
+            string commandToPass = String.Format("{0} --no-progress-bar", test.Command);
             string inputFile = Path.Combine(Config.SampleFolder, test.InputFile);
             string firstOutputFile = Path.Combine(Config.TemporaryFolder, test.CompareFiles[0].ExpectedFile);
 
@@ -90,7 +90,7 @@ namespace CCExtractorTester.Analyzers
                     break;
                 case OutputType.Tcp:
                     // We'll need to set up another instance to receive the captions, but we'll do this later
-                    commandToPass = String.Format("-sendto 127.0.0.1:{0} --no_progress_bar", Config.TCPPort);
+                    commandToPass = String.Format("--sendto 127.0.0.1:{0} --no-progress-bar", Config.TCPPort);
                     break;
                 case OutputType.Cea708:
                     // use -o for base determination & 608 contents
@@ -125,7 +125,7 @@ namespace CCExtractorTester.Analyzers
                     break;
                 case InputType.Udp:
                     // Set up ffmpeg to pass udp to ccextractor later, add -udp to CCExtractor
-                    commandToPass += String.Format(" -udp {0}", Config.UDPPort);
+                    commandToPass += String.Format(" --udp {0}", Config.UDPPort);
                     break;
                 default:
                     break;
@@ -174,7 +174,7 @@ namespace CCExtractorTester.Analyzers
                 // Set up another CCExtractor instance to receive raw caption data
                 output.StartInfo = new ProcessStartInfo(Config.CCExctractorLocation)
                 {
-                    Arguments = String.Format(@"{0} -tcp {1} -o ""{2}""", test.Command, Config.TCPPort, firstOutputFile),
+                    Arguments = String.Format(@"{0} --tcp {1} -o ""{2}""", test.Command, Config.TCPPort, firstOutputFile),
                     UseShellExecute = false,
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
