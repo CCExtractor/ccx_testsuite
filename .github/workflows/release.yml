@@ -36,7 +36,8 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          path: 'CCExtractorTester\bin\Release\artifact'
+          directory: 'CCExtractorTester\bin\Release'
+          path: 'artifact'
           filename: 'CCExtractorTestSuite-${{ github.event.release.tag_name }}.zip'
 
       - name: Sanity check
