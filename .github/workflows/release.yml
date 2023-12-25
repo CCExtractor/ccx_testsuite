@@ -36,8 +36,7 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          directory: 'CCExtractorTester\bin\Release'
-          path: 'artifact'
+          directory: 'CCExtractorTester\bin\Release\artifact'
           filename: 'CCExtractorTestSuite-${{ github.event.release.tag_name }}.zip'
 
     
@@ -45,4 +44,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            CCExtractorTester/bin/Release/CCExtractorTestSuite-${{ github.event.release.tag_name }}.zip
+            CCExtractorTester/bin/Release/artifact/CCExtractorTestSuite-${{ github.event.release.tag_name }}.zip
