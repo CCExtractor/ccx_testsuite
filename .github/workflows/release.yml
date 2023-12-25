@@ -38,7 +38,11 @@ jobs:
           type: 'zip'
           path: 'CCExtractorTester\bin\Release\artifact'
           filename: 'CCExtractorTestSuite-${{ github.event.release.tag_name }}.zip'
-          
+
+      - name: Sanity check
+        run: ls .; ls ./artifact
+        working-directory: CCExtractorTester\bin\Release\
+      
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
