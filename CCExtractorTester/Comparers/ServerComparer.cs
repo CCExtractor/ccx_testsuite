@@ -102,6 +102,17 @@ namespace CCExtractorTester.Comparers
             // Check for equality by hash
             if (!data.Dummy && !Hasher.filesAreEqual(data.CorrectFile, data.ProducedFile))
             {
+                // Guard: if no output file was produced, skip upload.
+                // When ProducedFile is empty (output missing), File.Open("") throws
+                // ArgumentException which is swallowed by the caller's catch-all
+                // handler, resulting in no TestResultFile row being written.
+                // This prevents the ArgumentException from propagating to the
+                // caller's catch block.
+                if (string.IsNullOrEmpty(data.ProducedFile) || !File.Exists(data.ProducedFile))
+                {
+                    return;
+                }
+
                 // Upload result
                 using (FileStream stream = File.Open(data.ProducedFile, FileMode.Open))
                 {
