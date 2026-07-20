@@ -8,19 +8,17 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-2022
  
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
       name: Checkout Code
      
     - name: Setup MSBuild Path
-      uses: microsoft/setup-msbuild@v1.1
-      with:
-        vs-version: '[16.0,17.0)'
+      uses: microsoft/setup-msbuild@v3
     
     - name: Setup NuGet
-      uses: nuget/setup-nuget@v1
+      uses: nuget/setup-nuget@v3
   
     - name: Restore NuGet Packages
       run: nuget restore ccx_testsuite.sln
@@ -34,7 +32,7 @@ jobs:
 
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v4
       with:
         name: CCExtractorTester suite
         path: CCExtractorTester\bin\Release\artifact
